@@ -1,4 +1,6 @@
 {
   "semi": false,
-  "singleQuote": true
+  "singleQuote": true,
+  "// Required as with pnpm currently does not auto-detect Tailwind plugin https://github.com/pnpm/pnpm/issues/4700": "",
+  "plugins": ["prettier-plugin-tailwindcss"]
 }

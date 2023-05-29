@@ -9,7 +9,7 @@ export default function Home() {
       <Head>
         <title>My books</title>
       </Head>
-      <h1>My books</h1>
+      <h1 className="mx-auto mt-6 w-fit text-2xl">My books</h1>
     </main>
   )
 }
