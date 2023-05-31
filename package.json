@@ -8,7 +8,11 @@
     "build": "next build",
     "start": "next start",
     "vercel-build": "prisma generate && next build",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma-generate": "prisma generate",
+    "prisma-push": "prisma db push",
+    "prisma-pull": "prisma db pull",
+    "prisma-studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "4.15.0",
