@@ -1,11 +1,12 @@
 import { Inter } from 'next/font/google'
 import Head from 'next/head'
-import { Book, BookList } from '@/components/BookList'
-import mysql from 'mysql2/promise';
+import { BookListBook, BookList } from '@/components/BookList'
+import { PrismaClient } from '@prisma/client';
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home({books}: { books: Book[]
+export default function Home({books}: {
+  books: BookListBook[]
 }) {
   return (
     <main className={`${inter.className}`}>
@@ -19,14 +20,14 @@ export default function Home({books}: { books: Book[]
 }
 
 export async function getStaticProps() {
-  let books: Book[] = [];
-  if(process.env.DATABASE_URL != null) {
-    const connection = await mysql.createConnection(process.env.DATABASE_URL)
-    const [rows, fields] = await connection.query('SELECT title, author from Book');
-    books = rows as Book[];
-    await connection.end();
-  }
-
+  const prisma = new PrismaClient()
+  const books: BookListBook[] = await prisma.book.findMany({
+    select: {
+      id: true,
+      title: true,
+      author: true
+    }
+  })
   return {
     props : {
       books

@@ -1,9 +1,7 @@
+import { Book } from '@prisma/client';
 
-export type Book = {
-  title: string;
-  author: string;
-}
-export function BookList({books}: {books: Book[]}) {
+export type BookListBook = Pick<Book, 'id' | 'title' | 'author'>;
+export function BookList({books}: {books: BookListBook[]}) {
   return <ul>
     {books.map(book =>
       <li key={book.title} className='p-4'>
