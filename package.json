@@ -15,6 +15,7 @@
     "prisma-studio": "prisma studio"
   },
   "dependencies": {
+    "@clerk/nextjs": "^4.19.0",
     "@prisma/client": "4.15.0",
     "@types/node": "20.2.3",
     "@types/react": "18.2.7",

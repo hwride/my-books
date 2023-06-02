@@ -9,6 +9,7 @@ An app for managing books you have read or would like to read.
 3. [TypeScript](https://www.typescriptlang.org/docs/handbook/intro.html)
 4. [Tailwind](https://tailwindcss.com/)
 5. [Prisma](https://www.prisma.io/docs)
+6. [Clerk](https://clerk.com/)
 
 ### Deployment
 1. [Vercel](https://vercel.com/dashboard)
