@@ -3,6 +3,8 @@ import Head from 'next/head'
 import { BookListBook, BookList } from '@/components/BookList'
 import { PrismaClient } from '@prisma/client'
 import { UserButton } from '@clerk/nextjs'
+import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
+import { GetServerSideProps } from 'next'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,7 +23,13 @@ export default function Home({ books }: { books: BookListBook[] }) {
   )
 }
 
-export async function getStaticProps() {
+// Needs to be SSRd because it can vary based on signed-in user.
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const { userId } = getAuth(req)
+  if (userId == null) {
+    throw new Error('Should not have access to this page when not signed in')
+  }
+
   const prisma = new PrismaClient()
   const books: BookListBook[] = await prisma.book.findMany({
     select: {
@@ -29,10 +37,15 @@ export async function getStaticProps() {
       title: true,
       author: true,
     },
+    where: {
+      userId,
+    },
   })
+
   return {
     props: {
       books,
+      ...buildClerkProps(req),
     },
   }
 }
