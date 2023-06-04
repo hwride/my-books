@@ -10,6 +10,8 @@ datasource db {
 
 model Book {
   id          Int      @id @default(autoincrement())
+  // Currently having books created by users rather than shared.
+  userId      String   @db.VarChar(32)
   title       String   @db.VarChar(255)
   author      String?
   createdAt   DateTime @default(now())
