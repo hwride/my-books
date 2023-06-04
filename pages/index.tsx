@@ -19,6 +19,32 @@ export default function Home({ books }: { books: BookListBook[] }) {
       </div>
       <h1 className="mx-auto mt-6 w-fit text-2xl">My books</h1>
       <BookList books={books} />
+      <form action="/api/book" method="post">
+        <div className="border border-gray-100 p-2">
+          <label className="block">
+            Title
+            <input
+              name="title"
+              type="text"
+              required
+              minLength={1}
+              className="border border-gray-100"
+            />
+          </label>
+          <label className="block">
+            Author
+            <input
+              name="author"
+              type="text"
+              required
+              className="border border-gray-100"
+            />
+          </label>
+          <button className="mt-2 rounded-full bg-black px-2 py-1 text-white">
+            Add book
+          </button>
+        </div>
+      </form>
     </main>
   )
 }
