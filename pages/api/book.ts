@@ -33,5 +33,5 @@ export default async function handler(
       author,
     },
   })
-  return res.status(200).end()
+  return res.redirect(307, '/')
 }
