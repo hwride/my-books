@@ -14,14 +14,20 @@ export default function Dashboard({ books }: { books: BookListBook[] }) {
       <Head>
         <title>My books</title>
       </Head>
-      <div className="ml-auto w-fit p-3 pb-0">
-        <UserButton afterSignOutUrl="/" />
-      </div>
-      <h1 className="mx-auto mt-6 w-fit text-2xl">My books</h1>
+      <h1 className="mx-auto mt-4 w-fit text-2xl">My books</h1>
+      <UserButton
+        afterSignOutUrl="/"
+        appearance={{
+          elements: {
+            rootBox: 'absolute mt-4 mr-4 top-0 right-0',
+          },
+        }}
+      />
       <BookList books={books} />
     </main>
   )
 }
+// h-[56px]
 
 // Needs to be SSRd because it can vary based on signed-in user.
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
