@@ -6,6 +6,7 @@ export default function SignInPage() {
     <main>
       <Head>
         <title>Sign in</title>
+        <meta name="description" content="Sign in to my books" />
       </Head>
       <SignIn />
     </main>
