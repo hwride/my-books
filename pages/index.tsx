@@ -12,6 +12,10 @@ export default function Home() {
     >
       <Head>
         <title>My books</title>
+        <meta
+          name="description"
+          content="Manage yours books - the books you want to read, or the books you've already read."
+        />
       </Head>
       <h1 className="text-2xl">My books</h1>
       <Link href="/dashboard">Dashboard</Link>
