@@ -7,8 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   return (
     <main
-      className={`${inter.className} flex flex-col items-center justify-center overflow-hidden`}
-      style={{ height: '100dvh' }} /* Tailwind doesn't have dvh atm */
+      className={`${inter.className} flex h-[100dvh] flex-col items-center justify-center overflow-hidden`}
     >
       <Head>
         <title>My books</title>
