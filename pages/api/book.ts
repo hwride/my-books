@@ -32,5 +32,5 @@ export default async function handler(
       author,
     },
   })
-  return res.redirect(307, '/')
+  return res.redirect(307, '/dashboard')
 }
