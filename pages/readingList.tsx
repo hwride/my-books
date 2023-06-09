@@ -8,7 +8,7 @@ import { GetServerSideProps } from 'next'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Dashboard({ books }: { books: BookListBook[] }) {
+export default function ReadingList({ books }: { books: BookListBook[] }) {
   return (
     <main className={`${inter.className}`}>
       <Head>
@@ -27,7 +27,6 @@ export default function Dashboard({ books }: { books: BookListBook[] }) {
     </main>
   )
 }
-// h-[56px]
 
 // Needs to be SSRd because it can vary based on signed-in user.
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
@@ -45,6 +44,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     },
     where: {
       userId,
+      status: 'NOT_READ',
     },
   })
 

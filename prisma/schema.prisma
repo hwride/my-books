@@ -17,4 +17,10 @@ model Book {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   description String?  @db.VarChar(1024)
+  status      Status   @default(NOT_READ)
+}
+
+enum Status {
+  NOT_READ
+  READ
 }
