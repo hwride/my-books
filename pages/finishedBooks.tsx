@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client'
 import { UserButton } from '@clerk/nextjs'
 import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
 import { GetServerSideProps } from 'next'
+import { MenuBar } from '@/components/MenuBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,6 +16,7 @@ export default function Dashboard({ books }: { books: BookListBook[] }) {
         <title>My books - finished books</title>
       </Head>
       <h1 className="mx-auto mt-4 w-fit text-2xl">Finished books</h1>
+      <MenuBar />
       <UserButton
         afterSignOutUrl="/"
         appearance={{
