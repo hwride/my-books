@@ -12,9 +12,9 @@ export default function ReadingList({ books }: { books: BookListBook[] }) {
   return (
     <main className={`${inter.className} mx-auto max-w-screen-md`}>
       <Head>
-        <title>My books</title>
+        <title>My books - reading list</title>
       </Head>
-      <h1 className="mx-auto mt-4 w-fit text-2xl">My books</h1>
+      <h1 className="mx-auto mt-4 w-fit text-2xl">Reading list</h1>
       <UserButton
         afterSignOutUrl="/"
         appearance={{
