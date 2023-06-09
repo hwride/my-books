@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // Required to use non unique fields in where clauses.
+  previewFeatures = ["extendedWhereUnique"]
 }
 
 datasource db {

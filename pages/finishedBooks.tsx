@@ -41,6 +41,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
       id: true,
       title: true,
       author: true,
+      status: true,
     },
     where: {
       userId,
