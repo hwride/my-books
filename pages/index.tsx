@@ -17,7 +17,8 @@ export default function Home() {
         />
       </Head>
       <h1 className="text-2xl">My books</h1>
-      <Link href="/dashboard">Dashboard</Link>
+      <Link href="/readingList">Reading list</Link>
+      <Link href="/finishedBooks">Finished books</Link>
     </main>
   )
 }

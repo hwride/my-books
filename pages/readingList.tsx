@@ -5,16 +5,18 @@ import { PrismaClient } from '@prisma/client'
 import { UserButton } from '@clerk/nextjs'
 import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
 import { GetServerSideProps } from 'next'
+import { MenuBar } from '@/components/MenuBar'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Dashboard({ books }: { books: BookListBook[] }) {
+export default function ReadingList({ books }: { books: BookListBook[] }) {
   return (
-    <main className={`${inter.className}`}>
+    <main className={`${inter.className} mx-auto max-w-screen-md`}>
       <Head>
-        <title>My books</title>
+        <title>My books - reading list</title>
       </Head>
-      <h1 className="mx-auto mt-4 w-fit text-2xl">My books</h1>
+      <h1 className="mx-auto mt-4 w-fit text-2xl">Reading list</h1>
+      <MenuBar />
       <UserButton
         afterSignOutUrl="/"
         appearance={{
@@ -27,7 +29,6 @@ export default function Dashboard({ books }: { books: BookListBook[] }) {
     </main>
   )
 }
-// h-[56px]
 
 // Needs to be SSRd because it can vary based on signed-in user.
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
@@ -42,9 +43,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
       id: true,
       title: true,
       author: true,
+      status: true,
     },
     where: {
       userId,
+      status: 'NOT_READ',
     },
   })
 

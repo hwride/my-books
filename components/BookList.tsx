@@ -1,15 +1,39 @@
-import { Book } from '@prisma/client'
+import { Book, Status } from '@prisma/client'
 import { clsx } from 'clsx'
 
-export type BookListBook = Pick<Book, 'id' | 'title' | 'author'>
+export type BookListBook = Pick<Book, 'id' | 'title' | 'author' | 'status'>
 export function BookList({ books }: { books: BookListBook[] }) {
   return (
     <>
       <ul>
         {books.map((book) => (
-          <li key={book.title} className="p-4">
-            <div className="text-lg">{book.title}</div>
-            <div className="text-gray-400">by {book.author}</div>
+          <li
+            key={book.title}
+            className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4"
+          >
+            <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
+            <div className="col-start-1 row-start-2 text-gray-400">
+              by {book.author}
+            </div>
+
+            <form
+              action={`/api/book/${book.id}`}
+              method="post"
+              className="col-start-2 row-span-2"
+            >
+              <input
+                type="hidden"
+                name="status"
+                value={
+                  book.status === Status.READ ? Status.NOT_READ : Status.READ
+                }
+              />
+              <button className="rounded-full bg-black px-2 py-1 text-white">
+                {book.status === Status.READ
+                  ? 'Mark as un-read'
+                  : 'Mark as read'}
+              </button>
+            </form>
           </li>
         ))}
       </ul>
