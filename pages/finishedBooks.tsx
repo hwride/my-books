@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function Dashboard({ books }: { books: BookListBook[] }) {
   return (
-    <main className={`${inter.className}`}>
+    <main className={`${inter.className} mx-auto max-w-screen-md`}>
       <Head>
         <title>My books - finished books</title>
       </Head>
