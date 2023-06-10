@@ -1,9 +1,10 @@
 import { Book, Status } from '@prisma/client'
 import { clsx } from 'clsx'
 import { useState } from 'react'
+import { BookSerializable } from '@/pages/api/book/[bookid]'
 
 export type BookListBook = Pick<
-  Book,
+  BookSerializable,
   'id' | 'updatedAt' | 'title' | 'author' | 'status'
 >
 export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {

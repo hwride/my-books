@@ -38,7 +38,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   }
 
   const prisma = new PrismaClient()
-  const books: BookListBook[] = await prisma.book.findMany({
+  const books = await prisma.book.findMany({
     select: {
       id: true,
       updatedAt: true,

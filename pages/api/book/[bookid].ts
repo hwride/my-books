@@ -1,14 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
-import { PrismaClient } from '@prisma/client'
+import { Book, PrismaClient } from '@prisma/client'
+import { ReplaceDateWithStrings } from '@/utils/typeUtils'
+
+export type BookSerializable = ReplaceDateWithStrings<Book>
 
 type Data =
   | {
       message?: string
     }
-  | {
-      // TODO: Book
-    }
+  | BookSerializable
 
 export default async function updateBook(
   req: NextApiRequest,
