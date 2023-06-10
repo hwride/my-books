@@ -25,7 +25,7 @@ export default function ReadingList({ books }: { books: BookListBook[] }) {
           },
         }}
       />
-      <BookList books={books} />
+      <BookList initialBooks={books} />
     </main>
   )
 }

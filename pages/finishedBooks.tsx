@@ -25,7 +25,7 @@ export default function Dashboard({ books }: { books: BookListBook[] }) {
           },
         }}
       />
-      <BookList books={books} />
+      <BookList initialBooks={books} />
     </main>
   )
 }
