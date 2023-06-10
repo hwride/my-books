@@ -1,66 +1,22 @@
-import { Inter } from 'next/font/google'
-import Head from 'next/head'
-import { BookListBook, BookList } from '@/components/BookList'
-import { PrismaClient, Status } from '@prisma/client'
-import { UserButton } from '@clerk/nextjs'
-import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
+import { BookListBook } from '@/components/BookList'
+import { Status } from '@prisma/client'
 import { GetServerSideProps } from 'next'
-import { MenuBar } from '@/components/MenuBar'
+import BookListPage from '@/components/BookListPage'
+import { getServerSidePropsHelper } from '@/components/BookListPage/getServerSideProps'
 
-const inter = Inter({ subsets: ['latin'] })
+const filterStatus = Status.READ
 
-export default function Dashboard({ books }: { books: BookListBook[] }) {
+export default function FinishedBooks({ books }: { books: BookListBook[] }) {
   return (
-    <main
-      className={`${inter.className} mx-auto flex h-[100dvh] max-w-screen-md flex-col`}
-    >
-      <Head>
-        <title>My books - finished books</title>
-      </Head>
-      <h1 className="mx-auto mt-4 w-fit text-2xl">Finished books</h1>
-      <MenuBar className="mb-2" />
-      <UserButton
-        afterSignOutUrl="/"
-        appearance={{
-          elements: {
-            rootBox: 'absolute mt-4 mr-4 top-0 right-0',
-          },
-        }}
-      />
-      <BookList initialBooks={books} filterStatus={Status.READ} />
-    </main>
+    <BookListPage
+      title="My books - finished books"
+      heading="Finished books"
+      books={books}
+      filterStatus={filterStatus}
+    />
   )
 }
 
-// Needs to be SSRd because it can vary based on signed-in user.
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { userId } = getAuth(req)
-  if (userId == null) {
-    throw new Error('Should not have access to this page when not signed in')
-  }
-
-  const prisma = new PrismaClient()
-  const books = await prisma.book.findMany({
-    select: {
-      id: true,
-      updatedAt: true,
-      title: true,
-      author: true,
-      status: true,
-    },
-    where: {
-      userId,
-      status: 'READ',
-    },
-  })
-
-  return {
-    props: {
-      books: books.map((book) => ({
-        ...book,
-        updatedAt: book.updatedAt.toISOString(),
-      })),
-      ...buildClerkProps(req),
-    },
-  }
+export const getServerSideProps: GetServerSideProps = async (opts) => {
+  return getServerSidePropsHelper(filterStatus, opts)
 }
