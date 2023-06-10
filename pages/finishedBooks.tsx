@@ -41,6 +41,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const books: BookListBook[] = await prisma.book.findMany({
     select: {
       id: true,
+      updatedAt: true,
       title: true,
       author: true,
       status: true,
@@ -53,7 +54,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   return {
     props: {
-      books,
+      books: books.map((book) => ({
+        ...book,
+        updatedAt: book.updatedAt.toISOString(),
+      })),
       ...buildClerkProps(req),
     },
   }

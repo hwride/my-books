@@ -2,9 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import { PrismaClient } from '@prisma/client'
 
-type Data = {
-  message?: string
-}
+type Data =
+  | {
+      message?: string
+    }
+  | {
+      // TODO: Book
+    }
 
 export default async function updateBook(
   req: NextApiRequest,
@@ -17,6 +21,11 @@ export default async function updateBook(
   const { userId } = getAuth(req)
   if (userId == null) {
     return res.status(400).json({ message: 'Not logged in' })
+  }
+
+  const { updatedAt } = req.body
+  if (!updatedAt) {
+    return res.status(400).json({ message: 'updatedAt is required' })
   }
 
   const { bookid } = req.query
@@ -34,19 +43,27 @@ export default async function updateBook(
 
   const prisma = new PrismaClient()
   try {
-    await prisma.book.update({
+    const updatedBook = await prisma.book.update({
       where: {
         id: bookidNum,
         userId, // Ensure users can only update their own books.
+        // Optimistic currency control: ensure you can only update if you have
+        // the latest book.
+        updatedAt: new Date(updatedAt),
       },
       data: dataToUpdate,
     })
+
+    return res.status(200).send({
+      ...updatedBook,
+      createdAt: updatedBook.createdAt.toISOString(),
+      updatedAt: updatedBook.updatedAt.toISOString(),
+    })
   } catch (e: any) {
     console.error(`Book update error, code: ${e.code}`)
+    // P2025 = missing row, could happen if optimistic concurrency control fails
     return res
       .status(500)
       .send({ message: 'An error occurred while performing the update.' })
   }
-
-  return res.status(200).end()
 }

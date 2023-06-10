@@ -2,7 +2,10 @@ import { Book, Status } from '@prisma/client'
 import { clsx } from 'clsx'
 import { useState } from 'react'
 
-export type BookListBook = Pick<Book, 'id' | 'title' | 'author' | 'status'>
+export type BookListBook = Pick<
+  Book,
+  'id' | 'updatedAt' | 'title' | 'author' | 'status'
+>
 export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
   const [books, setBooks] = useState<BookListBook[]>(initialBooks)
   return (
@@ -31,23 +34,21 @@ export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
                   method: form.method,
                   headers: new Headers({ 'Content-Type': 'application/json' }),
                   body: JSON.stringify({
+                    updatedAt: book.updatedAt,
                     status: newStatus,
                   }),
                 }
 
                 ;(async () => {
                   const r = await fetch(form.action, options)
+                  const updatedBook = await r.json()
 
                   if (r.ok) {
-                    setBooks((booksInner) => {
-                      return booksInner.map((bookInner) => {
-                        const data: BookListBook = {
-                          ...bookInner,
-                        }
-                        if (book.id === bookInner.id) data.status = newStatus
-                        return data
-                      })
-                    })
+                    setBooks((booksInner) =>
+                      booksInner.map((bookInner) =>
+                        book.id === bookInner.id ? updatedBook : bookInner
+                      )
+                    )
                   } else {
                     console.error(`Error when changing book read status`)
                   }
