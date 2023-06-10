@@ -10,6 +10,35 @@ export type BookListBook = Pick<
 export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
   const [books, setBooks] = useState<BookListBook[]>(initialBooks)
 
+  return (
+    <>
+      <ul>
+        {books.map((book) => (
+          <BookListItem
+            key={book.id}
+            book={book}
+            onBookChange={(updatedBook) =>
+              setBooks((booksInner) =>
+                booksInner.map((bookInner) =>
+                  updatedBook.id === bookInner.id ? updatedBook : bookInner
+                )
+              )
+            }
+          />
+        ))}
+      </ul>
+      <AddBook />
+    </>
+  )
+}
+
+function BookListItem({
+  book,
+  onBookChange,
+}: {
+  book: BookListBook
+  onBookChange: (book: BookListBook) => void
+}) {
   async function markBookReadOrUnread(
     book: BookListBook,
     e: FormEvent<HTMLFormElement>
@@ -28,56 +57,41 @@ export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
     }
 
     const r = await fetch(form.action, options)
-    const updatedBook = await r.json()
 
     if (r.ok) {
-      setBooks((booksInner) =>
-        booksInner.map((bookInner) =>
-          book.id === bookInner.id ? updatedBook : bookInner
-        )
-      )
+      const updatedBook = await r.json()
+      onBookChange(updatedBook)
     } else {
       console.error(`Error when changing book read status`)
     }
   }
 
   return (
-    <>
-      <ul>
-        {books.map((book) => (
-          <li
-            key={book.id}
-            className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4"
-          >
-            <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
-            <div className="col-start-1 row-start-2 text-gray-400">
-              by {book.author}
-            </div>
+    <li
+      key={book.id}
+      className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4"
+    >
+      <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
+      <div className="col-start-1 row-start-2 text-gray-400">
+        by {book.author}
+      </div>
 
-            <form
-              action={`/api/book/${book.id}`}
-              method="post"
-              className="col-start-2 row-span-2"
-              onSubmit={(e) => markBookReadOrUnread(book, e)}
-            >
-              <input
-                type="hidden"
-                name="status"
-                value={
-                  book.status === Status.READ ? Status.NOT_READ : Status.READ
-                }
-              />
-              <button className="rounded-full bg-black px-2 py-1 text-white">
-                {book.status === Status.READ
-                  ? 'Mark as un-read'
-                  : 'Mark as read'}
-              </button>
-            </form>
-          </li>
-        ))}
-      </ul>
-      <AddBook />
-    </>
+      <form
+        action={`/api/book/${book.id}`}
+        method="post"
+        className="col-start-2 row-span-2"
+        onSubmit={(e) => markBookReadOrUnread(book, e)}
+      >
+        <input
+          type="hidden"
+          name="status"
+          value={book.status === Status.READ ? Status.NOT_READ : Status.READ}
+        />
+        <button className="rounded-full bg-black px-2 py-1 text-white">
+          {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
+        </button>
+      </form>
+    </li>
   )
 }
 
