@@ -48,5 +48,5 @@ export default async function updateBook(
       .send({ message: 'An error occurred while performing the update.' })
   }
 
-  return res.redirect(307, '/')
+  return res.status(200).end()
 }
