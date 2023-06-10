@@ -7,7 +7,7 @@ type Data = {
   message?: string
 }
 
-export default async function handler(
+export default async function createBook(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
@@ -35,6 +35,7 @@ export default async function handler(
       },
     })
   } catch (e: any) {
+    console.error(`Book creation error, code: ${e.code}`)
     if (e?.code === codes.UniqueConstraintFailed) {
       return res.status(400).json({
         message:
