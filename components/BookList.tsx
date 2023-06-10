@@ -8,7 +8,7 @@ export function BookList({ books }: { books: BookListBook[] }) {
       <ul>
         {books.map((book) => (
           <li
-            key={book.title}
+            key={book.id}
             className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4"
           >
             <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
