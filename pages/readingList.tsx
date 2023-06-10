@@ -11,12 +11,14 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function ReadingList({ books }: { books: BookListBook[] }) {
   return (
-    <main className={`${inter.className} mx-auto max-w-screen-md`}>
+    <main
+      className={`${inter.className} mx-auto flex h-[100dvh] max-w-screen-md flex-col`}
+    >
       <Head>
         <title>My books - reading list</title>
       </Head>
       <h1 className="mx-auto mt-4 w-fit text-2xl">Reading list</h1>
-      <MenuBar />
+      <MenuBar className="mb-2" />
       <UserButton
         afterSignOutUrl="/"
         appearance={{
