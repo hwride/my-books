@@ -1,6 +1,6 @@
 import { Book, Status } from '@prisma/client'
 import { clsx } from 'clsx'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { BookSerializable } from '@/pages/api/book/[bookid]'
 
 export type BookListBook = Pick<
@@ -9,6 +9,38 @@ export type BookListBook = Pick<
 >
 export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
   const [books, setBooks] = useState<BookListBook[]>(initialBooks)
+
+  async function markBookReadOrUnread(
+    book: BookListBook,
+    e: FormEvent<HTMLFormElement>
+  ) {
+    e.preventDefault()
+    const form = e.currentTarget
+    const data = new FormData(form)
+    const newStatus = data.get('status') as Status
+    const options = {
+      method: form.method,
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        updatedAt: book.updatedAt,
+        status: newStatus,
+      }),
+    }
+
+    const r = await fetch(form.action, options)
+    const updatedBook = await r.json()
+
+    if (r.ok) {
+      setBooks((booksInner) =>
+        booksInner.map((bookInner) =>
+          book.id === bookInner.id ? updatedBook : bookInner
+        )
+      )
+    } else {
+      console.error(`Error when changing book read status`)
+    }
+  }
+
   return (
     <>
       <ul>
@@ -26,35 +58,7 @@ export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
               action={`/api/book/${book.id}`}
               method="post"
               className="col-start-2 row-span-2"
-              onSubmit={(e) => {
-                e.preventDefault()
-                const form = e.currentTarget
-                const data = new FormData(form)
-                const newStatus = data.get('status') as Status
-                const options = {
-                  method: form.method,
-                  headers: new Headers({ 'Content-Type': 'application/json' }),
-                  body: JSON.stringify({
-                    updatedAt: book.updatedAt,
-                    status: newStatus,
-                  }),
-                }
-
-                ;(async () => {
-                  const r = await fetch(form.action, options)
-                  const updatedBook = await r.json()
-
-                  if (r.ok) {
-                    setBooks((booksInner) =>
-                      booksInner.map((bookInner) =>
-                        book.id === bookInner.id ? updatedBook : bookInner
-                      )
-                    )
-                  } else {
-                    console.error(`Error when changing book read status`)
-                  }
-                })()
-              }}
+              onSubmit={(e) => markBookReadOrUnread(book, e)}
             >
               <input
                 type="hidden"
