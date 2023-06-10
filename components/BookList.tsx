@@ -1,8 +1,8 @@
-import { Book, Status } from '@prisma/client'
+import { Status } from '@prisma/client'
 import { clsx } from 'clsx'
 import React, { FormEvent, useState } from 'react'
-import { BookSerializable } from '@/pages/api/book/[bookid]'
 import { Button } from '@/components/Button'
+import { BookSerializable } from '@/pages/api/book'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -28,7 +28,11 @@ export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
           />
         ))}
       </ul>
-      <AddBook />
+      <AddBook
+        onBookAdd={(newBook) =>
+          setBooks((oldBooks) => oldBooks.map((b) => b).concat([newBook]))
+        }
+      />
     </>
   )
 }
@@ -103,12 +107,47 @@ function BookListItem({
   )
 }
 
-function AddBook() {
+function AddBook({ onBookAdd }: { onBookAdd: (book: BookListBook) => void }) {
+  const [isUpdatePending, setIsUpdatePending] = useState(false)
+
+  const nameTitle = 'title'
+  const nameAuthor = 'author'
+  async function addBook(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+
+    setIsUpdatePending(true)
+
+    const form = e.currentTarget
+    const data = new FormData(form)
+    const title = data.get(nameTitle) as Status
+    const author = data.get(nameAuthor) as Status
+    const options = {
+      method: form.method,
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        title,
+        author,
+      }),
+    }
+
+    const r = await fetch(form.action, options)
+
+    if (r.ok) {
+      const newBook = await r.json()
+      onBookAdd(newBook)
+    } else {
+      console.error(`Error when creating book`)
+    }
+
+    setIsUpdatePending(false)
+  }
+
   return (
     <form
       action="/api/book"
       method="post"
-      className="grid max-w-md grid-cols-[auto_1fr_auto] grid-rows-2 items-center gap-x-2 p-4"
+      className="mx-auto grid max-w-md grid-cols-[auto_1fr_auto] grid-rows-2 items-center gap-x-2 p-4"
+      onSubmit={(e) => addBook(e)}
     >
       <label htmlFor="new-book-title" className="row-start-1 block">
         Title
@@ -134,7 +173,9 @@ function AddBook() {
         required
         className="col-start-2 row-start-2 self-stretch"
       />
-      <Button className="row-span-2">Add book</Button>
+      <Button className="row-span-2" disabled={isUpdatePending}>
+        Add book
+      </Button>
     </form>
   )
 }

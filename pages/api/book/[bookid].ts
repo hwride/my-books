@@ -1,9 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
-import { Book, PrismaClient } from '@prisma/client'
-import { ReplaceDateWithStrings } from '@/utils/typeUtils'
-
-export type BookSerializable = ReplaceDateWithStrings<Book>
+import { PrismaClient } from '@prisma/client'
+import { BookSerializable } from '@/pages/api/book'
 
 type Data =
   | {
