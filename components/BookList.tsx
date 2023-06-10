@@ -1,44 +1,107 @@
 import { Book, Status } from '@prisma/client'
 import { clsx } from 'clsx'
+import { FormEvent, useState } from 'react'
+import { BookSerializable } from '@/pages/api/book/[bookid]'
 
-export type BookListBook = Pick<Book, 'id' | 'title' | 'author' | 'status'>
-export function BookList({ books }: { books: BookListBook[] }) {
+export type BookListBook = Pick<
+  BookSerializable,
+  'id' | 'updatedAt' | 'title' | 'author' | 'status'
+>
+export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
+  const [books, setBooks] = useState<BookListBook[]>(initialBooks)
+
   return (
     <>
       <ul>
         {books.map((book) => (
-          <li
-            key={book.title}
-            className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4"
-          >
-            <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
-            <div className="col-start-1 row-start-2 text-gray-400">
-              by {book.author}
-            </div>
-
-            <form
-              action={`/api/book/${book.id}`}
-              method="post"
-              className="col-start-2 row-span-2"
-            >
-              <input
-                type="hidden"
-                name="status"
-                value={
-                  book.status === Status.READ ? Status.NOT_READ : Status.READ
-                }
-              />
-              <button className="rounded-full bg-black px-2 py-1 text-white">
-                {book.status === Status.READ
-                  ? 'Mark as un-read'
-                  : 'Mark as read'}
-              </button>
-            </form>
-          </li>
+          <BookListItem
+            key={book.id}
+            book={book}
+            onBookChange={(updatedBook) =>
+              setBooks((booksInner) =>
+                booksInner.map((bookInner) =>
+                  updatedBook.id === bookInner.id ? updatedBook : bookInner
+                )
+              )
+            }
+          />
         ))}
       </ul>
       <AddBook />
     </>
+  )
+}
+
+function BookListItem({
+  book,
+  onBookChange,
+}: {
+  book: BookListBook
+  onBookChange: (book: BookListBook) => void
+}) {
+  const [isUpdatePending, setIsUpdatePending] = useState(false)
+
+  async function markBookReadOrUnread(
+    book: BookListBook,
+    e: FormEvent<HTMLFormElement>
+  ) {
+    e.preventDefault()
+
+    setIsUpdatePending(true)
+
+    const form = e.currentTarget
+    const data = new FormData(form)
+    const newStatus = data.get('status') as Status
+    const options = {
+      method: form.method,
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        updatedAt: book.updatedAt,
+        status: newStatus,
+      }),
+    }
+
+    const r = await fetch(form.action, options)
+
+    if (r.ok) {
+      const updatedBook = await r.json()
+      onBookChange(updatedBook)
+    } else {
+      console.error(`Error when changing book read status`)
+    }
+
+    setIsUpdatePending(false)
+  }
+
+  return (
+    <li
+      key={book.id}
+      className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4"
+    >
+      <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
+      <div className="col-start-1 row-start-2 text-gray-400">
+        by {book.author}
+      </div>
+
+      <form
+        action={`/api/book/${book.id}`}
+        method="post"
+        className="col-start-2 row-span-2"
+        onSubmit={(e) => markBookReadOrUnread(book, e)}
+      >
+        <input
+          type="hidden"
+          name="status"
+          value={book.status === Status.READ ? Status.NOT_READ : Status.READ}
+        />
+        <button
+          className="rounded-full bg-black px-2 py-1 text-white disabled:opacity-50"
+          disabled={isUpdatePending}
+        >
+          {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
+        </button>
+      </form>
+    </li>
   )
 }
 
