@@ -1,7 +1,8 @@
 import { Book, Status } from '@prisma/client'
 import { clsx } from 'clsx'
-import { FormEvent, useState } from 'react'
+import React, { FormEvent, useState } from 'react'
 import { BookSerializable } from '@/pages/api/book/[bookid]'
+import { Button } from '@/components/Button'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -94,12 +95,9 @@ function BookListItem({
           name="status"
           value={book.status === Status.READ ? Status.NOT_READ : Status.READ}
         />
-        <button
-          className="rounded-full bg-black px-2 py-1 text-white disabled:opacity-50"
-          disabled={isUpdatePending}
-        >
+        <Button disabled={isUpdatePending}>
           {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
-        </button>
+        </Button>
       </form>
     </li>
   )
@@ -136,9 +134,7 @@ function AddBook() {
         required
         className="col-start-2 row-start-2 self-stretch"
       />
-      <button className="row-span-2 rounded-full bg-black px-2 py-1 text-white">
-        Add book
-      </button>
+      <Button className="row-span-2">Add book</Button>
     </form>
   )
 }
