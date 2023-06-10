@@ -39,11 +39,16 @@ function BookListItem({
   book: BookListBook
   onBookChange: (book: BookListBook) => void
 }) {
+  const [isUpdatePending, setIsUpdatePending] = useState(false)
+
   async function markBookReadOrUnread(
     book: BookListBook,
     e: FormEvent<HTMLFormElement>
   ) {
     e.preventDefault()
+
+    setIsUpdatePending(true)
+
     const form = e.currentTarget
     const data = new FormData(form)
     const newStatus = data.get('status') as Status
@@ -64,6 +69,8 @@ function BookListItem({
     } else {
       console.error(`Error when changing book read status`)
     }
+
+    setIsUpdatePending(false)
   }
 
   return (
@@ -87,7 +94,10 @@ function BookListItem({
           name="status"
           value={book.status === Status.READ ? Status.NOT_READ : Status.READ}
         />
-        <button className="rounded-full bg-black px-2 py-1 text-white">
+        <button
+          className="rounded-full bg-black px-2 py-1 text-white disabled:opacity-50"
+          disabled={isUpdatePending}
+        >
           {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
         </button>
       </form>
