@@ -20,6 +20,28 @@ export function BookList({ books }: { books: BookListBook[] }) {
               action={`/api/book/${book.id}`}
               method="post"
               className="col-start-2 row-span-2"
+              onSubmit={(e) => {
+                e.preventDefault()
+                const form = e.currentTarget
+                const data = new FormData(form)
+                const options = {
+                  method: form.method,
+                  headers: new Headers({ 'Content-Type': 'application/json' }),
+                  body: JSON.stringify({
+                    status: data.get('status'),
+                  }),
+                }
+
+                ;(async () => {
+                  const r = await fetch(form.action, options)
+
+                  if (!r.ok) {
+                    console.error(`Error when changing book read status`)
+                    return
+                  }
+                  console.log(data)
+                })()
+              }}
             >
               <input
                 type="hidden"
