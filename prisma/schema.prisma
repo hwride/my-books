@@ -20,6 +20,9 @@ model Book {
   updatedAt   DateTime @updatedAt
   description String?  @db.VarChar(1024)
   status      Status   @default(NOT_READ)
+
+  // Prevent the same user making a book with the same title and author more than once.
+  @@unique([userId, title, author])
 }
 
 enum Status {

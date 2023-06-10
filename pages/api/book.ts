@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import { PrismaClient } from '@prisma/client'
+import { codes } from '@/prisma/constants'
 
 type Data = {
   message?: string
@@ -25,13 +26,26 @@ export default async function handler(
   }
 
   const prisma = new PrismaClient()
-  await prisma.book.create({
-    data: {
-      userId,
-      title,
-      author,
-    },
-  })
+  try {
+    await prisma.book.create({
+      data: {
+        userId,
+        title,
+        author,
+      },
+    })
+  } catch (e: any) {
+    if (e?.code === codes.UniqueConstraintFailed) {
+      return res.status(400).json({
+        message:
+          'A book with this title and author already exists for this user.',
+      })
+    } else {
+      return res
+        .status(500)
+        .send({ message: 'An error occurred while creating the book.' })
+    }
+  }
 
   return res.status(200).end()
 }
