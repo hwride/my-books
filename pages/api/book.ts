@@ -1,11 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
-import { PrismaClient } from '@prisma/client'
+import { Book, PrismaClient } from '@prisma/client'
 import { codes } from '@/prisma/constants'
+import { ReplaceDateWithStrings } from '@/utils/typeUtils'
 
-type Data = {
-  message?: string
-}
+export type BookSerializable = ReplaceDateWithStrings<Book>
+type Data =
+  | {
+      message?: string
+    }
+  | BookSerializable
 
 export default async function createBook(
   req: NextApiRequest,
@@ -27,12 +31,17 @@ export default async function createBook(
 
   const prisma = new PrismaClient()
   try {
-    await prisma.book.create({
+    const newBook = await prisma.book.create({
       data: {
         userId,
         title,
         author,
       },
+    })
+    return res.status(200).send({
+      ...newBook,
+      createdAt: newBook.createdAt.toISOString(),
+      updatedAt: newBook.updatedAt.toISOString(),
     })
   } catch (e: any) {
     console.error(`Book creation error, code: ${e.code}`)
