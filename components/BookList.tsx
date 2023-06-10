@@ -8,8 +8,18 @@ export type BookListBook = Pick<
   BookSerializable,
   'id' | 'updatedAt' | 'title' | 'author' | 'status'
 >
-export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
-  const [books, setBooks] = useState<BookListBook[]>(initialBooks)
+export function BookList({
+  initialBooks,
+  filterStatus,
+}: {
+  initialBooks: BookListBook[]
+  filterStatus: Status
+}) {
+  const filterBooks = (books: BookListBook[]) =>
+    books.filter((book) => book.status === filterStatus)
+  const [books, setBooks] = useState<BookListBook[]>(() =>
+    filterBooks(initialBooks)
+  )
 
   return (
     <>
@@ -20,8 +30,10 @@ export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
             book={book}
             onBookChange={(updatedBook) =>
               setBooks((booksInner) =>
-                booksInner.map((bookInner) =>
-                  updatedBook.id === bookInner.id ? updatedBook : bookInner
+                filterBooks(
+                  booksInner.map((bookInner) =>
+                    updatedBook.id === bookInner.id ? updatedBook : bookInner
+                  )
                 )
               )
             }
@@ -30,7 +42,9 @@ export function BookList({ initialBooks }: { initialBooks: BookListBook[] }) {
       </ul>
       <AddBook
         onBookAdd={(newBook) =>
-          setBooks((oldBooks) => oldBooks.map((b) => b).concat([newBook]))
+          setBooks((oldBooks) =>
+            filterBooks(oldBooks.map((b) => b).concat([newBook]))
+          )
         }
       />
     </>

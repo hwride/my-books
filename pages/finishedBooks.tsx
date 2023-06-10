@@ -1,7 +1,7 @@
 import { Inter } from 'next/font/google'
 import Head from 'next/head'
 import { BookListBook, BookList } from '@/components/BookList'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Status } from '@prisma/client'
 import { UserButton } from '@clerk/nextjs'
 import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
 import { GetServerSideProps } from 'next'
@@ -25,7 +25,7 @@ export default function Dashboard({ books }: { books: BookListBook[] }) {
           },
         }}
       />
-      <BookList initialBooks={books} />
+      <BookList initialBooks={books} filterStatus={Status.READ} />
     </main>
   )
 }
