@@ -22,8 +22,8 @@ export function BookList({
   )
 
   return (
-    <>
-      <ul>
+    <div className="flex flex-col overflow-hidden">
+      <ul className="overflow-auto">
         {books.map((book) => (
           <BookListItem
             key={book.id}
@@ -47,7 +47,7 @@ export function BookList({
           )
         }
       />
-    </>
+    </div>
   )
 }
 

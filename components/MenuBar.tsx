@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { clsx } from 'clsx'
 
 const activeLinkClass = 'text-black'
 const nonActiveLinkClass = 'text-slate-400'
 
-export function MenuBar() {
+export function MenuBar({ className }: { className?: string }) {
   const router = useRouter()
   return (
-    <nav className="mx-auto w-fit">
+    <nav className={clsx('mx-auto w-fit', className)}>
       <ol className="flex gap-3">
         <li>
           <Link
