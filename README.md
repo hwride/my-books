@@ -10,6 +10,7 @@ An app for managing books you have read or would like to read.
 4. [Tailwind](https://tailwindcss.com/)
 5. [Prisma](https://www.prisma.io/docs)
 6. [Clerk](https://clerk.com/)
+7. [Sentry](https://sentry.io/)
 
 ### Deployment
 1. [Vercel](https://vercel.com/dashboard)
