@@ -1,12 +1,10 @@
 import { clsx } from 'clsx'
-import { ButtonHTMLAttributes, ReactNode } from 'react'
+import { ButtonHTMLAttributes } from 'react'
 export function Button({
   className,
   children,
   ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  children: ReactNode
-}) {
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       className={clsx(

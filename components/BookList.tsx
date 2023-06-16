@@ -3,6 +3,7 @@ import { clsx } from 'clsx'
 import React, { FormEvent, useState } from 'react'
 import { Button } from '@/components/Button'
 import { BookSerializable } from '@/pages/api/book'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -24,21 +25,23 @@ export function BookList({
   return (
     <div className="flex flex-col overflow-hidden">
       <ul className="overflow-auto">
-        {books.map((book) => (
-          <BookListItem
-            key={book.id}
-            book={book}
-            onBookChange={(updatedBook) =>
-              setBooks((booksInner) =>
-                filterBooks(
-                  booksInner.map((bookInner) =>
-                    updatedBook.id === bookInner.id ? updatedBook : bookInner
+        <AnimatePresence initial={false}>
+          {books.map((book) => (
+            <BookListItem
+              key={book.id}
+              book={book}
+              onBookChange={(updatedBook) =>
+                setBooks((booksInner) =>
+                  filterBooks(
+                    booksInner.map((bookInner) =>
+                      updatedBook.id === bookInner.id ? updatedBook : bookInner
+                    )
                   )
                 )
-              )
-            }
-          />
-        ))}
+              }
+            />
+          ))}
+        </AnimatePresence>
       </ul>
       <AddBook
         onBookAdd={(newBook) =>
@@ -93,31 +96,37 @@ function BookListItem({
   }
 
   return (
-    <li
+    <motion.li
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.3 }}
       key={book.id}
-      className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4"
+      className="overflow-hidden"
     >
-      <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
-      <div className="col-start-1 row-start-2 text-gray-400">
-        by {book.author}
-      </div>
+      <div className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4">
+        <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
+        <div className="col-start-1 row-start-2 text-gray-400">
+          by {book.author}
+        </div>
 
-      <form
-        action={`/api/book/${book.id}`}
-        method="post"
-        className="col-start-2 row-span-2"
-        onSubmit={(e) => markBookReadOrUnread(book, e)}
-      >
-        <input
-          type="hidden"
-          name="status"
-          value={book.status === Status.READ ? Status.NOT_READ : Status.READ}
-        />
-        <Button disabled={isUpdatePending}>
-          {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
-        </Button>
-      </form>
-    </li>
+        <form
+          action={`/api/book/${book.id}`}
+          method="post"
+          className="col-start-2 row-span-2"
+          onSubmit={(e) => markBookReadOrUnread(book, e)}
+        >
+          <input
+            type="hidden"
+            name="status"
+            value={book.status === Status.READ ? Status.NOT_READ : Status.READ}
+          />
+          <Button disabled={isUpdatePending}>
+            {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
+          </Button>
+        </form>
+      </div>
+    </motion.li>
   )
 }
 
