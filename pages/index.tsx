@@ -11,14 +11,17 @@ export default function Home() {
     >
       <Head>
         <title>My books</title>
-        <script type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebSite',
-            name: 'My books',
-            url: 'https://www.my-books.dev/',
-          })}
-        </script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'My books',
+              url: 'https://www.my-books.dev/',
+            }),
+          }}
+        />
         <meta
           name="description"
           content="Manage yours books - the books you want to read, or the books you've already read."
