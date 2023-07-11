@@ -35,7 +35,7 @@ export function HomepageLogo() {
       transition={{
         type: 'spring',
         bounce: 0.5,
-        duration: 1.5,
+        duration: 1.2,
         backgroundImage: {
           duration: 0.6,
         },
