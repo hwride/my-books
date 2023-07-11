@@ -5,13 +5,25 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 const inter = Inter({ subsets: ['latin'] })
-const initialAnimation = {
-  backgroundImage: 'none',
+
+const getLogoGradient = (
+  stop1: number,
+  stop2: number,
+  stop3: number,
+  stop4: number
+) =>
+  `radial-gradient(
+  hsla(53, 82%, 58%, 1) ${stop1}%, 
+  hsla(53, 84%, 74%, 1) ${stop2}%, 
+  hsla(53, 100%, 91%, 1) ${stop3}%, 
+  hsla(0, 0%, 100%, 1)  ${stop4}%
+)`
+const initialLogoAnimation = {
+  backgroundImage: getLogoGradient(0, 15, 25, 35),
 }
-const hoverAnimation = {
+const hoverLogoAnimation = {
   scale: 1.3,
-  backgroundImage:
-    'radial-gradient(hsla(53, 82%, 58%, 1) 0%, hsla(53, 84%, 74%, 1) 20%, hsla(53, 100%, 91%, 1) 38%, hsla(0, 0%, 100%, 1) 56%)',
+  backgroundImage: getLogoGradient(0, 20, 40, 60),
 }
 
 export default function Home() {
@@ -41,9 +53,9 @@ export default function Home() {
       <MotionLink
         className="p-[150px]"
         href="/readingList"
-        initial={initialAnimation}
-        whileHover={hoverAnimation}
-        whileFocus={hoverAnimation}
+        initial={initialLogoAnimation}
+        whileHover={hoverLogoAnimation}
+        whileFocus={hoverLogoAnimation}
         whileTap={{ scale: 0.9 }}
         transition={{
           type: 'spring',
@@ -51,13 +63,11 @@ export default function Home() {
           duration: 1.5,
           backgroundImage: {
             duration: 0.8,
-            // Starts animation part way through. Useful as the start of the gradient is hidden by the image, so this
-            // means we start the animation near where it's visible.
-            delay: -0.25,
           },
         }}
       >
         <Image
+          className="max-w-[50vw]"
           src="/android-chrome-512x512.png"
           alt="My books logo"
           width={250}
