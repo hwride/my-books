@@ -29,15 +29,30 @@ export default function Home() {
           content="Manage yours books - the books you want to read, or the books you've already read."
         />
       </Head>
+      <h1 className="invisible mt-12 text-2xl">My books</h1>
       <MotionLink
+        className="p-[150px]"
         href="/readingList"
-        whileHover={{ scale: 1.3 }}
+        initial={{
+          backgroundImage: 'none',
+        }}
+        whileHover={{
+          scale: 1.3,
+          backgroundImage:
+            'radial-gradient(hsla(53, 82%, 58%, 1) 0%, hsla(53, 84%, 74%, 1) 20%, hsla(53, 100%, 91%, 1) 38%, hsla(0, 0%, 100%, 1) 56%)',
+        }}
         whileFocus={{ scale: 1.3 }}
         whileTap={{ scale: 0.9 }}
         transition={{
           type: 'spring',
-          // duration: 0.5,
           bounce: 0.5,
+          duration: 1.5,
+          backgroundImage: {
+            duration: 0.8,
+            // Starts animation part way through. Useful as the start of the gradient is hidden by the image, so this
+            // means we start the animation near where it's visible.
+            delay: -0.25,
+          },
         }}
       >
         <Image
@@ -47,9 +62,13 @@ export default function Home() {
           height={250}
         />
       </MotionLink>
-      <h1 className="mt-12 text-2xl">My books</h1>
     </main>
   )
 }
+
+/*
+padding: 150px;
+    background-image: radial-gradient( white 0%, yellow 10%, gold 20%, white 30% );
+ */
 
 const MotionLink = motion(Link)
