@@ -26,7 +26,7 @@ const MotionLink = motion(Link)
 export function HomepageLogo() {
   return (
     <MotionLink
-      className="p-[150px]"
+      className="p-[100px]"
       href="/readingList"
       initial={initialLogoAnimation}
       whileHover={hoverLogoAnimation}
@@ -37,7 +37,7 @@ export function HomepageLogo() {
         bounce: 0.5,
         duration: 1.5,
         backgroundImage: {
-          duration: 0.8,
+          duration: 0.6,
         },
       }}
     >
