@@ -1,6 +1,6 @@
 import { Inter } from 'next/font/google'
 import Head from 'next/head'
-import Link from 'next/link'
+import { HomepageLogo } from '@/components/HomepageLogo'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,9 +27,8 @@ export default function Home() {
           content="Manage yours books - the books you want to read, or the books you've already read."
         />
       </Head>
-      <h1 className="text-2xl">My books</h1>
-      <Link href="/readingList">Reading list</Link>
-      <Link href="/finishedBooks">Finished books</Link>
+      <h1 className="invisible mt-12 text-2xl">My books</h1>
+      <HomepageLogo />
     </main>
   )
 }
