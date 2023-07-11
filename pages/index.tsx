@@ -5,6 +5,14 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 const inter = Inter({ subsets: ['latin'] })
+const initialAnimation = {
+  backgroundImage: 'none',
+}
+const hoverAnimation = {
+  scale: 1.3,
+  backgroundImage:
+    'radial-gradient(hsla(53, 82%, 58%, 1) 0%, hsla(53, 84%, 74%, 1) 20%, hsla(53, 100%, 91%, 1) 38%, hsla(0, 0%, 100%, 1) 56%)',
+}
 
 export default function Home() {
   return (
@@ -33,15 +41,9 @@ export default function Home() {
       <MotionLink
         className="p-[150px]"
         href="/readingList"
-        initial={{
-          backgroundImage: 'none',
-        }}
-        whileHover={{
-          scale: 1.3,
-          backgroundImage:
-            'radial-gradient(hsla(53, 82%, 58%, 1) 0%, hsla(53, 84%, 74%, 1) 20%, hsla(53, 100%, 91%, 1) 38%, hsla(0, 0%, 100%, 1) 56%)',
-        }}
-        whileFocus={{ scale: 1.3 }}
+        initial={initialAnimation}
+        whileHover={hoverAnimation}
+        whileFocus={hoverAnimation}
         whileTap={{ scale: 0.9 }}
         transition={{
           type: 'spring',
