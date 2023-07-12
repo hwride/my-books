@@ -1,6 +1,7 @@
 import { Inter } from 'next/font/google'
 import Head from 'next/head'
 import { HomepageLogo } from '@/components/HomepageLogo'
+import { coreDictionary } from '@/components/dictionary/core'
 
 const inter = Inter({ subsets: ['latin'] })
 const metaDescription =
@@ -12,7 +13,7 @@ export default function Home() {
       className={`${inter.className} flex h-[100dvh] flex-col items-center`}
     >
       <Head>
-        <title>My books</title>
+        <title>{coreDictionary.siteName}</title>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

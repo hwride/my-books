@@ -1,4 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document'
+import { coreDictionary } from '@/components/dictionary/core'
 
 export default function Document() {
   return (
@@ -36,7 +37,7 @@ export default function Document() {
         {/* For Android */}
         <link rel="manifest" href="/site.webmanifest" />
 
-        <meta property="og:site_name" content="My books" />
+        <meta property="og:site_name" content={coreDictionary.siteName} />
       </Head>
       <body>
         <Main />
