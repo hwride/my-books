@@ -6,6 +6,7 @@ import { UserButton } from '@clerk/nextjs'
 import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
 import { GetServerSideProps } from 'next'
 import { MenuBar } from '@/components/MenuBar'
+import { Header } from '@/components/Header'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -28,16 +29,7 @@ export default function BookListPage({
         <title>{title}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <h1 className="mx-auto mt-4 w-fit text-2xl">{heading}</h1>
-      <MenuBar className="mb-2" />
-      <UserButton
-        afterSignOutUrl="/"
-        appearance={{
-          elements: {
-            rootBox: 'absolute mt-4 mr-4 top-0 right-0',
-          },
-        }}
-      />
+      <Header heading={heading} />
       <BookList initialBooks={books} filterStatus={filterStatus} />
     </main>
   )
