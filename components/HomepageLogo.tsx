@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useState } from 'react'
 
 const getLogoGradient = (
   stop1: number,
@@ -23,14 +24,19 @@ const hoverLogoAnimation = {
 }
 
 const MotionLink = motion(Link)
+const MotionImage = motion(Image)
 export function HomepageLogo() {
+  const [isBookHovering, setIsBookHovering] = useState(false)
+  console.log(isBookHovering)
+
   return (
     <MotionLink
       className="fixed inset-0 m-auto flex items-center justify-center"
       href="/readingList"
       initial={initialLogoAnimation}
-      whileHover={hoverLogoAnimation}
-      whileFocus={hoverLogoAnimation}
+      animate={isBookHovering ? hoverLogoAnimation : undefined}
+      // whileHover={hoverLogoAnimation}
+      // whileFocus={hoverLogoAnimation}
       whileTap={{ scale: 0.9 }}
       transition={{
         type: 'spring',
@@ -41,10 +47,15 @@ export function HomepageLogo() {
         },
       }}
     >
-      <Image
+      <MotionImage
         className="max-w-[50vw]"
         src="/android-chrome-512x512.png"
         alt="My books logo"
+        onHoverStart={(e) => setIsBookHovering(true)}
+        onHoverEnd={(e) => setIsBookHovering(false)}
+        onFocus={(e) => {
+          console.log('focus', e)
+        }}
         width={250}
         height={250}
         priority={true}
