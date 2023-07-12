@@ -35,6 +35,8 @@ export default function Document() {
 
         {/* For Android */}
         <link rel="manifest" href="/site.webmanifest" />
+
+        <meta property="og:site_name" content="My books" />
       </Head>
       <body>
         <Main />
