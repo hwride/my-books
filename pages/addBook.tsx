@@ -6,6 +6,9 @@ import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useRouter } from 'next/router'
 import { Header } from '@/components/Header'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export default function AddBook() {
   const router = useRouter()
@@ -44,7 +47,7 @@ export default function AddBook() {
   }
 
   return (
-    <main className="mx-auto max-w-screen-md">
+    <main className={`${inter.className} mx-auto max-w-screen-md`}>
       <Head>
         <title>{`${coreDictionary.siteName} | add a book`}</title>
         <meta name="robots" content="noindex" />

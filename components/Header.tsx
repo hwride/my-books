@@ -1,12 +1,7 @@
-import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { clsx } from 'clsx'
 import { MenuBar } from '@/components/MenuBar'
 import { UserButton } from '@clerk/nextjs'
 import { ReactNode } from 'react'
-
-const activeLinkClass = 'text-black'
-const nonActiveLinkClass = 'text-slate-400'
 
 export function Header({ heading }: { heading: ReactNode }) {
   const router = useRouter()

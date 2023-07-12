@@ -44,9 +44,6 @@ export function BookList({
           ))}
         </AnimatePresence>
       </ul>
-      <Link href="/addBook" className="self-center py-3">
-        Add a book
-      </Link>
     </div>
   )
 }
