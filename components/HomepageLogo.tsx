@@ -27,14 +27,12 @@ const MotionLink = motion(Link)
 const MotionImage = motion(Image)
 export function HomepageLogo() {
   const [isBookHovering, setIsBookHovering] = useState(false)
-  console.log(isBookHovering)
 
   return (
     <motion.div
       className="pointer-events-none fixed inset-0 m-auto flex items-center justify-center"
       initial={initialLogoAnimation}
       animate={isBookHovering ? hoverLogoAnimation : undefined}
-      // whileFocus={hoverLogoAnimation}
       transition={{
         type: 'spring',
         bounce: 0.5,
@@ -44,22 +42,24 @@ export function HomepageLogo() {
         },
       }}
     >
-      <Link href="/readingList" className="pointer-events-auto">
+      <MotionLink
+        href="/readingList"
+        className="pointer-events-auto"
+        onHoverStart={() => setIsBookHovering(true)}
+        onHoverEnd={() => setIsBookHovering(false)}
+        onFocus={() => setIsBookHovering(true)}
+        onBlur={() => setIsBookHovering(false)}
+        whileTap={{ scale: 0.9 }}
+      >
         <MotionImage
           className="max-w-[50vw]"
           src="/android-chrome-512x512.png"
           alt="My books logo"
-          onHoverStart={() => setIsBookHovering(true)}
-          onHoverEnd={() => setIsBookHovering(false)}
-          whileTap={{ scale: 0.9 }}
-          onFocus={(e) => {
-            console.log('focus', e)
-          }}
           width={250}
           height={250}
           priority={true}
         />
-      </Link>
+      </MotionLink>
     </motion.div>
   )
 }
