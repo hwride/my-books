@@ -36,6 +36,7 @@ export function HomepageLogo() {
         // On touch devices you can't really hover, so in that case just always apply the animation
         isTouchDevice() || isBookHovering ? hoverLogoAnimation : undefined
       }
+      whileTap={{ scale: 0.9 }}
       transition={{
         type: 'spring',
         bounce: 0.5,
@@ -52,7 +53,7 @@ export function HomepageLogo() {
         onHoverEnd={() => setIsBookHovering(false)}
         onFocus={() => setIsBookHovering(true)}
         onBlur={() => setIsBookHovering(false)}
-        whileTap={{ scale: 0.9 }}
+        whileTap={{ scale: 0.8 }}
       >
         <MotionImage
           className="max-w-[50vw] py-2"
