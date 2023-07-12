@@ -52,7 +52,7 @@ export function HomepageLogo() {
         whileTap={{ scale: 0.9 }}
       >
         <MotionImage
-          className="max-w-[50vw]"
+          className="max-w-[50vw] py-2"
           src="/android-chrome-512x512.png"
           alt="My books logo"
           width={250}
