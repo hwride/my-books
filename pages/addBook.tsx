@@ -2,6 +2,8 @@ import { Status } from '@prisma/client'
 import React, { FormEvent, useState } from 'react'
 import { Button } from '@/components/Button'
 import { clsx } from 'clsx'
+import Head from 'next/head'
+import { coreDictionary } from '@/components/dictionary/core'
 
 export default function AddBook() {
   const [isUpdatePending, setIsUpdatePending] = useState(false)
@@ -38,40 +40,49 @@ export default function AddBook() {
   }
 
   return (
-    <form
-      action="/api/book"
-      method="post"
-      className="mx-auto grid max-w-md grid-cols-[auto_1fr_auto] grid-rows-2 items-center gap-x-2 p-4"
-      onSubmit={(e) => addBook(e)}
-    >
-      <label htmlFor="new-book-title" className="row-start-1 block">
-        Title
-      </label>
-      <AddBookInput
-        id="new-book-title"
-        name="title"
-        type="text"
-        required
-        minLength={1}
-        className="col-start-2 row-start-1 self-stretch"
-      />
-      <label
-        htmlFor="col-start-1 row-start-2 new-book-author"
-        className="row-start-2 block"
+    <main className="mx-auto max-w-screen-md pt-8">
+      <Head>
+        <title>{`${coreDictionary.siteName} | add a book`}</title>
+        <meta name="robots" content="noindex" />
+      </Head>
+      <h1 className="mx-auto w-fit text-2xl">Add a book</h1>
+      <form
+        action="/api/book"
+        method="post"
+        className="mx-auto max-w-md p-4"
+        onSubmit={(e) => addBook(e)}
       >
-        Author
-      </label>
-      <AddBookInput
-        id="new-book-author"
-        name="author"
-        type="text"
-        required
-        className="col-start-2 row-start-2 self-stretch"
-      />
-      <Button className="row-span-2" disabled={isUpdatePending}>
-        Add book
-      </Button>
-    </form>
+        <div className="mb-4 grid grid-cols-[auto_1fr] grid-rows-2 items-center gap-x-2 gap-y-2">
+          <label htmlFor="new-book-title" className="row-start-1 block">
+            Title
+          </label>
+          <AddBookInput
+            id="new-book-title"
+            name="title"
+            type="text"
+            required
+            minLength={1}
+            className="col-start-2 row-start-1 self-stretch"
+          />
+          <label
+            htmlFor="col-start-1 row-start-2 new-book-author"
+            className="row-start-2 block"
+          >
+            Author
+          </label>
+          <AddBookInput
+            id="new-book-author"
+            name="author"
+            type="text"
+            required
+            className="col-start-2 row-start-2 self-stretch"
+          />
+        </div>
+        <Button className="mx-auto block" disabled={isUpdatePending}>
+          Add book
+        </Button>
+      </form>
+    </main>
   )
 }
 function AddBookInput({
