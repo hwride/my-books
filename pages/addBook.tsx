@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { Header } from '@/components/Header'
 import { Inter } from 'next/font/google'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -63,7 +64,7 @@ export default function AddBook() {
           <label htmlFor="new-book-title" className="row-start-1 block">
             Title
           </label>
-          <AddBookInput
+          <Input
             id="new-book-title"
             name="title"
             type="text"
@@ -77,7 +78,7 @@ export default function AddBook() {
           >
             Author
           </label>
-          <AddBookInput
+          <Input
             id="new-book-author"
             name="author"
             type="text"
@@ -90,22 +91,5 @@ export default function AddBook() {
         </Button>
       </form>
     </main>
-  )
-}
-function AddBookInput({
-  className,
-  ...args
-}: {
-  className?: string
-  [x: string]: any
-}) {
-  return (
-    <input
-      {...args}
-      className={clsx(
-        className,
-        'w-full self-stretch rounded-md border-0 px-1 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
-      )}
-    />
   )
 }
