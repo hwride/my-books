@@ -7,7 +7,7 @@ export function Header({ heading }: { heading: ReactNode }) {
   const router = useRouter()
   return (
     <div>
-      <h1 className="mx-auto mt-4 w-fit text-2xl">{heading}</h1>
+      <h1 className="mx-auto mb-2 mt-4 w-fit text-2xl">{heading}</h1>
       <MenuBar className="mb-2" />
       <UserButton
         afterSignOutUrl="/"
