@@ -26,6 +26,7 @@ export default function BookListPage({
     >
       <Head>
         <title>{title}</title>
+        <meta name="robots" content="noindex" />
       </Head>
       <h1 className="mx-auto mt-4 w-fit text-2xl">{heading}</h1>
       <MenuBar className="mb-2" />
