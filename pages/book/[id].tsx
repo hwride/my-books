@@ -5,18 +5,22 @@ import { PrismaClient } from '@prisma/client'
 import React from 'react'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
+import { Header } from '@/components/Header'
 
 export default function Book({ book }: { book: BookListBook }) {
   return (
-    <main className="mx-auto max-w-screen-md pt-8">
+    <main className="mx-auto max-w-screen-md">
       <Head>
         <title>{`${coreDictionary.siteName} | ${book.title}`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <h1 className="col-start-1 row-start-1 text-2xl">{book.title}</h1>
-      <div className="col-start-1 row-start-2 text-lg text-gray-400">
-        by {book.author}
-      </div>
+      <Header
+        heading={
+          <>
+            {book.title} <span className="text-gray-400">by {book.author}</span>
+          </>
+        }
+      />
     </main>
   )
 }
