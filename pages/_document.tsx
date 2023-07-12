@@ -5,6 +5,9 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
+        <meta property="og:site_name" content={coreDictionary.siteName} />
+        <meta property="og:locale" content="en_GB" />
+
         {/* For Google search results */}
         <link
           rel="icon"
@@ -36,8 +39,6 @@ export default function Document() {
 
         {/* For Android */}
         <link rel="manifest" href="/site.webmanifest" />
-
-        <meta property="og:site_name" content={coreDictionary.siteName} />
       </Head>
       <body>
         <Main />
