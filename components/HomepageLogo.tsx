@@ -31,7 +31,7 @@ export function HomepageLogo() {
 
   return (
     <motion.div
-      className="fixed inset-0 m-auto flex items-center justify-center"
+      className="pointer-events-none fixed inset-0 m-auto flex items-center justify-center"
       initial={initialLogoAnimation}
       animate={isBookHovering ? hoverLogoAnimation : undefined}
       // whileFocus={hoverLogoAnimation}
@@ -44,7 +44,7 @@ export function HomepageLogo() {
         },
       }}
     >
-      <Link href="/readingList">
+      <Link href="/readingList" className="pointer-events-auto">
         <MotionImage
           className="max-w-[50vw]"
           src="/android-chrome-512x512.png"
