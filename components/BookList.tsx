@@ -4,6 +4,7 @@ import React, { FormEvent, useState } from 'react'
 import { Button } from '@/components/Button'
 import { BookSerializable } from '@/pages/api/book'
 import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -104,11 +105,15 @@ function BookListItem({
       key={book.id}
       className="overflow-hidden"
     >
-      <div className="grid grid-cols-[1fr_auto] grid-rows-2 items-center p-4">
-        <div className="col-start-1 row-start-1 text-lg">{book.title}</div>
-        <div className="col-start-1 row-start-2 text-gray-400">
-          by {book.author}
-        </div>
+      <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center p-4">
+        <Link className="group" href={`book/${book.id}`}>
+          <div className="col-start-1 row-start-1 text-lg group-hover:underline">
+            {book.title}
+          </div>
+          <div className="col-start-1 row-start-2 text-gray-400 group-hover:underline">
+            by {book.author}
+          </div>
+        </Link>
 
         <form
           action={`/api/book/${book.id}`}
