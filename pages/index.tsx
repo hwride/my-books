@@ -36,6 +36,8 @@ export default function Home() {
             process.env.NEXT_PUBLIC_VERCEL_URL
           }/open-graph-1200x630.png`}
         />
+        {/* Don't allow indexing of our links, as they are all authenticated. */}
+        <meta name="robots" content="nofollow" />
       </Head>
       <h1 className="mt-12 text-2xl">My books</h1>
       <HomepageLogo />
