@@ -30,7 +30,7 @@ export default function Home() {
         <meta property="og:type" content="website" />
         <meta property="og:title" content="My books" />
         <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content="/android-chrome-512x512.png" />
+        <meta property="og:image" content="/open-graph-1200x630.png" />
       </Head>
       <h1 className="mt-12 text-2xl">My books</h1>
       <HomepageLogo />
