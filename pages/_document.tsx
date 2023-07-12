@@ -4,13 +4,15 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Try and add specific icon link to get Google results to show favicon. */}
-        <link rel="icon" href="/favicon.ico" />
+        {/* For Google search results */}
         <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/apple-touch-icon.png"
+          rel="icon"
+          type="image/png"
+          sizes="48x48"
+          href="/favicon-48x48.png"
         />
+
+        {/* For browsers */}
         <link
           rel="icon"
           type="image/png"
@@ -23,6 +25,15 @@ export default function Document() {
           sizes="16x16"
           href="/favicon-16x16.png"
         />
+
+        {/* For iOS */}
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+
+        {/* For Android */}
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
       <body>
