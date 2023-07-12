@@ -32,7 +32,10 @@ export function HomepageLogo() {
     <motion.div
       className="pointer-events-none fixed inset-0 m-auto flex items-center justify-center"
       initial={initialLogoAnimation}
-      animate={isBookHovering ? hoverLogoAnimation : undefined}
+      animate={
+        // On touch devices you can't really hover, so in that case just always apply the animation
+        isTouchDevice() || isBookHovering ? hoverLogoAnimation : undefined
+      }
       transition={{
         type: 'spring',
         bounce: 0.5,
@@ -61,5 +64,15 @@ export function HomepageLogo() {
         />
       </MotionLink>
     </motion.div>
+  )
+}
+
+function isTouchDevice() {
+  if (typeof window === 'undefined') return false // Handle SSG/SSR
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    // @ts-ignore
+    navigator.msMaxTouchPoints > 0
   )
 }
