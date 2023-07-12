@@ -72,10 +72,7 @@ export default function AddBook() {
             minLength={1}
             className="col-start-2 row-start-1 self-stretch"
           />
-          <label
-            htmlFor="col-start-1 row-start-2 new-book-author"
-            className="row-start-2 block"
-          >
+          <label htmlFor="new-book-author" className="row-start-2 block">
             Author
           </label>
           <Input
