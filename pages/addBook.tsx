@@ -1,12 +1,12 @@
 import { Status } from '@prisma/client'
 import React, { FormEvent, useState } from 'react'
-import { Button } from '@/components/Button'
 import { clsx } from 'clsx'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useRouter } from 'next/router'
 import { Header } from '@/components/Header'
 import { Inter } from 'next/font/google'
+import { Button } from '@/components/ui/button'
 
 const inter = Inter({ subsets: ['latin'] })
 

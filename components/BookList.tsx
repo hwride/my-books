@@ -1,10 +1,10 @@
 import { Status } from '@prisma/client'
 import { clsx } from 'clsx'
 import React, { FormEvent, useState } from 'react'
-import { Button } from '@/components/Button'
 import { BookSerializable } from '@/pages/api/book'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export type BookListBook = Pick<
   BookSerializable,
