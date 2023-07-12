@@ -34,9 +34,7 @@ export function HomepageLogo() {
       className="fixed inset-0 m-auto flex items-center justify-center"
       initial={initialLogoAnimation}
       animate={isBookHovering ? hoverLogoAnimation : undefined}
-      // whileHover={hoverLogoAnimation}
       // whileFocus={hoverLogoAnimation}
-      whileTap={{ scale: 0.9 }}
       transition={{
         type: 'spring',
         bounce: 0.5,
@@ -53,6 +51,7 @@ export function HomepageLogo() {
           alt="My books logo"
           onHoverStart={() => setIsBookHovering(true)}
           onHoverEnd={() => setIsBookHovering(false)}
+          whileTap={{ scale: 0.9 }}
           onFocus={(e) => {
             console.log('focus', e)
           }}
