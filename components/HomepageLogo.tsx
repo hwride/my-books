@@ -47,6 +47,7 @@ export function HomepageLogo() {
         alt="My books logo"
         width={250}
         height={250}
+        priority={true}
       />
     </MotionLink>
   )
