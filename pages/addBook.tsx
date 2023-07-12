@@ -5,6 +5,7 @@ import { clsx } from 'clsx'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useRouter } from 'next/router'
+import { Header } from '@/components/Header'
 
 export default function AddBook() {
   const router = useRouter()
@@ -43,12 +44,12 @@ export default function AddBook() {
   }
 
   return (
-    <main className="mx-auto max-w-screen-md pt-8">
+    <main className="mx-auto max-w-screen-md">
       <Head>
         <title>{`${coreDictionary.siteName} | add a book`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <h1 className="mx-auto w-fit text-2xl">Add a book</h1>
+      <Header heading="Add a book" />
       <form
         action="/api/book"
         method="post"
