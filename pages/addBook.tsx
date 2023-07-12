@@ -1,6 +1,5 @@
 import { Status } from '@prisma/client'
 import React, { FormEvent, useState } from 'react'
-import { clsx } from 'clsx'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useRouter } from 'next/router'
