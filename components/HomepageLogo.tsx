@@ -30,9 +30,8 @@ export function HomepageLogo() {
   console.log(isBookHovering)
 
   return (
-    <MotionLink
+    <motion.div
       className="fixed inset-0 m-auto flex items-center justify-center"
-      href="/readingList"
       initial={initialLogoAnimation}
       animate={isBookHovering ? hoverLogoAnimation : undefined}
       // whileHover={hoverLogoAnimation}
@@ -47,19 +46,21 @@ export function HomepageLogo() {
         },
       }}
     >
-      <MotionImage
-        className="max-w-[50vw]"
-        src="/android-chrome-512x512.png"
-        alt="My books logo"
-        onHoverStart={(e) => setIsBookHovering(true)}
-        onHoverEnd={(e) => setIsBookHovering(false)}
-        onFocus={(e) => {
-          console.log('focus', e)
-        }}
-        width={250}
-        height={250}
-        priority={true}
-      />
-    </MotionLink>
+      <Link href="/readingList">
+        <MotionImage
+          className="max-w-[50vw]"
+          src="/android-chrome-512x512.png"
+          alt="My books logo"
+          onHoverStart={() => setIsBookHovering(true)}
+          onHoverEnd={() => setIsBookHovering(false)}
+          onFocus={(e) => {
+            console.log('focus', e)
+          }}
+          width={250}
+          height={250}
+          priority={true}
+        />
+      </Link>
+    </motion.div>
   )
 }
