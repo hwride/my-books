@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   return (
     <main
-      className={`${inter.className} flex h-[100dvh] flex-col items-center justify-center overflow-hidden`}
+      className={`${inter.className} flex h-[100dvh] flex-col items-center`}
     >
       <Head>
         <title>My books</title>
@@ -27,7 +27,7 @@ export default function Home() {
           content="Manage yours books - the books you want to read, or the books you've already read."
         />
       </Head>
-      <h1 className="invisible mt-12 text-2xl">My books</h1>
+      <h1 className="mt-12 text-2xl">My books</h1>
       <HomepageLogo />
     </main>
   )
