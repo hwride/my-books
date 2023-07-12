@@ -6,10 +6,13 @@ import React from 'react'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { Header } from '@/components/Header'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export default function Book({ book }: { book: BookListBook }) {
   return (
-    <main className="mx-auto max-w-screen-md">
+    <main className={`${inter.className} mx-auto max-w-screen-md`}>
       <Head>
         <title>{`${coreDictionary.siteName} | ${book.title}`}</title>
         <meta name="robots" content="noindex" />
