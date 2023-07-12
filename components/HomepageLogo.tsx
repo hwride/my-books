@@ -8,7 +8,7 @@ const getLogoGradient = (
   stop3: number,
   stop4: number
 ) =>
-  `radial-gradient(
+  `radial-gradient(circle, 
   hsla(53, 82%, 58%, 1) ${stop1}%, 
   hsla(53, 84%, 74%, 1) ${stop2}%, 
   hsla(53, 100%, 91%, 1) ${stop3}%, 
