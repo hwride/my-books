@@ -12,7 +12,7 @@ const getLogoGradient = (
   hsla(53, 82%, 58%, 1) ${stop1}%, 
   hsla(53, 84%, 74%, 1) ${stop2}%, 
   hsla(53, 100%, 91%, 1) ${stop3}%, 
-  hsla(0, 0%, 100%, 1)  ${stop4}%
+  transparent  ${stop4}%
 )`
 const initialLogoAnimation = {
   backgroundImage: getLogoGradient(0, 15, 25, 35),
@@ -26,7 +26,7 @@ const MotionLink = motion(Link)
 export function HomepageLogo() {
   return (
     <MotionLink
-      className="p-[100px]"
+      className="fixed inset-0 m-auto flex items-center justify-center"
       href="/readingList"
       initial={initialLogoAnimation}
       whileHover={hoverLogoAnimation}
