@@ -27,7 +27,7 @@ export default function Home() {
           content="Manage yours books - the books you want to read, or the books you've already read."
         />
       </Head>
-      <h1 className="invisible mt-12 text-2xl">My books</h1>
+      <h1 className="mt-12 text-2xl">My books</h1>
       <HomepageLogo />
     </main>
   )
