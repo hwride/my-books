@@ -1,5 +1,12 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu'
 import { clsx } from 'clsx'
 
 const activeLinkClass = 'text-black'
@@ -23,23 +30,21 @@ const menuConfig = [
 export function MenuBar({ className }: { className?: string }) {
   const router = useRouter()
   return (
-    <nav className={clsx('mx-auto w-fit', className)}>
-      <ol className="flex gap-3">
-        {menuConfig.map((config) => (
-          <li key={config.href}>
-            <Link
-              className={
-                router.pathname == config.href
-                  ? activeLinkClass
-                  : nonActiveLinkClass
-              }
-              href={config.href}
-            >
-              {config.title}
+    <NavigationMenu className={clsx(className, 'mx-auto')}>
+      <NavigationMenuList>
+        {menuConfig.map((component) => (
+          <NavigationMenuItem key={component.href}>
+            <Link href={component.href} legacyBehavior passHref>
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                active={router.pathname == component.href}
+              >
+                {component.title}
+              </NavigationMenuLink>
             </Link>
-          </li>
+          </NavigationMenuItem>
         ))}
-      </ol>
-    </nav>
+      </NavigationMenuList>
+    </NavigationMenu>
   )
 }
