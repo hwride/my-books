@@ -11,7 +11,7 @@ type Data =
     }
   | BookSerializable
 
-export default async function createBook(
+export default async function addBook(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {

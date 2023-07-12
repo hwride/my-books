@@ -4,8 +4,10 @@ import { Button } from '@/components/Button'
 import { clsx } from 'clsx'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
+import { useRouter } from 'next/router'
 
 export default function AddBook() {
+  const router = useRouter()
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
   const nameTitle = 'title'
@@ -32,6 +34,7 @@ export default function AddBook() {
 
     if (r.ok) {
       const newBook = await r.json()
+      router.push(`/book/${newBook.id}`)
     } else {
       console.error(`Error when creating book`)
     }
