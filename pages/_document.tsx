@@ -1,9 +1,13 @@
 import { Html, Head, Main, NextScript } from 'next/document'
+import { coreDictionary } from '@/components/dictionary/core'
 
 export default function Document() {
   return (
     <Html lang="en">
       <Head>
+        <meta property="og:site_name" content={coreDictionary.siteName} />
+        <meta property="og:locale" content="en_GB" />
+
         {/* For Google search results */}
         <link
           rel="icon"
