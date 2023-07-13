@@ -1,10 +1,10 @@
 import { Status } from '@prisma/client'
-import { clsx } from 'clsx'
-import React, { FormEvent, useState } from 'react'
+import React, { useState } from 'react'
 import { BookSerializable } from '@/pages/api/book'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Form } from '@/components/Form'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -57,38 +57,6 @@ function BookListItem({
 }) {
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
-  async function markBookReadOrUnread(
-    book: BookListBook,
-    e: FormEvent<HTMLFormElement>
-  ) {
-    e.preventDefault()
-
-    setIsUpdatePending(true)
-
-    const form = e.currentTarget
-    const data = new FormData(form)
-    const newStatus = data.get('status') as Status
-    const options = {
-      method: form.method,
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({
-        updatedAt: book.updatedAt,
-        status: newStatus,
-      }),
-    }
-
-    const r = await fetch(form.action, options)
-
-    if (r.ok) {
-      const updatedBook = await r.json()
-      onBookChange(updatedBook)
-    } else {
-      console.error(`Error when changing book read status`)
-    }
-
-    setIsUpdatePending(false)
-  }
-
   return (
     <motion.li
       initial={{ opacity: 0, height: 0 }}
@@ -108,12 +76,16 @@ function BookListItem({
           </div>
         </Link>
 
-        <form
-          action={`/api/book/${book.id}`}
-          method="post"
+        <Form
           className="col-start-2 row-span-2"
-          onSubmit={(e) => markBookReadOrUnread(book, e)}
+          method="post"
+          action={`/api/book/${book.id}`}
+          isUpdatePending={isUpdatePending}
+          setIsUpdatePending={setIsUpdatePending}
+          onSuccess={(updatedBook) => onBookChange(updatedBook)}
+          onError={() => console.error(`Error when changing book read status`)}
         >
+          <input type="hidden" name="updatedAt" value={book.updatedAt} />
           <input
             type="hidden"
             name="status"
@@ -122,7 +94,7 @@ function BookListItem({
           <Button disabled={isUpdatePending}>
             {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
           </Button>
-        </form>
+        </Form>
       </div>
     </motion.li>
   )
