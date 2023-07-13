@@ -22,7 +22,7 @@ export default async function updateBook(
     return res.status(400).json({ message: 'Not logged in' })
   }
 
-  const { updatedAt } = req.body
+  const { updatedAt, returnCreated } = req.body
   if (!updatedAt) {
     return res.status(400).json({ message: 'updatedAt is required' })
   }
@@ -53,11 +53,18 @@ export default async function updateBook(
       data: dataToUpdate,
     })
 
-    return res.status(200).send({
-      ...updatedBook,
-      createdAt: updatedBook.createdAt.toISOString(),
-      updatedAt: updatedBook.updatedAt.toISOString(),
-    })
+    if (returnCreated === 'true') {
+      return res.status(200).send({
+        ...updatedBook,
+        createdAt: updatedBook.createdAt.toISOString(),
+        updatedAt: updatedBook.updatedAt.toISOString(),
+      })
+    }
+    // If return created is not specified, by default we redirect to the appropriate page on return. This enables
+    // our progressively enhanced forms to redirect to the correct place without JavaScript.
+    else {
+      return res.redirect(307, `/book/${bookid}`)
+    }
   } catch (e: any) {
     console.error(`Book update error, code: ${e.code}`)
     // P2025 = missing row, could happen if optimistic concurrency control fails

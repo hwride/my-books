@@ -31,7 +31,9 @@ export function Form({
     const form = e.currentTarget
     const data = new FormData(form)
     const formDataKeys = Array.from(data.keys())
-    const body: Record<string, string> = {}
+    const body: Record<string, string> = {
+      returnCreated: 'true',
+    }
     for (const key of formDataKeys) {
       const val = data.get(key)
       if (typeof val === 'string') {
