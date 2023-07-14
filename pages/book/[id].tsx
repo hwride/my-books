@@ -6,7 +6,7 @@ import React from 'react'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { Inter } from 'next/font/google'
-import { useSetHeading } from '@/components/Providers/HeadingProvider'
+import { useSetHeading } from '@/components/providers/HeadingProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
