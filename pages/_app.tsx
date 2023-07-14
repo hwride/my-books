@@ -24,8 +24,11 @@ function AppContent({ Component, pageProps }: AppProps) {
   // Could make this into the full layout pattern if any more changes made here
   // See https://nextjs.org/docs/pages/building-your-application/routing/pages-and-layouts#layout-pattern
   const router = useRouter()
-  const isHomePage = router.pathname === '/'
-  return isHomePage ? (
+  const shouldNotIncludeNavLayout =
+    router.pathname === '/' ||
+    router.pathname.startsWith('/sign-in') ||
+    router.pathname.startsWith('/sign-up')
+  return shouldNotIncludeNavLayout ? (
     <Component {...pageProps} />
   ) : (
     <main
