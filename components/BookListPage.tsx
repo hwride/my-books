@@ -22,12 +22,12 @@ export default function BookListPage({
   filterStatus: Status
 }) {
   return (
-    <div className="flex flex-col">
+    <>
       <Head>
         <title>{title}</title>
         <meta name="robots" content="noindex" />
       </Head>
       <BookList initialBooks={books} filterStatus={filterStatus} />
-    </div>
+    </>
   )
 }
