@@ -2,10 +2,17 @@ import { MenuBar } from '@/components/MenuBar'
 import { UserButton } from '@clerk/nextjs'
 import { ReactNode } from 'react'
 
+const userButtonWidthRem = 2
+const userButtonMarginRem = 1
+const userButtonSize = userButtonWidthRem + userButtonMarginRem
+
 export function Header({ heading }: { heading: ReactNode }) {
+  heading = 'The Curious Incident of the Dog in the Night-Time'
   return (
     <div>
-      <h1 className="mx-auto mb-2 mt-4 w-fit text-2xl">
+      <h1
+        className={`mb-2 ml-auto mr-[${userButtonSize}rem] mt-4 w-fit px-4 text-2xl`}
+      >
         {/* If no heading include a non breaking space to ensure we still reserve the space
             If changing this make sure you check the case when coming from home page as heading in empty initially */}
         {heading ? heading : <>&nbsp;</>}
