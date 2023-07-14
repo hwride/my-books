@@ -16,12 +16,11 @@ export default function AddBook() {
   const [isSuccess, setIsSuccess] = useState(false)
 
   return (
-    <main className={`${inter.className} mx-auto max-w-screen-md`}>
+    <>
       <Head>
         <title>{`${coreDictionary.siteName} | add a book`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <Header heading="Add a book" />
       <Form
         action="/api/book"
         method="post"
@@ -66,6 +65,6 @@ export default function AddBook() {
           Add book
         </Button>
       </Form>
-    </main>
+    </>
   )
 }

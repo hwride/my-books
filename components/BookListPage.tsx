@@ -22,15 +22,12 @@ export default function BookListPage({
   filterStatus: Status
 }) {
   return (
-    <main
-      className={`${inter.className} mx-auto flex h-[100dvh] max-w-screen-md flex-col`}
-    >
+    <div className="flex flex-col">
       <Head>
         <title>{title}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <Header heading={heading} />
       <BookList initialBooks={books} filterStatus={filterStatus} />
-    </main>
+    </div>
   )
 }
