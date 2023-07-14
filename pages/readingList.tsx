@@ -14,7 +14,6 @@ export default function ReadingList({ books }: { books: BookListBook[] }) {
   return (
     <BookListPage
       title={`${coreDictionary.siteName} | reading list`}
-      heading="Reading list"
       books={books}
       filterStatus={filterStatus}
     />
