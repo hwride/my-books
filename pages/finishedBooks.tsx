@@ -4,7 +4,7 @@ import { GetServerSideProps } from 'next'
 import BookListPage from '@/components/BookListPage'
 import { getServerSidePropsHelper } from '@/components/BookListPage/getServerSideProps'
 import { coreDictionary } from '@/components/dictionary/core'
-import { useSetHeading } from '@/components/Providers/HeadingProvider'
+import { useSetHeading } from '@/components/providers/HeadingProvider'
 
 const filterStatus = Status.READ
 

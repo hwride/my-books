@@ -7,10 +7,10 @@ import {
 } from 'react'
 
 export const HeadingContext = createContext<{
-  heading: string
+  heading?: string
   setHeading: (newHeading: string) => void
 }>({
-  heading: '',
+  heading: undefined,
   setHeading: () => {},
 })
 
@@ -28,7 +28,7 @@ export function useHeading() {
  * Provider for the page heading.
  */
 export default function HeadingProvider({ children }: PropsWithChildren) {
-  const [heading, setHeading] = useState('')
+  const [heading, setHeading] = useState(undefined)
 
   return (
     <HeadingContext.Provider value={{ heading, setHeading }}>

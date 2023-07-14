@@ -3,8 +3,8 @@ import type { AppProps } from 'next/app'
 import { Analytics } from '@vercel/analytics/react'
 import { Inter } from 'next/font/google'
 import { Header } from '@/components/Header'
-import AppProviders from '@/components/Providers/AppProviders'
-import { useHeading } from '@/components/Providers/HeadingProvider'
+import AppProviders from '@/components/providers/AppProviders'
+import { useHeading } from '@/components/providers/HeadingProvider'
 import { useRouter } from 'next/router'
 
 const inter = Inter({ subsets: ['latin'] })

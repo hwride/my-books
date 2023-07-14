@@ -1,7 +1,7 @@
 import type { AppProps } from 'next/app'
 import { ClerkProvider } from '@clerk/nextjs'
 import { PropsWithChildren } from 'react'
-import HeadingProvider from '@/components/Providers/HeadingProvider'
+import HeadingProvider from '@/components/providers/HeadingProvider'
 
 export default function AppProviders({
   children,

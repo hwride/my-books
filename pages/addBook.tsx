@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form } from '@/components/Form'
-import { useSetHeading } from '@/components/Providers/HeadingProvider'
+import { useSetHeading } from '@/components/providers/HeadingProvider'
 
 export default function AddBook() {
   useSetHeading('Add book')
