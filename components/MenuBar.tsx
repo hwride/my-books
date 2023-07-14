@@ -9,9 +9,6 @@ import {
 } from '@/components/ui/navigation-menu'
 import { clsx } from 'clsx'
 
-const activeLinkClass = 'text-black'
-const nonActiveLinkClass = 'text-slate-400'
-
 const menuConfig = [
   {
     title: 'Reading list',
@@ -31,7 +28,7 @@ export function MenuBar({ className }: { className?: string }) {
   const router = useRouter()
   return (
     <NavigationMenu className={clsx(className, 'mx-auto')}>
-      <NavigationMenuList>
+      <NavigationMenuList className="flex-wrap gap-y-1">
         {menuConfig.map((component) => (
           <NavigationMenuItem key={component.href}>
             <Link href={component.href} legacyBehavior passHref>
