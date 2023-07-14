@@ -28,10 +28,14 @@ export function useHeading() {
  * Provider for the page heading.
  */
 export default function HeadingProvider({ children }: PropsWithChildren) {
-  const [heading, setHeading] = useState(undefined)
-
+  const [heading, setHeading] = useState<string | undefined>(undefined)
   return (
-    <HeadingContext.Provider value={{ heading, setHeading }}>
+    <HeadingContext.Provider
+      value={{
+        heading,
+        setHeading: (newHeading: string) => setHeading(newHeading),
+      }}
+    >
       {children}
     </HeadingContext.Provider>
   )
