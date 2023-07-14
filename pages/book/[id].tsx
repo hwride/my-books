@@ -7,24 +7,20 @@ import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { Header } from '@/components/Header'
 import { Inter } from 'next/font/google'
+import { useSetHeading } from '@/components/Providers/HeadingProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Book({ book }: { book: BookListBook }) {
+  useSetHeading(book.title)
   return (
-    <main className={`${inter.className} mx-auto max-w-screen-md`}>
+    <>
       <Head>
         <title>{`${coreDictionary.siteName} | ${book.title}`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <Header
-        heading={
-          <>
-            {book.title} <span className="text-gray-400">by {book.author}</span>
-          </>
-        }
-      />
-    </main>
+      {book.title} <span className="text-gray-400">by {book.author}</span>
+    </>
   )
 }
 
