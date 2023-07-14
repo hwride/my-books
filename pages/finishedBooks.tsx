@@ -4,10 +4,13 @@ import { GetServerSideProps } from 'next'
 import BookListPage from '@/components/BookListPage'
 import { getServerSidePropsHelper } from '@/components/BookListPage/getServerSideProps'
 import { coreDictionary } from '@/components/dictionary/core'
+import { useSetHeading } from '@/components/Providers/HeadingProvider'
 
 const filterStatus = Status.READ
 
 export default function FinishedBooks({ books }: { books: BookListBook[] }) {
+  useSetHeading('Finished books')
+
   return (
     <BookListPage
       title={`${coreDictionary.siteName} | finished books`}

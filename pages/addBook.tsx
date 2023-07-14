@@ -2,15 +2,14 @@ import React, { useState } from 'react'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useRouter } from 'next/router'
-import { Header } from '@/components/Header'
-import { Inter } from 'next/font/google'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form } from '@/components/Form'
-
-const inter = Inter({ subsets: ['latin'] })
+import { useSetHeading } from '@/components/Providers/HeadingProvider'
 
 export default function AddBook() {
+  useSetHeading('Add book')
+
   const router = useRouter()
   const [isUpdatePending, setIsUpdatePending] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
