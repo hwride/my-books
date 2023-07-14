@@ -3,7 +3,6 @@ import { UserButton } from '@clerk/nextjs'
 import { ReactNode } from 'react'
 
 export function Header({ heading }: { heading: ReactNode }) {
-  heading = 'The Curious Incident of the Dog in the Night-Time'
   return (
     <div>
       {/* mr-[3rem] is to ensure we make room for the absolutely positioned user icon. */}
