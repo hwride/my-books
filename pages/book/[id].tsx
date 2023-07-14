@@ -15,7 +15,10 @@ export default function Book({ book }: { book: BookListBook }) {
         <title>{`${coreDictionary.siteName} | ${book.title}`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      {book.title} <span className="text-gray-400">by {book.author}</span>
+      <div className="px-page">
+        <div>{book.title}</div>
+        <div className="text-gray-400">by {book.author}</div>
+      </div>
     </>
   )
 }

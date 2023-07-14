@@ -27,6 +27,7 @@ const menuConfig = [
 export function MenuBar({ className }: { className?: string }) {
   const router = useRouter()
   return (
+    // If changing spacing here, make sure it fits on a single line for iPhone SE.
     <NavigationMenu className={clsx(className, 'mx-auto')}>
       <NavigationMenuList className="flex-wrap gap-y-1">
         {menuConfig.map((component) => (
