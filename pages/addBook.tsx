@@ -23,7 +23,7 @@ export default function AddBook() {
       <Form
         action="/api/book"
         method="post"
-        className="mx-auto max-w-md p-4"
+        className="mx-auto max-w-md p-page"
         isUpdatePending={isUpdatePending}
         setIsUpdatePending={setIsUpdatePending}
         onSuccess={(newBook) => {

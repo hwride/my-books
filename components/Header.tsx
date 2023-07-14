@@ -11,7 +11,7 @@ export function Header({ heading }: { heading: ReactNode }) {
   return (
     <div>
       <h1
-        className={`mb-2 ml-auto mr-[${userButtonSize}rem] mt-4 w-fit px-4 text-2xl`}
+        className={`mb-2 ml-auto mr-[${userButtonSize}rem] mt-4 w-fit px-page text-2xl`}
       >
         {/* If no heading include a non breaking space to ensure we still reserve the space
             If changing this make sure you check the case when coming from home page as heading in empty initially */}

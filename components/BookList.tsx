@@ -25,7 +25,7 @@ export function BookList({
 
   return (
     <div className="flex flex-col overflow-hidden">
-      <ul className="overflow-auto">
+      <ul className="overflow-auto px-page">
         <AnimatePresence initial={false}>
           {books.map((book) => (
             <BookListItem
@@ -66,7 +66,7 @@ function BookListItem({
       key={book.id}
       className="overflow-hidden"
     >
-      <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center p-4">
+      <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center py-4">
         <Link className="group" href={`book/${book.id}`}>
           <div className="col-start-1 row-start-1 text-lg group-hover:underline">
             {book.title}
