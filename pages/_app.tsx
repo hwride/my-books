@@ -19,7 +19,9 @@ export default function App(appProps: AppProps) {
 function AppContent({ Component, pageProps }: AppProps) {
   const heading = useHeading()
   return (
-    <main className={`${inter.className} mx-auto h-[100dvh] max-w-screen-md`}>
+    <main
+      className={`${inter.className} mx-auto flex h-[100dvh] max-w-screen-md flex-col`}
+    >
       <Header heading={heading} />
       <Component {...pageProps} />
       <Analytics />

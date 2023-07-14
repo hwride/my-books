@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client'
 import React from 'react'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
-import { Header } from '@/components/Header'
 import { Inter } from 'next/font/google'
 import { useSetHeading } from '@/components/Providers/HeadingProvider'
 
