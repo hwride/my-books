@@ -34,16 +34,27 @@ export function HomepageLogo() {
       initial={initialLogoAnimation}
       animate={
         // On touch devices you can't really hover, so in that case just always apply the animation
-        isTouchDevice() || isBookHovering ? hoverLogoAnimation : undefined
+        {
+          ...(isTouchDevice() || isBookHovering
+            ? hoverLogoAnimation
+            : undefined),
+          y: [0, 18, 0],
+        }
       }
       whileTap={{ scale: 0.9 }}
       transition={{
-        type: 'spring',
-        bounce: 0.5,
-        duration: 1.2,
-        backgroundImage: {
-          duration: 0.6,
+        y: {
+          repeat: Infinity,
+          // When using the current keyframes setting type: spring seems to break the animation for some reason.
+          duration: 2,
+          ease: 'easeInOut',
         },
+        scale: {
+          type: 'spring',
+          bounce: 0.5,
+          duration: 1.2,
+        },
+        backgroundImage: { duration: 0.6 },
       }}
     >
       <MotionLink
