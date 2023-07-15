@@ -5,7 +5,7 @@ import { FormEvent, FormHTMLAttributes } from 'react'
  * JS is enabled will disable default behaviour and make a fetch request with
  * the form data as a JSON object.
  */
-export function Form({
+export function Form<ReturnData>({
   method,
   action,
   children,
@@ -19,7 +19,7 @@ export function Form({
   isUpdatePending: boolean
   setIsUpdatePending: (isUpdatePending: boolean) => void
   // Will wait for onSuccess or onError to finish before declaring update as no longer pending.
-  onSuccess: (data: any) => void | Promise<any>
+  onSuccess: (data: ReturnData) => void | Promise<any>
   onError: (data: any) => void | Promise<any>
 }) {
   async function onSubmitInner(e: FormEvent<HTMLFormElement>) {

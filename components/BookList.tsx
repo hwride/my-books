@@ -76,13 +76,13 @@ function BookListItem({
           </div>
         </Link>
 
-        <Form
+        <Form<BookListBook>
           className="col-start-2 row-span-2"
           method="post"
           action={`/api/book/${book.id}`}
           isUpdatePending={isUpdatePending}
           setIsUpdatePending={setIsUpdatePending}
-          onSuccess={(updatedBook) => onBookChange(updatedBook)}
+          onSuccess={onBookChange}
           onError={() => console.error(`Error when changing book read status`)}
         >
           <input type="hidden" name="updatedAt" value={book.updatedAt} />

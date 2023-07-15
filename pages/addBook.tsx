@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form } from '@/components/Form'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
+import { BookListBook } from '@/components/BookList'
 
 export default function AddBook() {
   useSetHeading('Add book')
@@ -19,7 +20,7 @@ export default function AddBook() {
         <title>{`${coreDictionary.siteName} | add a book`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <Form
+      <Form<BookListBook>
         action="/api/book"
         method="post"
         className="mx-auto max-w-md p-page"

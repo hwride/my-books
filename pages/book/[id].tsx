@@ -61,7 +61,7 @@ export function EditBookForm({
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
   return (
-    <Form
+    <Form<BookListBook>
       action={`/api/book/${book.id}`}
       method="post"
       className="mx-auto max-w-md p-page"
