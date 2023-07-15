@@ -91,10 +91,10 @@ export function EditBookForm({
         />
       </div>
       <div className="flex justify-around">
-        <Button disabled={isUpdatePending}>Save book</Button>
+        <Button disabled={isUpdatePending || isSuccess}>Save book</Button>
         <Button
           variant="secondary"
-          disabled={isUpdatePending}
+          disabled={isUpdatePending || isSuccess}
           onClick={(e) => {
             e.preventDefault()
             onCancel()
