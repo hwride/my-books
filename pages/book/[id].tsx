@@ -9,24 +9,35 @@ import { Button } from '@/components/ui/button'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
 import { Form } from '@/components/Form'
 import { Input } from '@/components/ui/input'
-import { router } from 'next/client'
-import { useRouter } from 'next/router'
 
-export default function Book({ book }: { book: BookListBook }) {
-  useSetHeading(book.title)
+type BookProps = { initialBook: BookListBook }
+
+export default function Book({ initialBook }: BookProps) {
+  const [book, setBook] = useState<BookListBook>(initialBook)
+  const { title, author } = book
+  useSetHeading(title)
+
   const [isEditing, setIsEditing] = useState(false)
+
   return (
     <>
       <Head>
-        <title>{`${coreDictionary.siteName} | ${book.title}`}</title>
+        <title>{`${coreDictionary.siteName} | ${title}`}</title>
         <meta name="robots" content="noindex" />
       </Head>
       {isEditing ? (
-        <EditBookForm book={book} onCancel={() => setIsEditing(false)} />
+        <EditBookForm
+          book={book}
+          onSuccess={(updatedBook) => {
+            setBook(updatedBook)
+            setIsEditing(false)
+          }}
+          onCancel={() => setIsEditing(false)}
+        />
       ) : (
         <div className="px-page">
-          <div className="text-xl">{book.title}</div>
-          <div className="text-lg text-gray-400">by {book.author}</div>
+          <div className="text-xl">{title}</div>
+          <div className="text-lg text-gray-400">by {author}</div>
           <Button className="mt-4" onClick={() => setIsEditing(true)}>
             Edit
           </Button>
@@ -38,12 +49,13 @@ export default function Book({ book }: { book: BookListBook }) {
 
 export function EditBookForm({
   book,
+  onSuccess,
   onCancel,
 }: {
   book: BookListBook
+  onSuccess: (updatedBook: BookListBook) => void
   onCancel: () => void
 }) {
-  const router = useRouter()
   const [title, setTitle] = useState(book.title)
   const [author, setAuthor] = useState(book.author ?? '')
   const [isUpdatePending, setIsUpdatePending] = useState(false)
@@ -56,9 +68,9 @@ export function EditBookForm({
       className="mx-auto max-w-md p-page"
       isUpdatePending={isUpdatePending}
       setIsUpdatePending={setIsUpdatePending}
-      onSuccess={(newBook) => {
+      onSuccess={(updatedBook) => {
         setIsSuccess(true)
-        router.reload()
+        onSuccess(updatedBook)
       }}
       onError={() => console.error(`Failed to edit book`)}
     >
@@ -108,9 +120,7 @@ export function EditBookForm({
 }
 
 export const getServerSideProps: GetServerSideProps<
-  {
-    book: BookListBook
-  },
+  BookProps,
   {
     id: string
   }
@@ -146,7 +156,7 @@ export const getServerSideProps: GetServerSideProps<
 
   return {
     props: {
-      book: {
+      initialBook: {
         ...book,
         updatedAt: book.updatedAt.toISOString(),
       },
