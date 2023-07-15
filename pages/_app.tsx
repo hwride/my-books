@@ -24,13 +24,11 @@ function AppContent({ Component, pageProps }: AppProps) {
   // Could make this into the full layout pattern if any more changes made here
   // See https://nextjs.org/docs/pages/building-your-application/routing/pages-and-layouts#layout-pattern
   const router = useRouter()
-  const shouldNotIncludeNavLayout =
-    router.pathname === '/' ||
-    router.pathname.startsWith('/sign-in') ||
-    router.pathname.startsWith('/sign-up')
-  return shouldNotIncludeNavLayout ? (
-    <Component {...pageProps} />
-  ) : (
+  const shouldIncludeNavLayout =
+    router.pathname.startsWith('/readingList') ||
+    router.pathname.startsWith('/finishedBooks') ||
+    router.pathname.startsWith('/addBook')
+  return shouldIncludeNavLayout ? (
     <main
       className={`${inter.className} mx-auto flex h-[100dvh] max-w-screen-md flex-col`}
     >
@@ -38,5 +36,7 @@ function AppContent({ Component, pageProps }: AppProps) {
       <Component {...pageProps} />
       <Analytics />
     </main>
+  ) : (
+    <Component {...pageProps} />
   )
 }
