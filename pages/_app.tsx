@@ -27,6 +27,7 @@ function AppContent({ Component, pageProps }: AppProps) {
   const shouldIncludeNavLayout =
     router.pathname.startsWith('/readingList') ||
     router.pathname.startsWith('/finishedBooks') ||
+    router.pathname.startsWith('/book') ||
     router.pathname.startsWith('/addBook')
   return shouldIncludeNavLayout ? (
     <main

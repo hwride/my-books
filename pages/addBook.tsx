@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form } from '@/components/Form'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
+import { BookListBook } from '@/components/BookList'
 
 export default function AddBook() {
   useSetHeading('Add book')
 
   const router = useRouter()
   const [isUpdatePending, setIsUpdatePending] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
 
   return (
     <>
@@ -20,16 +20,13 @@ export default function AddBook() {
         <title>{`${coreDictionary.siteName} | add a book`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <Form
+      <Form<BookListBook>
         action="/api/book"
         method="post"
         className="mx-auto max-w-md p-page"
         isUpdatePending={isUpdatePending}
         setIsUpdatePending={setIsUpdatePending}
-        onSuccess={(newBook) => {
-          setIsSuccess(true)
-          router.push(`/book/${newBook.id}`)
-        }}
+        onSuccess={(newBook) => router.push(`/book/${newBook.id}`)}
         onError={() => console.error(`Failed to add book`)}
       >
         <div className="mb-4 grid grid-cols-[auto_1fr] grid-rows-2 items-center gap-x-2 gap-y-2">
@@ -57,10 +54,7 @@ export default function AddBook() {
         </div>
         {/* After a successful creation isUpdatePending is briefly false before routing completes. So also include
            check which disables it in case of success to wait for routing to finish. */}
-        <Button
-          className="mx-auto block"
-          disabled={isUpdatePending || isSuccess}
-        >
+        <Button className="mx-auto block" disabled={isUpdatePending}>
           Add book
         </Button>
       </Form>
