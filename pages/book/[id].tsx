@@ -22,7 +22,7 @@ export default function Book({ book }: { book: BookListBook }) {
         <meta name="robots" content="noindex" />
       </Head>
       {isEditing ? (
-        <EditBookForm book={book} />
+        <EditBookForm book={book} onCancel={() => setIsEditing(false)} />
       ) : (
         <div className="px-page">
           <div className="text-xl">{book.title}</div>
@@ -36,7 +36,13 @@ export default function Book({ book }: { book: BookListBook }) {
   )
 }
 
-export function EditBookForm({ book }: { book: BookListBook }) {
+export function EditBookForm({
+  book,
+  onCancel,
+}: {
+  book: BookListBook
+  onCancel: () => void
+}) {
   const router = useRouter()
   const [title, setTitle] = useState(book.title)
   const [author, setAuthor] = useState(book.author ?? '')
@@ -84,9 +90,19 @@ export function EditBookForm({ book }: { book: BookListBook }) {
           className="col-start-2 row-start-2 self-stretch"
         />
       </div>
-      <Button className="mx-auto block" disabled={isUpdatePending}>
-        Save book
-      </Button>
+      <div className="flex justify-around">
+        <Button disabled={isUpdatePending}>Save book</Button>
+        <Button
+          variant="secondary"
+          disabled={isUpdatePending}
+          onClick={(e) => {
+            e.preventDefault()
+            onCancel()
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
     </Form>
   )
 }
