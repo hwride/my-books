@@ -59,7 +59,6 @@ export function EditBookForm({
   const [title, setTitle] = useState(book.title)
   const [author, setAuthor] = useState(book.author ?? '')
   const [isUpdatePending, setIsUpdatePending] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
 
   return (
     <Form
@@ -68,10 +67,7 @@ export function EditBookForm({
       className="mx-auto max-w-md p-page"
       isUpdatePending={isUpdatePending}
       setIsUpdatePending={setIsUpdatePending}
-      onSuccess={(updatedBook) => {
-        setIsSuccess(true)
-        onSuccess(updatedBook)
-      }}
+      onSuccess={onSuccess}
       onError={() => console.error(`Failed to edit book`)}
     >
       <div className="mb-4 grid grid-cols-[auto_1fr] grid-rows-2 items-center gap-x-2 gap-y-2">
@@ -103,10 +99,10 @@ export function EditBookForm({
         />
       </div>
       <div className="flex justify-around">
-        <Button disabled={isUpdatePending || isSuccess}>Save book</Button>
+        <Button disabled={isUpdatePending}>Save book</Button>
         <Button
           variant="secondary"
-          disabled={isUpdatePending || isSuccess}
+          disabled={isUpdatePending}
           onClick={(e) => {
             e.preventDefault()
             onCancel()
