@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
 import { Form } from '@/components/Form'
 import { Input } from '@/components/ui/input'
+import { Pencil1Icon } from '@radix-ui/react-icons'
 
 type BookProps = { initialBook: BookListBook }
 
@@ -35,11 +36,18 @@ export default function Book({ initialBook }: BookProps) {
           onCancel={() => setIsEditing(false)}
         />
       ) : (
-        <div className="px-page">
-          <div className="text-xl">{title}</div>
-          <div className="text-lg text-gray-400">by {author}</div>
-          <Button className="mt-4" onClick={() => setIsEditing(true)}>
-            Edit
+        <div className="flex w-full max-w-screen-sm self-center px-page">
+          <div className="flex-1">
+            <div className=" text-xl">{title}</div>
+            <div className="text-lg text-gray-400">by {author}</div>
+          </div>
+          <Button
+            onClick={() => setIsEditing(true)}
+            aria-label="Edit book"
+            size="icon"
+            variant="outline"
+          >
+            <Pencil1Icon />
           </Button>
         </div>
       )}
