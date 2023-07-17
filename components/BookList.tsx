@@ -63,7 +63,7 @@ export function BookList({
           onClick={async () => {
             setLoadMore('pending')
             const response = await fetch(
-              `/api/books?status=NOT_READ&cursor=${cursor}`
+              `/api/books?status=${filterStatus}&cursor=${cursor}`
             )
             if (response.ok) {
               const json = await response.json()

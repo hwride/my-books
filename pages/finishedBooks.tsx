@@ -11,13 +11,19 @@ import { useSetHeading } from '@/components/providers/HeadingProvider'
 
 const filterStatus = Status.READ
 
-export default function FinishedBooks({ books }: { books: BookListBook[] }) {
+export default function FinishedBooks({
+  books,
+  totalBooks,
+  cursor,
+}: BookListProps) {
   useSetHeading('Finished books')
 
   return (
     <BookListPage
       title={`${coreDictionary.siteName} | finished books`}
       books={books}
+      initialTotalBooks={totalBooks}
+      nextCursor={cursor}
       filterStatus={filterStatus}
     />
   )
