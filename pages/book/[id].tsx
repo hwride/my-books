@@ -10,6 +10,7 @@ import { useSetHeading } from '@/components/providers/HeadingProvider'
 import { Form } from '@/components/Form'
 import { Input } from '@/components/ui/input'
 import { Pencil1Icon } from '@radix-ui/react-icons'
+import { useRouter } from 'next/router'
 
 type BookProps = { initialBook: BookListBook }
 
@@ -18,7 +19,9 @@ export default function Book({ initialBook }: BookProps) {
   const { title, author } = book
   useSetHeading(title)
 
+  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
+  const [isDeletePending, setIsDeletePending] = useState(false)
 
   return (
     <>
@@ -36,19 +39,43 @@ export default function Book({ initialBook }: BookProps) {
           onCancel={() => setIsEditing(false)}
         />
       ) : (
-        <div className="flex w-full max-w-screen-sm self-center px-page">
-          <div className="flex-1">
-            <div className=" text-xl">{title}</div>
-            <div className="text-lg text-gray-400">by {author}</div>
+        <div className="w-full max-w-screen-sm self-center px-page">
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <div className=" text-xl">{title}</div>
+              <div className="text-lg text-gray-400">by {author}</div>
+            </div>
+            <Button
+              onClick={() => setIsEditing(true)}
+              aria-label="Edit book"
+              size="icon"
+              variant="outline"
+              disabled={
+                isDeletePending /* Don't let users edit when a delete is pending */
+              }
+            >
+              <Pencil1Icon />
+            </Button>
           </div>
-          <Button
-            onClick={() => setIsEditing(true)}
-            aria-label="Edit book"
-            size="icon"
-            variant="outline"
+          <Form<undefined>
+            method="post"
+            action={`/api/book/${book.id}`}
+            isUpdatePending={isDeletePending}
+            setIsUpdatePending={setIsDeletePending}
+            parseResponseJson={false}
+            onSuccess={() => router.push(`/readingList`)}
+            onError={() => console.error(`Failed to delete book`)}
           >
-            <Pencil1Icon />
-          </Button>
+            <input type="hidden" name="updatedAt" value={book.updatedAt} />
+            <input type="hidden" name="_method" value="DELETE" />
+            <Button
+              className="mx-auto mt-2 block"
+              variant="destructive"
+              disabled={isDeletePending}
+            >
+              Delete book
+            </Button>
+          </Form>
         </div>
       )}
     </>

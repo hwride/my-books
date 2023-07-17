@@ -9,6 +9,7 @@ export function Form<ReturnData>({
   method,
   action,
   children,
+  parseResponseJson = true,
   onSubmit,
   isUpdatePending,
   setIsUpdatePending,
@@ -16,6 +17,7 @@ export function Form<ReturnData>({
   onError,
   ...rest
 }: FormHTMLAttributes<HTMLFormElement> & {
+  parseResponseJson?: boolean
   isUpdatePending: boolean
   setIsUpdatePending: (isUpdatePending: boolean) => void
   // Will wait for onSuccess or onError to finish before declaring update as no longer pending.
@@ -51,7 +53,7 @@ export function Form<ReturnData>({
     const r = await fetch(form.action, options)
 
     if (r.ok) {
-      const data = await r.json()
+      const data = parseResponseJson ? await r.json() : undefined
       await onSuccess(data)
     } else {
       await onError(data)
