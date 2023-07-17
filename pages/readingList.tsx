@@ -11,13 +11,14 @@ import { useSetHeading } from '@/components/providers/HeadingProvider'
 
 const filterStatus = Status.NOT_READ
 
-export default function ReadingList({ books }: { books: BookListBook[] }) {
+export default function ReadingList({ books, cursor }: BookListProps) {
   useSetHeading('Reading list')
 
   return (
     <BookListPage
       title={`${coreDictionary.siteName} | reading list`}
       books={books}
+      nextCursor={cursor}
       filterStatus={filterStatus}
     />
   )

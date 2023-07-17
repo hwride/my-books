@@ -12,9 +12,11 @@ export type BookListBook = Pick<
 >
 export function BookList({
   initialBooks,
+  nextCursor,
   filterStatus,
 }: {
   initialBooks: BookListBook[]
+  nextCursor?: number
   filterStatus: Status
 }) {
   const filterBooks = (books: BookListBook[]) =>
@@ -44,6 +46,11 @@ export function BookList({
           ))}
         </AnimatePresence>
       </ul>
+      {nextCursor ? (
+        <Button variant="outline" className="self-center">
+          Load more
+        </Button>
+      ) : null}
     </div>
   )
 }
