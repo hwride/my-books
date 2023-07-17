@@ -34,7 +34,14 @@ export default async function getBooks(
     findOpts.skip = 1 // Skip the cursor which was the last result
   }
 
-  const books = await prisma.book.findMany(findOpts)
+  const countPromise = prisma.book.count({
+    where: {
+      userId,
+      status,
+    },
+  })
+  const booksPromise = prisma.book.findMany(findOpts)
+  const [count, books] = await Promise.all([countPromise, booksPromise])
 
   const hasMore = books.length > pageSize
   if (hasMore) {
@@ -43,6 +50,7 @@ export default async function getBooks(
   const nextCursor = hasMore ? books[0].id : null
 
   return {
+    totalBooks: count,
     books,
     nextCursor,
   }

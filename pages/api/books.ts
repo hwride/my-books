@@ -13,6 +13,7 @@ type Data =
       message?: string
     }
   | {
+      totalBooks: number
       books: BooksSerializable
       cursor: number | null
     }
@@ -38,6 +39,7 @@ export default async function books(
   try {
     const results = await getBooks(userId, status, Number(cursor))
     return res.status(200).send({
+      totalBooks: results.totalBooks,
       books: results.books.map((book) => {
         const { userId, ...rest } = book
         return {

@@ -6,6 +6,7 @@ import getBooks from '@/server/books'
 
 export type BookListProps = {
   books: BookListBook[]
+  totalBooks: number
   cursor: number | null
 }
 
@@ -31,6 +32,7 @@ export const getServerSidePropsHelper = async (
         ...book,
         updatedAt: book.updatedAt.toISOString(),
       })),
+      totalBooks: results.totalBooks,
       cursor: results.nextCursor,
       ...buildClerkProps(req),
     },

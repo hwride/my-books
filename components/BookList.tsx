@@ -11,10 +11,12 @@ export type BookListBook = Pick<
   'id' | 'updatedAt' | 'title' | 'author' | 'status'
 >
 export function BookList({
+  initialTotalBooks,
   initialBooks,
   initialNextCursor,
   filterStatus,
 }: {
+  initialTotalBooks: number
   initialBooks: BookListBook[]
   initialNextCursor: number | null
   filterStatus: Status
@@ -25,11 +27,15 @@ export function BookList({
     filterBooks(initialBooks)
   )
 
+  const [totalBooks, setTotalBooks] = useState(initialTotalBooks)
   const [loadMore, setLoadMore] = useState('idle')
   const [cursor, setCursor] = useState(initialNextCursor)
 
   return (
     <div className="flex flex-col overflow-hidden">
+      <div className="px-page text-right italic text-gray-600">
+        Showing {books.length} of {totalBooks}
+      </div>
       <ul className="overflow-auto px-page">
         <AnimatePresence initial={false}>
           {books.map((book) => (
@@ -63,6 +69,7 @@ export function BookList({
               const json = await response.json()
               const newBooks = json.books
               setBooks((books) => [...books, ...newBooks])
+              setTotalBooks(json.totalBooks)
               setCursor(json.cursor)
               setLoadMore('success')
             } else {
