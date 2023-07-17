@@ -66,31 +66,31 @@ export function BookList({
           ))}
           <div ref={endOfListRef} />
         </AnimatePresence>
+        <Button
+          className="mx-auto mb-4 block"
+          variant="outline"
+          disabled={cursor == null || loadMore === 'pending'}
+          onClick={async () => {
+            setLoadMore('pending')
+            const response = await fetch(
+              `/api/books?status=${filterStatus}&cursor=${cursor}`
+            )
+            if (response.ok) {
+              const json = await response.json()
+              const newBooks = json.books
+              setShouldScrollBooksToEnd(true)
+              setBooks((books) => [...books, ...newBooks])
+              setTotalBooks(json.totalBooks)
+              setCursor(json.cursor)
+              setLoadMore('success')
+            } else {
+              setLoadMore('error')
+            }
+          }}
+        >
+          Load more
+        </Button>
       </ul>
-      <Button
-        className="mx-auto my-4"
-        variant="outline"
-        disabled={cursor == null || loadMore === 'pending'}
-        onClick={async () => {
-          setLoadMore('pending')
-          const response = await fetch(
-            `/api/books?status=${filterStatus}&cursor=${cursor}`
-          )
-          if (response.ok) {
-            const json = await response.json()
-            const newBooks = json.books
-            setShouldScrollBooksToEnd(true)
-            setBooks((books) => [...books, ...newBooks])
-            setTotalBooks(json.totalBooks)
-            setCursor(json.cursor)
-            setLoadMore('success')
-          } else {
-            setLoadMore('error')
-          }
-        }}
-      >
-        Load more
-      </Button>
     </div>
   )
 }
