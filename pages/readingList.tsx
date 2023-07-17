@@ -20,9 +20,9 @@ export default function ReadingList({
   return (
     <BookListPage
       title={`${coreDictionary.siteName} | reading list`}
-      books={books}
+      initialBooks={books}
       initialTotalBooks={totalBooks}
-      nextCursor={cursor}
+      initialNextCursor={cursor}
       filterStatus={filterStatus}
     />
   )

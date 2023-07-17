@@ -21,9 +21,9 @@ export default function FinishedBooks({
   return (
     <BookListPage
       title={`${coreDictionary.siteName} | finished books`}
-      books={books}
+      initialBooks={books}
       initialTotalBooks={totalBooks}
-      nextCursor={cursor}
+      initialNextCursor={cursor}
       filterStatus={filterStatus}
     />
   )
