@@ -13,11 +13,11 @@ export type BookListBook = Pick<
 >
 export function BookList({
   initialBooks,
-  initialCursor,
+  initialNextCursor,
   filterStatus,
 }: {
   initialBooks: BookListBook[]
-  initialCursor: number | null
+  initialNextCursor: number | null
   filterStatus: Status
 }) {
   const filterBooks = (books: BookListBook[]) =>
@@ -26,16 +26,18 @@ export function BookList({
     filterBooks(initialBooks)
   )
 
+  const [cursor, setCursor] = useState(initialNextCursor)
+
   const router = useRouter()
-  const cursor = router.query?.cursor
-  useEffect(() => {
-    setBooks((books) => {
-      const booksToAdd = initialBooks.filter(
-        (newBook) => !books.find((currentBook) => currentBook.id === newBook.id)
-      )
-      return [...books, ...booksToAdd]
-    })
-  }, [initialBooks])
+  // const cursor = router.query?.cursor
+  // useEffect(() => {
+  //   setBooks((books) => {
+  //     const booksToAdd = initialBooks.filter(
+  //       (newBook) => !books.find((currentBook) => currentBook.id === newBook.id)
+  //     )
+  //     return [...books, ...booksToAdd]
+  //   })
+  // }, [initialBooks])
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -58,13 +60,18 @@ export function BookList({
           ))}
         </AnimatePresence>
       </ul>
-      {initialCursor ? (
-        <Link
-          className="mx-auto hover:underline"
-          href={`/readingList?cursor=${initialCursor}`}
+      {cursor ? (
+        <Button
+          className="mx-auto"
+          variant="outline"
+          onClick={async (e) => {
+            const books = await fetch(
+              `/api/books?status=NOT_READ&cursor=${cursor}`
+            )
+          }}
         >
           Load more
-        </Link>
+        </Button>
       ) : null}
     </div>
   )

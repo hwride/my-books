@@ -21,7 +21,7 @@ export default function BookListPage({
       </Head>
       <BookList
         initialBooks={books}
-        initialCursor={nextCursor}
+        initialNextCursor={nextCursor}
         filterStatus={filterStatus}
       />
     </>
