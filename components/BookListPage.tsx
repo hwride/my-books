@@ -10,7 +10,7 @@ export default function BookListPage({
 }: {
   title: string
   books: BookListBook[]
-  nextCursor?: number
+  nextCursor: number | null
   filterStatus: Status
 }) {
   return (
@@ -21,7 +21,7 @@ export default function BookListPage({
       </Head>
       <BookList
         initialBooks={books}
-        nextCursor={nextCursor}
+        initialCursor={nextCursor}
         filterStatus={filterStatus}
       />
     </>

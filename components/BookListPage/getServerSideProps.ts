@@ -1,4 +1,3 @@
-// Needs to be SSRd because it can vary based on signed-in user.
 import { PrismaClient, Status } from '@prisma/client'
 import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
 import { BookListBook } from '@/components/BookList'
@@ -6,7 +5,7 @@ import { Prisma } from '@prisma/client'
 
 export type BookListProps = {
   books: BookListBook[]
-  cursor?: number
+  cursor: number | null
 }
 
 export const getServerSidePropsHelper = async (
@@ -43,7 +42,7 @@ export const getServerSidePropsHelper = async (
     findOpts.skip = 1 // Skip the cursor which was the last result
   }
   const books = await prisma.book.findMany(findOpts)
-  const nextCursor = books?.length > 0 ? books[0].id : undefined
+  const nextCursor = books?.length > 0 ? books[0].id : null
 
   return {
     props: {

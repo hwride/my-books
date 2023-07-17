@@ -7,7 +7,6 @@ import {
 } from '@/components/BookListPage/getServerSideProps'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
-import { ParsedUrlQuery } from 'querystring'
 
 const filterStatus = Status.NOT_READ
 

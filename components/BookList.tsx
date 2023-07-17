@@ -1,5 +1,5 @@
 import { Status } from '@prisma/client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BookSerializable } from '@/pages/api/book'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
@@ -13,19 +13,29 @@ export type BookListBook = Pick<
 >
 export function BookList({
   initialBooks,
-  nextCursor,
+  initialCursor,
   filterStatus,
 }: {
   initialBooks: BookListBook[]
-  nextCursor?: number
+  initialCursor: number | null
   filterStatus: Status
 }) {
-  const router = useRouter()
   const filterBooks = (books: BookListBook[]) =>
     books.filter((book) => book.status === filterStatus)
   const [books, setBooks] = useState<BookListBook[]>(() =>
     filterBooks(initialBooks)
   )
+
+  const router = useRouter()
+  const cursor = router.query?.cursor
+  useEffect(() => {
+    setBooks((books) => {
+      const booksToAdd = initialBooks.filter(
+        (newBook) => !books.find((currentBook) => currentBook.id === newBook.id)
+      )
+      return [...books, ...booksToAdd]
+    })
+  }, [initialBooks])
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -48,10 +58,10 @@ export function BookList({
           ))}
         </AnimatePresence>
       </ul>
-      {nextCursor ? (
+      {initialCursor ? (
         <Link
           className="mx-auto hover:underline"
-          href={`/readingList?cursor=${nextCursor}`}
+          href={`/readingList?cursor=${initialCursor}`}
         >
           Load more
         </Link>
