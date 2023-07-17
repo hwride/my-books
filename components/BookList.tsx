@@ -1,7 +1,7 @@
 import { Status } from '@prisma/client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { BookSerializable } from '@/pages/api/book'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, AnimationDefinition } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
@@ -31,9 +31,11 @@ export function BookList({
   const [loadMore, setLoadMore] = useState('idle')
   const [cursor, setCursor] = useState(initialNextCursor)
 
+  const endOfListRef = useRef<HTMLDivElement>(null)
+
   return (
     <div className="flex flex-col overflow-hidden">
-      <div className="px-page text-right italic text-gray-600">
+      <div className="px-page pb-2 text-right italic text-gray-600">
         Showing {books.length} of {totalBooks}
       </div>
       <ul className="overflow-auto px-page">
@@ -51,8 +53,14 @@ export function BookList({
                   )
                 )
               }
+              // Scroll to the end of the list whenever books changes. Need to wait for framer motion animations to
+              // finish first though.
+              onAnimationComplete={() => {
+                endOfListRef.current?.scrollIntoView({ behavior: 'smooth' })
+              }}
             />
           ))}
+          <div ref={endOfListRef} />
         </AnimatePresence>
       </ul>
       <Button
@@ -85,9 +93,11 @@ export function BookList({
 function BookListItem({
   book,
   onBookChange,
+  onAnimationComplete,
 }: {
   book: BookListBook
   onBookChange: (book: BookListBook) => void
+  onAnimationComplete: (definition: AnimationDefinition) => void
 }) {
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
@@ -99,6 +109,7 @@ function BookListItem({
       transition={{ duration: 0.3 }}
       key={book.id}
       className="overflow-hidden"
+      onAnimationComplete={onAnimationComplete}
     >
       <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center gap-2 py-4">
         <Link className="group" href={`book/${book.id}`}>
