@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
+import { useRouter } from 'next/router'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -19,6 +20,7 @@ export function BookList({
   nextCursor?: number
   filterStatus: Status
 }) {
+  const router = useRouter()
   const filterBooks = (books: BookListBook[]) =>
     books.filter((book) => book.status === filterStatus)
   const [books, setBooks] = useState<BookListBook[]>(() =>
@@ -47,9 +49,12 @@ export function BookList({
         </AnimatePresence>
       </ul>
       {nextCursor ? (
-        <Button variant="outline" className="self-center">
+        <Link
+          className="mx-auto hover:underline"
+          href={`/readingList?cursor=${nextCursor}`}
+        >
           Load more
-        </Button>
+        </Link>
       ) : null}
     </div>
   )

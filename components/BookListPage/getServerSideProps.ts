@@ -2,6 +2,7 @@
 import { PrismaClient, Status } from '@prisma/client'
 import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
 import { BookListBook } from '@/components/BookList'
+import { Prisma } from '@prisma/client'
 
 export type BookListProps = {
   books: BookListBook[]
@@ -10,14 +11,15 @@ export type BookListProps = {
 
 export const getServerSidePropsHelper = async (
   filterStatus: Status,
-  { req }: { req: any }
+  context: any
 ) => {
+  const { req, query } = context
   const { userId } = getAuth(req)
   if (userId == null) {
     throw new Error('Should not have access to this page when not signed in')
   }
   const prisma = new PrismaClient()
-  const books = await prisma.book.findMany({
+  const findOpts: Prisma.BookFindManyArgs = {
     take: 1,
     select: {
       id: true,
@@ -33,8 +35,15 @@ export const getServerSidePropsHelper = async (
     orderBy: {
       createdAt: 'asc',
     },
-  })
-  const cursor = books?.length > 0 ? books[0].id : undefined
+  }
+  if (query.cursor) {
+    findOpts.cursor = {
+      id: Number(query.cursor),
+    }
+    findOpts.skip = 1 // Skip the cursor which was the last result
+  }
+  const books = await prisma.book.findMany(findOpts)
+  const nextCursor = books?.length > 0 ? books[0].id : undefined
 
   return {
     props: {
@@ -42,7 +51,7 @@ export const getServerSidePropsHelper = async (
         ...book,
         updatedAt: book.updatedAt.toISOString(),
       })),
-      cursor,
+      cursor: nextCursor,
       ...buildClerkProps(req),
     },
   }
