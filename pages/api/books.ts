@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
-import { Prisma, Book, PrismaClient, Status } from '@prisma/client'
+import { Book, Status } from '@prisma/client'
 import { ReplaceDateWithStrings } from '@/utils/typeUtils'
+import getBooks from '@/server/books'
 
 export type BooksSerializable = Pick<
   ReplaceDateWithStrings<Book>,
@@ -34,43 +35,17 @@ export default async function books(
     return res.status(400).json({ message: 'status is required' })
   }
 
-  const prisma = new PrismaClient()
   try {
-    const findOpts: Prisma.BookFindManyArgs = {
-      take: 1,
-      select: {
-        id: true,
-        updatedAt: true,
-        title: true,
-        author: true,
-        status: true,
-      },
-      where: {
-        userId,
-        status,
-      },
-      orderBy: {
-        createdAt: 'asc',
-      },
-    }
-    if (cursor) {
-      findOpts.cursor = {
-        id: 1,
-      }
-      findOpts.skip = 1 // Skip the cursor which was the last result
-    }
-    const books = await prisma.book.findMany(findOpts)
-    const nextCursor = books?.length > 0 ? books[0].id : null
-
+    const results = await getBooks(userId, status, Number(cursor))
     return res.status(200).send({
-      books: books.map((book) => {
+      books: results.books.map((book) => {
         const { userId, ...rest } = book
         return {
           ...rest,
           updatedAt: book.updatedAt.toISOString(),
         }
       }),
-      cursor: nextCursor,
+      cursor: results.nextCursor,
     })
   } catch (e: any) {
     console.error(`Books get error, code: ${e.code}`, e)
@@ -78,6 +53,4 @@ export default async function books(
       .status(500)
       .send({ message: 'An error occurred while getting books.' })
   }
-
-  return res.status(200).end()
 }

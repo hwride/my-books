@@ -65,9 +65,13 @@ export function BookList({
           className="mx-auto"
           variant="outline"
           onClick={async (e) => {
-            const books = await fetch(
+            const response = await fetch(
               `/api/books?status=NOT_READ&cursor=${cursor}`
             )
+            const json = await response.json()
+            const newBooks = json.books
+            setBooks((books) => [...books, ...newBooks])
+            setCursor(json.cursor)
           }}
         >
           Load more
@@ -95,7 +99,7 @@ function BookListItem({
       key={book.id}
       className="overflow-hidden"
     >
-      <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center py-4">
+      <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center gap-2 py-4">
         <Link className="group" href={`book/${book.id}`}>
           <div className="col-start-1 row-start-1 text-lg group-hover:underline">
             {book.title}
