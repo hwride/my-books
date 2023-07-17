@@ -55,31 +55,29 @@ export function BookList({
           ))}
         </AnimatePresence>
       </ul>
-      {cursor ? (
-        <Button
-          className="mx-auto"
-          variant="outline"
-          disabled={loadMore === 'pending'}
-          onClick={async () => {
-            setLoadMore('pending')
-            const response = await fetch(
-              `/api/books?status=${filterStatus}&cursor=${cursor}`
-            )
-            if (response.ok) {
-              const json = await response.json()
-              const newBooks = json.books
-              setBooks((books) => [...books, ...newBooks])
-              setTotalBooks(json.totalBooks)
-              setCursor(json.cursor)
-              setLoadMore('success')
-            } else {
-              setLoadMore('error')
-            }
-          }}
-        >
-          Load more
-        </Button>
-      ) : null}
+      <Button
+        className="mx-auto my-4"
+        variant="outline"
+        disabled={cursor == null || loadMore === 'pending'}
+        onClick={async () => {
+          setLoadMore('pending')
+          const response = await fetch(
+            `/api/books?status=${filterStatus}&cursor=${cursor}`
+          )
+          if (response.ok) {
+            const json = await response.json()
+            const newBooks = json.books
+            setBooks((books) => [...books, ...newBooks])
+            setTotalBooks(json.totalBooks)
+            setCursor(json.cursor)
+            setLoadMore('success')
+          } else {
+            setLoadMore('error')
+          }
+        }}
+      >
+        Load more
+      </Button>
     </div>
   )
 }
