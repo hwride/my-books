@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient, Status } from '@prisma/client'
+import { pageSize } from '@/config'
 
 export default async function getBooks(
   userId: string,
@@ -7,7 +8,8 @@ export default async function getBooks(
 ) {
   const prisma = new PrismaClient()
   const findOpts: Prisma.BookFindManyArgs = {
-    take: 1,
+    // Take one extra so we can check if there are more results to come.
+    take: pageSize + 1,
     select: {
       id: true,
       updatedAt: true,
@@ -23,14 +25,23 @@ export default async function getBooks(
       createdAt: 'asc',
     },
   }
+
+  // If a cursor was provided start our search from there.
   if (cursor) {
     findOpts.cursor = {
       id: cursor,
     }
     findOpts.skip = 1 // Skip the cursor which was the last result
   }
+
   const books = await prisma.book.findMany(findOpts)
-  const nextCursor = books?.length > 0 ? books[0].id : null
+
+  const hasMore = books.length > pageSize
+  if (hasMore) {
+    books.pop() // Remove the extra item.
+  }
+  const nextCursor = hasMore ? books[0].id : null
+
   return {
     books,
     nextCursor,

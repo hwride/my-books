@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
-import { useRouter } from 'next/router'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -26,18 +25,8 @@ export function BookList({
     filterBooks(initialBooks)
   )
 
+  const [loadMore, setLoadMore] = useState('idle')
   const [cursor, setCursor] = useState(initialNextCursor)
-
-  const router = useRouter()
-  // const cursor = router.query?.cursor
-  // useEffect(() => {
-  //   setBooks((books) => {
-  //     const booksToAdd = initialBooks.filter(
-  //       (newBook) => !books.find((currentBook) => currentBook.id === newBook.id)
-  //     )
-  //     return [...books, ...booksToAdd]
-  //   })
-  // }, [initialBooks])
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -64,14 +53,21 @@ export function BookList({
         <Button
           className="mx-auto"
           variant="outline"
-          onClick={async (e) => {
+          disabled={loadMore === 'pending'}
+          onClick={async () => {
+            setLoadMore('pending')
             const response = await fetch(
               `/api/books?status=NOT_READ&cursor=${cursor}`
             )
-            const json = await response.json()
-            const newBooks = json.books
-            setBooks((books) => [...books, ...newBooks])
-            setCursor(json.cursor)
+            if (response.ok) {
+              const json = await response.json()
+              const newBooks = json.books
+              setBooks((books) => [...books, ...newBooks])
+              setCursor(json.cursor)
+              setLoadMore('success')
+            } else {
+              setLoadMore('error')
+            }
           }}
         >
           Load more
