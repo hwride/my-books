@@ -4,12 +4,16 @@ import { Status } from '@prisma/client'
 
 export default function BookListPage({
   title,
-  books,
   filterStatus,
+  initialBooks,
+  initialTotalBooks,
+  initialNextCursor,
 }: {
   title: string
-  books: BookListBook[]
   filterStatus: Status
+  initialBooks: BookListBook[]
+  initialTotalBooks: number
+  initialNextCursor: number | null
 }) {
   return (
     <>
@@ -17,7 +21,12 @@ export default function BookListPage({
         <title>{title}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <BookList initialBooks={books} filterStatus={filterStatus} />
+      <BookList
+        filterStatus={filterStatus}
+        initialBooks={initialBooks}
+        initialTotalBooks={initialTotalBooks}
+        initialNextCursor={initialNextCursor}
+      />
     </>
   )
 }

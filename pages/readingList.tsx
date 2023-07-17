@@ -1,25 +1,35 @@
-import { BookListBook } from '@/components/BookList'
 import { Status } from '@prisma/client'
 import { GetServerSideProps } from 'next'
 import BookListPage from '@/components/BookListPage'
-import { getServerSidePropsHelper } from '@/components/BookListPage/getServerSideProps'
+import {
+  BookListProps,
+  getServerSidePropsHelper,
+} from '@/components/BookListPage/getServerSideProps'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
 
 const filterStatus = Status.NOT_READ
 
-export default function ReadingList({ books }: { books: BookListBook[] }) {
+export default function ReadingList({
+  books,
+  totalBooks,
+  cursor,
+}: BookListProps) {
   useSetHeading('Reading list')
 
   return (
     <BookListPage
       title={`${coreDictionary.siteName} | reading list`}
-      books={books}
+      initialBooks={books}
+      initialTotalBooks={totalBooks}
+      initialNextCursor={cursor}
       filterStatus={filterStatus}
     />
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (opts) => {
+export const getServerSideProps: GetServerSideProps<BookListProps> = async (
+  opts
+) => {
   return getServerSidePropsHelper(filterStatus, opts)
 }

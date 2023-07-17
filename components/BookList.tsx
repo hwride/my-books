@@ -1,7 +1,7 @@
 import { Status } from '@prisma/client'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { BookSerializable } from '@/pages/api/book'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, AnimationDefinition } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
@@ -11,10 +11,14 @@ export type BookListBook = Pick<
   'id' | 'updatedAt' | 'title' | 'author' | 'status'
 >
 export function BookList({
+  initialTotalBooks,
   initialBooks,
+  initialNextCursor,
   filterStatus,
 }: {
+  initialTotalBooks: number
   initialBooks: BookListBook[]
+  initialNextCursor: number | null
   filterStatus: Status
 }) {
   const filterBooks = (books: BookListBook[]) =>
@@ -23,8 +27,19 @@ export function BookList({
     filterBooks(initialBooks)
   )
 
+  // Don't scroll books to end for initial page load, as we want users to see the start of the list.
+  const [shouldScrollBooksToEnd, setShouldScrollBooksToEnd] = useState(false)
+  const [totalBooks, setTotalBooks] = useState(initialTotalBooks)
+  const [loadMore, setLoadMore] = useState('idle')
+  const [cursor, setCursor] = useState(initialNextCursor)
+
+  const endOfListRef = useRef<HTMLDivElement>(null)
+
   return (
     <div className="flex flex-col overflow-hidden">
+      <div className="px-page pb-2 text-right italic text-gray-600">
+        Showing {books.length} of {totalBooks}
+      </div>
       <ul className="overflow-auto px-page">
         <AnimatePresence initial={false}>
           {books.map((book) => (
@@ -40,9 +55,41 @@ export function BookList({
                   )
                 )
               }
+              // Scroll to the end of the list whenever books changes. Need to wait for framer motion animations to
+              // finish first though.
+              onAnimationComplete={() => {
+                if (shouldScrollBooksToEnd) {
+                  endOfListRef.current?.scrollIntoView({ behavior: 'smooth' })
+                }
+              }}
             />
           ))}
+          <div ref={endOfListRef} />
         </AnimatePresence>
+        <Button
+          className="mx-auto mb-4 block"
+          variant="outline"
+          disabled={cursor == null || loadMore === 'pending'}
+          onClick={async () => {
+            setLoadMore('pending')
+            const response = await fetch(
+              `/api/books?status=${filterStatus}&cursor=${cursor}`
+            )
+            if (response.ok) {
+              const json = await response.json()
+              const newBooks = json.books
+              setShouldScrollBooksToEnd(true)
+              setBooks((books) => [...books, ...newBooks])
+              setTotalBooks(json.totalBooks)
+              setCursor(json.cursor)
+              setLoadMore('success')
+            } else {
+              setLoadMore('error')
+            }
+          }}
+        >
+          Load more
+        </Button>
       </ul>
     </div>
   )
@@ -51,9 +98,11 @@ export function BookList({
 function BookListItem({
   book,
   onBookChange,
+  onAnimationComplete,
 }: {
   book: BookListBook
   onBookChange: (book: BookListBook) => void
+  onAnimationComplete: (definition: AnimationDefinition) => void
 }) {
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
@@ -65,8 +114,9 @@ function BookListItem({
       transition={{ duration: 0.3 }}
       key={book.id}
       className="overflow-hidden"
+      onAnimationComplete={onAnimationComplete}
     >
-      <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center py-4">
+      <div className="grid grid-cols-[1fr_auto] grid-rows-1 items-center gap-2 py-4">
         <Link className="group" href={`book/${book.id}`}>
           <div className="col-start-1 row-start-1 text-lg group-hover:underline">
             {book.title}
