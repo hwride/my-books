@@ -27,6 +27,8 @@ export function BookList({
     filterBooks(initialBooks)
   )
 
+  // Don't scroll books to end for initial page load, as we want users to see the start of the list.
+  const [shouldScrollBooksToEnd, setShouldScrollBooksToEnd] = useState(false)
   const [totalBooks, setTotalBooks] = useState(initialTotalBooks)
   const [loadMore, setLoadMore] = useState('idle')
   const [cursor, setCursor] = useState(initialNextCursor)
@@ -56,7 +58,9 @@ export function BookList({
               // Scroll to the end of the list whenever books changes. Need to wait for framer motion animations to
               // finish first though.
               onAnimationComplete={() => {
-                endOfListRef.current?.scrollIntoView({ behavior: 'smooth' })
+                if (shouldScrollBooksToEnd) {
+                  endOfListRef.current?.scrollIntoView({ behavior: 'smooth' })
+                }
               }}
             />
           ))}
@@ -75,6 +79,7 @@ export function BookList({
           if (response.ok) {
             const json = await response.json()
             const newBooks = json.books
+            setShouldScrollBooksToEnd(true)
             setBooks((books) => [...books, ...newBooks])
             setTotalBooks(json.totalBooks)
             setCursor(json.cursor)
