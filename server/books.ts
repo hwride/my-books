@@ -48,7 +48,7 @@ export default async function getBooks(
   if (hasMore) {
     books.pop() // Remove the extra item.
   }
-  const nextCursor = hasMore ? books[0].id : null
+  const nextCursor = hasMore ? books[books.length - 1].id : null
 
   return {
     totalBooks: count,
