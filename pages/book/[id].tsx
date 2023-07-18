@@ -11,13 +11,14 @@ import { Form } from '@/components/Form'
 import { Input } from '@/components/ui/input'
 import { Pencil1Icon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
 
 type BookProps = { initialBook: BookListBook }
 
 export default function Book({ initialBook }: BookProps) {
   const [book, setBook] = useState<BookListBook>(initialBook)
   const { title, author } = book
-  useSetHeading(title)
+  useSetHeading('')
 
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
@@ -39,11 +40,20 @@ export default function Book({ initialBook }: BookProps) {
           onCancel={() => setIsEditing(false)}
         />
       ) : (
-        <div className="w-full max-w-screen-sm self-center px-page">
+        <div className="mt-4 w-full max-w-screen-sm self-center px-page">
           <div className="flex gap-2">
-            <div className="flex-1">
-              <div className=" text-xl">{title}</div>
-              <div className="text-lg text-gray-400">by {author}</div>
+            <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:items-start">
+              <Image
+                src="/image-placeholder-1.5x1.jpg"
+                alt="Image placeholder"
+                priority={true}
+                width={200}
+                height={300}
+              />
+              <div className="sm:ml-2 sm:mt-2">
+                <div className=" text-xl">{title}</div>
+                <div className="text-lg text-gray-400">by {author}</div>
+              </div>
             </div>
             <Button
               onClick={() => setIsEditing(true)}
@@ -69,7 +79,7 @@ export default function Book({ initialBook }: BookProps) {
             <input type="hidden" name="updatedAt" value={book.updatedAt} />
             <input type="hidden" name="_method" value="DELETE" />
             <Button
-              className="mx-auto mt-2 block"
+              className="mx-auto mt-4 block"
               variant="destructive"
               disabled={isDeletePending}
             >
