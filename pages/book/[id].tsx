@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Pencil1Icon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import placeholderImg from '../../public/image-placeholder-1.5x1.jpg'
 
 type BookProps = { initialBook: BookListBook }
 
@@ -44,7 +45,7 @@ export default function Book({ initialBook }: BookProps) {
           <div className="flex gap-2">
             <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:items-start">
               <Image
-                src="/image-placeholder-1.5x1.jpg"
+                src={placeholderImg}
                 alt="Image placeholder"
                 priority={true}
                 width={200}
