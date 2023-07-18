@@ -1,7 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'f005.backblazeb2.com',
+        port: '',
+        pathname: '/file/my-books-images/**',
+      },
+    ],
+  },
 }
+// https://f005.backblazeb2.com/file/my-books-images/image-placeholder-1.5x1.jpg
 
 module.exports = nextConfig
 
