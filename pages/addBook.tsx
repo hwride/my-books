@@ -12,7 +12,24 @@ export default function AddBook() {
   useSetHeading('Add book')
 
   const router = useRouter()
+  const [validationError, setValidationError] = useState<string | null>(null)
   const [isUpdatePending, setIsUpdatePending] = useState(false)
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files && event.target.files[0]
+
+    if (file) {
+      const img = new Image()
+      img.onload = function () {
+        if (img.width !== 400 || img.height !== 600) {
+          setValidationError('The cover image must be 400x600 pixels.')
+        } else {
+          setValidationError(null)
+        }
+      }
+      img.src = URL.createObjectURL(file)
+    }
+  }
 
   return (
     <>
@@ -59,10 +76,18 @@ export default function AddBook() {
             name="image"
             type="file"
             accept="image/*"
+            onChange={handleFileChange}
             className="col-start-2 row-start-3"
           />
         </div>
-        <Button className="mx-auto block" disabled={isUpdatePending}>
+
+        {validationError && (
+          <p className="text-center text-red-500">{validationError}</p>
+        )}
+        <Button
+          className="mx-auto mt-4 block"
+          disabled={validationError != null || isUpdatePending}
+        >
           Add book
         </Button>
       </Form>
