@@ -65,9 +65,9 @@ export default async function addBook(
 
   const prisma = new PrismaClient()
   try {
+    let friendlyUrl
     if (imageFile != null) {
-      const { friendlyUrl } = await uploadImage(imageFile)
-      // TODO: write URL to database
+      ;({ friendlyUrl } = await uploadImage(imageFile))
     }
 
     const newBook = await prisma.book.create({
@@ -75,6 +75,7 @@ export default async function addBook(
         userId,
         title,
         author,
+        coverImageUrl: friendlyUrl,
       },
     })
 
