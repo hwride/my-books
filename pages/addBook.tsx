@@ -51,9 +51,17 @@ export default function AddBook() {
             required
             className="col-start-2 row-start-2 self-stretch"
           />
+          <label htmlFor="new-book-image" className="row-start-3 block">
+            Cover image
+          </label>
+          <Input
+            id="new-book-image"
+            name="image"
+            type="file"
+            accept="image/*"
+            className="col-start-2 row-start-3 self-stretch"
+          />
         </div>
-        {/* After a successful creation isUpdatePending is briefly false before routing completes. So also include
-           check which disables it in case of success to wait for routing to finish. */}
         <Button className="mx-auto block" disabled={isUpdatePending}>
           Add book
         </Button>
