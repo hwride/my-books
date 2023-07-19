@@ -9,14 +9,11 @@ import {
 } from '@/lib/formidable/firstValues'
 import formidable, { File } from 'formidable'
 import IncomingForm from 'formidable/Formidable'
-import {
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import * as fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { serverEnv } from '@/env/serverEnv.mjs'
+import sharp from 'sharp'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -52,17 +49,27 @@ export default async function addBook(
     ;[fields, imageFile] = await parseForm(req)
   } catch (e) {
     console.error(`Error parsing form data`, e)
-    return res
-      .status(400)
-      .json({
-        message:
-          e instanceof KnownError ? e.message : 'Error reading form data',
-      })
+    return res.status(400).json({
+      message: e instanceof KnownError ? e.message : 'Error reading form data',
+    })
   }
 
   const { title, author, returnCreated } = fields
   if (!title || !author) {
     return res.status(400).json({ message: 'title and author is required' })
+  }
+
+  // Check image dimensions
+  if (imageFile != null) {
+    const image = sharp(imageFile.filepath)
+    const metadata = await image.metadata()
+
+    // This support 2x device pixel ratio displays as 200x300 CSS pixel size.
+    if (metadata.width !== 400 || metadata.height !== 600) {
+      return res
+        .status(400)
+        .json({ message: 'cover images must be 400x600 pixels' })
+    }
   }
 
   const prisma = new PrismaClient()
