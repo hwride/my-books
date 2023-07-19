@@ -1,6 +1,6 @@
 import { withSentryConfig } from '@sentry/nextjs'
 
-await import("./env/serverEnv.mjs");
+await import("./env/env.mjs");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
