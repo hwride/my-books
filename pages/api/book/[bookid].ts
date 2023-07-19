@@ -34,23 +34,11 @@ export default async function updateBook(
     return res.status(400).json({ message: 'Not logged in' })
   }
 
-  const form: IncomingForm = formidable({})
-
+  // Parse form fields
   let fields: FieldsSingle
   let files: formidable.Files
   try {
-    const [fieldsMultiple, filesInner] = await form.parse(req)
-    fields = convertFieldsToSingle(
-      fieldsMultiple,
-      '_method',
-      'updatedAt',
-      'returnCreated',
-      'title',
-      'author',
-      'status',
-      'description'
-    )
-    files = filesInner
+    ;[fields, files] = await parseForm(req)
   } catch (e) {
     console.error(`Error parsing form data`, e)
     return res.status(400).json({ message: 'Error reading form data' })
@@ -133,4 +121,23 @@ export default async function updateBook(
       .status(500)
       .send({ message: 'An error occurred while performing the update.' })
   }
+}
+
+async function parseForm(
+  req: NextApiRequest
+): Promise<[FieldsSingle, formidable.Files]> {
+  const form: IncomingForm = formidable({})
+
+  const [fieldsMultiple, files] = await form.parse(req)
+  const fields = convertFieldsToSingle(
+    fieldsMultiple,
+    '_method',
+    'updatedAt',
+    'returnCreated',
+    'title',
+    'author',
+    'status',
+    'description'
+  )
+  return [fields, files]
 }
