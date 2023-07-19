@@ -1,10 +1,14 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse, PageConfig } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import { Book, PrismaClient } from '@prisma/client'
 import { codes } from '@/prisma/constants'
 import { ReplaceDateWithStrings } from '@/utils/typeUtils'
-import { redirect } from 'next/navigation'
-import { NextResponse } from 'next/server'
+import {
+  convertFieldsToSingle,
+  FieldsSingle,
+} from '@/lib/formidable/firstValues'
+import formidable from 'formidable'
+import IncomingForm from 'formidable/Formidable'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -12,6 +16,12 @@ type Data =
       message?: string
     }
   | BookSerializable
+
+export const config: PageConfig = {
+  api: {
+    bodyParser: false,
+  },
+}
 
 export default async function addBook(
   req: NextApiRequest,
@@ -26,7 +36,16 @@ export default async function addBook(
     return res.status(400).json({ message: 'Not logged in' })
   }
 
-  const { title, author, returnCreated } = req.body
+  let fields: FieldsSingle
+  let files: formidable.Files
+  try {
+    ;[fields, files] = await parseForm(req)
+  } catch (e) {
+    console.error(`Error parsing form data`, e)
+    return res.status(400).json({ message: 'Error reading form data' })
+  }
+
+  const { title, author, returnCreated } = fields
   if (!title || !author) {
     return res.status(400).json({ message: 'title and author is required' })
   }
@@ -67,6 +86,19 @@ export default async function addBook(
         .send({ message: 'An error occurred while creating the book.' })
     }
   }
+}
 
-  return res.status(200).end()
+async function parseForm(
+  req: NextApiRequest
+): Promise<[FieldsSingle, formidable.Files]> {
+  const form: IncomingForm = formidable({})
+
+  const [fieldsMultiple, files] = await form.parse(req)
+  const fields = convertFieldsToSingle(
+    fieldsMultiple,
+    'title',
+    'author',
+    'returnCreated'
+  )
+  return [fields, files]
 }
