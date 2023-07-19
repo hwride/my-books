@@ -7,6 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Form } from '@/components/Form'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
 import { BookListBook } from '@/components/BookList'
+import {
+  maxCoverImageFileSizeBytes,
+  maxCoverImageFileSizeBytesLabel,
+} from '@/config'
 
 export default function AddBook() {
   useSetHeading('Add book')
@@ -19,6 +23,15 @@ export default function AddBook() {
     const file = event.target.files && event.target.files[0]
 
     if (file) {
+      // Check file size
+      if (file.size > maxCoverImageFileSizeBytes) {
+        setValidationError(
+          `The cover image must be no larger than ${maxCoverImageFileSizeBytesLabel}.`
+        )
+        return
+      }
+
+      // Check image dimensions
       const img = new Image()
       img.onload = function () {
         if (img.width !== 400 || img.height !== 600) {

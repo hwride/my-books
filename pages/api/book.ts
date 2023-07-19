@@ -7,13 +7,17 @@ import {
   convertFieldsToSingle,
   FieldsSingle,
 } from '@/lib/formidable/firstValues'
-import formidable, { File } from 'formidable'
+import formidable, { File, errors as formidableErrors } from 'formidable'
 import IncomingForm from 'formidable/Formidable'
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import * as fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
 import { serverEnv } from '@/env/serverEnv.mjs'
 import sharp from 'sharp'
+import {
+  maxCoverImageFileSizeBytes,
+  maxCoverImageFileSizeBytesLabel,
+} from '@/config'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -66,6 +70,7 @@ export default async function addBook(
 
     // This support 2x device pixel ratio displays as 200x300 CSS pixel size.
     if (metadata.width !== 400 || metadata.height !== 600) {
+      metadata.size
       return res
         .status(400)
         .json({ message: 'cover images must be 400x600 pixels' })
@@ -121,9 +126,28 @@ class KnownError extends Error {}
 async function parseForm(
   req: NextApiRequest
 ): Promise<[FieldsSingle, File | undefined]> {
-  const form: IncomingForm = formidable({})
+  const form: IncomingForm = formidable({
+    maxFileSize: maxCoverImageFileSizeBytes,
+  })
 
-  const [fieldsMultiple, files] = await form.parse(req)
+  let fieldsMultiple
+  let files
+  try {
+    ;[fieldsMultiple, files] = await form.parse(req)
+  } catch (e: any) {
+    if (
+      // @ts-ignore types are out of date, biggerThanTotalMaxFileSize does exist
+      e.code === formidableErrors.biggerThanTotalMaxFileSize ||
+      e.code === formidableErrors.biggerThanMaxFileSize
+    ) {
+      throw new KnownError(
+        `cover image cannot be greater than ${maxCoverImageFileSizeBytesLabel}`
+      )
+    } else {
+      throw e
+    }
+  }
+
   const fields = convertFieldsToSingle(
     fieldsMultiple,
     'title',
