@@ -45,6 +45,7 @@ export default function Book({ initialBook }: BookProps) {
           <div className="flex gap-2">
             <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:items-start">
               <Image
+                className="rounded-lg"
                 src={book.coverImageUrl ?? placeholderImg}
                 alt="Image placeholder"
                 priority={true}
