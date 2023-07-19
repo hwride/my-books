@@ -30,6 +30,7 @@
     "clsx": "^1.2.1",
     "eslint": "8.41.0",
     "eslint-config-next": "13.4.3",
+    "formidable": "^3.5.0",
     "framer-motion": "^10.12.16",
     "mysql2": "^3.3.3",
     "next": "13.4.3",
@@ -41,6 +42,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@types/formidable": "^3.4.0",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
     "prisma": "4.15.0",
