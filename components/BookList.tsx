@@ -8,7 +8,7 @@ import { Form } from '@/components/Form'
 
 export type BookListBook = Pick<
   BookSerializable,
-  'id' | 'updatedAt' | 'title' | 'author' | 'status'
+  'id' | 'updatedAt' | 'title' | 'author' | 'status' | 'coverImageUrl'
 >
 export function BookList({
   initialTotalBooks,

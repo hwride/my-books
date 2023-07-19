@@ -11,15 +11,16 @@ datasource db {
 }
 
 model Book {
-  id          Int      @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   // Currently having books created by users rather than shared.
-  userId      String   @db.VarChar(32)
-  title       String   @db.VarChar(255)
-  author      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  description String?  @db.VarChar(1024)
-  status      Status   @default(NOT_READ)
+  userId        String   @db.VarChar(32)
+  title         String   @db.VarChar(255)
+  author        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  description   String?  @db.VarChar(1024)
+  status        Status   @default(NOT_READ)
+  coverImageUrl String? @db.Text
 
   // Prevent the same user making a book with the same title and author more than once.
   @@unique([userId, title, author])

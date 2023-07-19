@@ -45,7 +45,7 @@ export default function Book({ initialBook }: BookProps) {
           <div className="flex gap-2">
             <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:items-start">
               <Image
-                src={placeholderImg}
+                src={book.coverImageUrl ?? placeholderImg}
                 alt="Image placeholder"
                 priority={true}
                 width={200}
@@ -183,6 +183,7 @@ export const getServerSideProps: GetServerSideProps<
       title: true,
       author: true,
       status: true,
+      coverImageUrl: true,
     },
     where: {
       userId, // Make sure users can only view their own books at the moment.
