@@ -16,6 +16,7 @@ import {
 } from '@aws-sdk/client-s3'
 import * as fs from 'fs'
 import { v4 as uuidv4 } from 'uuid'
+import { serverEnv } from '@/env/serverEnv.mjs'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -143,23 +144,23 @@ async function uploadImage(image: File) {
 
   // Create an S3 client, Backblaze has an S3 compatible API.
   const s3 = new S3Client({
-    endpoint: `https://s3.${process.env.BACKBLAZE_REGION}.backblazeb2.com`,
-    region: process.env.BACKBLAZE_REGION,
+    endpoint: `https://s3.${serverEnv.BACKBLAZE_REGION}.backblazeb2.com`,
+    region: serverEnv.BACKBLAZE_REGION,
     credentials: {
-      accessKeyId: process.env.BACKBLAZE_KEY_ID,
-      secretAccessKey: process.env.BACKBLAZE_APP_KEY,
+      accessKeyId: serverEnv.BACKBLAZE_KEY_ID,
+      secretAccessKey: serverEnv.BACKBLAZE_APP_KEY,
     },
   })
 
   // Upload the object to the bucket.
   await s3.send(
     new PutObjectCommand({
-      Bucket: process.env.BACKBLAZE_BUCKET_NAME,
+      Bucket: serverEnv.BACKBLAZE_BUCKET_NAME,
       Key: keyName,
       ContentType: image.mimetype ?? undefined,
       Body: fs.createReadStream(image.filepath),
     })
   )
-  const friendlyUrl = `https://f003.backblazeb2.com/file/${process.env.BACKBLAZE_BUCKET_NAME}/${keyName}`
+  const friendlyUrl = `https://f003.backblazeb2.com/file/${serverEnv.BACKBLAZE_BUCKET_NAME}/${keyName}`
   return { friendlyUrl }
 }

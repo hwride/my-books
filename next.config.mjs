@@ -1,3 +1,7 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
+await import("./env/serverEnv.mjs");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -12,15 +16,9 @@ const nextConfig = {
     ],
   },
 }
-// https://f005.backblazeb2.com/file/my-books-images/image-placeholder-1.5x1.jpg
 
-module.exports = nextConfig
-
-// Injected content via Sentry wizard below
-const { withSentryConfig } = require('@sentry/nextjs')
-
-module.exports = withSentryConfig(
-  module.exports,
+export default withSentryConfig(
+  nextConfig,
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options
