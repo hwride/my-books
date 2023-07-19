@@ -16,9 +16,7 @@ export default function AddBook() {
   useSetHeading('Add book')
 
   const router = useRouter()
-  const [validationErrors, setValidationsError] = useState<string[] | null>(
-    null
-  )
+  const [validationErrors, setValidationsError] = useState<string[]>([])
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +103,7 @@ export default function AddBook() {
         )}
         <Button
           className="mx-auto mt-4 block"
-          disabled={validationErrors != null || isUpdatePending}
+          disabled={validationErrors.length > 0 || isUpdatePending}
         >
           Add book
         </Button>
