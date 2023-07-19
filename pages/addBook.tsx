@@ -97,7 +97,7 @@ export default function AddBook() {
         </div>
 
         {validationErrors && (
-          <ul className="mx-auto w-fit text-red-500">
+          <ul className="mx-auto w-fit text-red-500" role="alert">
             {validationErrors.map((e) => (
               <li key={e}>{e}</li>
             ))}
