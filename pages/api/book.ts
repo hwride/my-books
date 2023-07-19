@@ -52,18 +52,18 @@ export default async function addBook(
     ;[fields, imageFile] = await parseForm(req)
   } catch (e) {
     console.error(`Error parsing form data`, e)
-    return res.status(400).json({ message: 'Error reading form data' })
+    return res
+      .status(400)
+      .json({
+        message:
+          e instanceof KnownError ? e.message : 'Error reading form data',
+      })
   }
 
   const { title, author, returnCreated } = fields
   if (!title || !author) {
     return res.status(400).json({ message: 'title and author is required' })
   }
-
-  // TODO
-  // if (imageFile != null && Array.isArray(imageFile.image)) {
-  //   return res.status(400).json({ message: 'you can only upload one image' })
-  // }
 
   const prisma = new PrismaClient()
   try {
@@ -109,6 +109,8 @@ export default async function addBook(
   }
 }
 
+class KnownError extends Error {}
+
 async function parseForm(
   req: NextApiRequest
 ): Promise<[FieldsSingle, File | undefined]> {
@@ -129,7 +131,7 @@ async function parseForm(
       if (files.image.length === 1) {
         imageFile = imgArr[0]
       } else {
-        throw new Error('multiple images not supported')
+        throw new KnownError('multiple images not supported')
       }
     } else {
       imageFile = files.image
