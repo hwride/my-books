@@ -15,6 +15,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3'
 import * as fs from 'fs'
+import { v4 as uuidv4 } from 'uuid'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -138,7 +139,7 @@ async function parseForm(
 }
 
 async function uploadImage(image: File) {
-  const keyName = 'todo-name'
+  const keyName = uuidv4()
 
   // Create an S3 client, Backblaze has an S3 compatible API.
   const s3 = new S3Client({
@@ -151,7 +152,7 @@ async function uploadImage(image: File) {
   })
 
   // Upload the object to the bucket.
-  const result = await s3.send(
+  await s3.send(
     new PutObjectCommand({
       Bucket: process.env.BACKBLAZE_BUCKET_NAME,
       Key: keyName,
@@ -160,26 +161,5 @@ async function uploadImage(image: File) {
     })
   )
   const friendlyUrl = `https://f003.backblazeb2.com/file/${process.env.BACKBLAZE_BUCKET_NAME}/${keyName}`
-  console.log(`Friendly URL: ${friendlyUrl}`)
-  console.log(
-    `S3 URL: https://${process.env.BACKBLAZE_BUCKET_NAME}.s3.${process.env.BACKBLAZE_REGION}.backblazeb2.com/${keyName}`
-  )
-  console.log(
-    'Native URL: https://f003.backblazeb2.com/b2api/v1/b2_download_file_by_id?fileId=' +
-      result.VersionId
-  )
-  console.log(
-    'Successfully uploaded data to ' +
-      process.env.BACKBLAZE_BUCKET_NAME +
-      '/' +
-      keyName
-  )
-
-  // List all objects in the bucket
-  const data = await s3.send(
-    new ListObjectsV2Command({ Bucket: process.env.BACKBLAZE_BUCKET_NAME })
-  )
-  console.log('Objects in bucket: ', data.Contents)
-
   return { friendlyUrl }
 }
