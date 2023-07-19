@@ -32,8 +32,6 @@ export const config: PageConfig = {
   },
 }
 
-// TODO: Check env vars are here for files stuff.
-
 export default async function addBook(
   req: NextApiRequest,
   res: NextApiResponse<Data>

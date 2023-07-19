@@ -16,29 +16,31 @@ export default function AddBook() {
   useSetHeading('Add book')
 
   const router = useRouter()
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const [validationErrors, setValidationsError] = useState<string[] | null>(
+    null
+  )
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let errors: string[] = []
     const file = event.target.files && event.target.files[0]
 
     if (file) {
       // Check file size
       if (file.size > maxCoverImageFileSizeBytes) {
-        setValidationError(
+        errors.push(
           `The cover image must be no larger than ${maxCoverImageFileSizeBytesLabel}.`
         )
-        return
       }
 
       // Check image dimensions
       const img = new Image()
       img.onload = function () {
         if (img.width !== 400 || img.height !== 600) {
-          setValidationError('The cover image must be 400x600 pixels.')
-        } else {
-          setValidationError(null)
+          errors.push('The cover image must be 400x600 pixels.')
         }
+
+        setValidationsError(errors)
       }
       img.src = URL.createObjectURL(file)
     }
@@ -94,12 +96,16 @@ export default function AddBook() {
           />
         </div>
 
-        {validationError && (
-          <p className="text-center text-red-500">{validationError}</p>
+        {validationErrors && (
+          <ul className="mx-auto w-fit text-red-500">
+            {validationErrors.map((e) => (
+              <li key={e}>{e}</li>
+            ))}
+          </ul>
         )}
         <Button
           className="mx-auto mt-4 block"
-          disabled={validationError != null || isUpdatePending}
+          disabled={validationErrors != null || isUpdatePending}
         >
           Add book
         </Button>
