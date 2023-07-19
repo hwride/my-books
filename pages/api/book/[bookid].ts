@@ -3,7 +3,11 @@ import { getAuth } from '@clerk/nextjs/server'
 import { PrismaClient } from '@prisma/client'
 import { BookSerializable } from '@/pages/api/book'
 import formidable from 'formidable'
-import { firstValues } from '@/lib/formidable/firstValues'
+import {
+  convertFieldsToSingle,
+  FieldsSingle,
+} from '@/lib/formidable/firstValues'
+import IncomingForm from 'formidable/Formidable'
 
 type Data =
   | {
@@ -30,14 +34,22 @@ export default async function updateBook(
     return res.status(400).json({ message: 'Not logged in' })
   }
 
-  const form = formidable({})
+  const form: IncomingForm = formidable({})
 
-  let fields
-  let files
+  let fields: FieldsSingle
+  let files: formidable.Files
   try {
     const [fieldsMultiple, filesInner] = await form.parse(req)
-    const exceptions = ['thisshouldbeanarray']
-    fields = firstValues(form, fieldsMultiple, exceptions)
+    fields = convertFieldsToSingle(
+      fieldsMultiple,
+      '_method',
+      'updatedAt',
+      'returnCreated',
+      'title',
+      'author',
+      'status',
+      'description'
+    )
     files = filesInner
   } catch (e) {
     console.error(`Error parsing form data`, e)

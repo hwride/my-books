@@ -1,22 +1,20 @@
-const querystringType = 'urlencoded'
-const multipartType = 'multipart'
+import formidable from 'formidable'
+
+export type FieldsSingle = Record<string, string>
 
 /**
- * This was copied from the formidable code, couldn't seem to export it as per the docs.
+ * Convert some formidable fields to have a single value rather than array of values.
+ * By default formidable returns an array for all field values.
  */
-const firstValues = (form: any, fields: any, exceptions: any = []) => {
-  if (form.type !== querystringType && form.type !== multipartType) {
-    return fields
-  }
-
-  return Object.fromEntries(
-    Object.entries(fields).map(([key, value]: any) => {
-      if (exceptions.includes(key)) {
-        return [key, value]
-      }
-      return [key, value[0]]
-    })
-  )
+export function convertFieldsToSingle(
+  fields: formidable.Fields,
+  ...fieldNames: string[]
+): FieldsSingle {
+  const singleFields: Record<string, string> = {}
+  Object.entries(fields).map(([key, value]) => {
+    if (fieldNames.includes(key)) {
+      singleFields[key] = value[0]
+    }
+  })
+  return singleFields
 }
-
-export { firstValues }
