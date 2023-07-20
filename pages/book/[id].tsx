@@ -13,6 +13,12 @@ import { Pencil1Icon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 import placeholderImg from '../../public/image-placeholder-1.5x1.jpg'
+import {
+  coverImageMaxFileSizeBytes,
+  coverImageMaxFileSizeBytesLabel,
+  coverImageRequiredHeightPx,
+  coverImageRequiredWidthPx,
+} from '@/config'
 
 type BookProps = { initialBook: BookListBook }
 
@@ -105,7 +111,38 @@ export function EditBookForm({
 }) {
   const [title, setTitle] = useState(book.title)
   const [author, setAuthor] = useState(book.author ?? '')
+  const [validationErrors, setValidationsError] = useState<string[]>([])
   const [isUpdatePending, setIsUpdatePending] = useState(false)
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let errors: string[] = []
+    const file = event.target.files && event.target.files[0]
+
+    if (file) {
+      // Check file size
+      if (file.size > coverImageMaxFileSizeBytes) {
+        errors.push(
+          `The cover image must be no larger than ${coverImageMaxFileSizeBytesLabel}.`
+        )
+      }
+
+      // Check image dimensions
+      const img = new window.Image()
+      img.onload = function () {
+        if (
+          img.width !== coverImageRequiredWidthPx ||
+          img.height !== coverImageRequiredHeightPx
+        ) {
+          errors.push(
+            `The cover image must be ${coverImageRequiredWidthPx}x${coverImageRequiredHeightPx} pixels.`
+          )
+        }
+
+        setValidationsError(errors)
+      }
+      img.src = URL.createObjectURL(file)
+    }
+  }
 
   return (
     <Form<BookListBook>
@@ -117,7 +154,7 @@ export function EditBookForm({
       onSuccess={onSuccess}
       onError={() => console.error(`Failed to edit book`)}
     >
-      <div className="mb-4 grid grid-cols-[auto_1fr] grid-rows-2 items-center gap-x-2 gap-y-2">
+      <div className="mb-4 grid grid-cols-[minmax(50px,150px)_minmax(100px,1fr)] grid-rows-2 items-center gap-x-2 gap-y-2">
         <input type="hidden" name="updatedAt" value={book.updatedAt} />
         <label htmlFor="book-title" className="row-start-1 block">
           Title
@@ -144,7 +181,25 @@ export function EditBookForm({
           onChange={(e) => setAuthor(e.target.value)}
           className="col-start-2 row-start-2 self-stretch"
         />
+        <label htmlFor="new-book-image" className="row-start-3 block">
+          Cover image (must be 400x600px)
+        </label>
+        <Input
+          id="new-book-image"
+          name="image"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="col-start-2 row-start-3"
+        />
       </div>
+      {validationErrors && (
+        <ul className="mx-auto w-fit text-red-500" role="alert">
+          {validationErrors.map((e) => (
+            <li key={e}>{e}</li>
+          ))}
+        </ul>
+      )}
       <div className="flex justify-around">
         <Button disabled={isUpdatePending}>Save book</Button>
         <Button
