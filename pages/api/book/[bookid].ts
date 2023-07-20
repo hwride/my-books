@@ -50,7 +50,7 @@ export default async function updateBook(
       'status',
       'description'
     )
-  } catch (e) {
+  } catch (e: any) {
     console.error(`Error parsing form data`, e)
     return res.status(400).json({
       message: e instanceof KnownError ? e.message : 'Error reading form data',
