@@ -34,21 +34,12 @@ export function Form<ReturnData>({
     const form = e.currentTarget
     const data = new FormData(form)
     const formDataKeys = Array.from(data.keys())
-    const body: Record<string, string> = {
-      returnCreated: 'true',
-    }
-    for (const key of formDataKeys) {
-      const val = data.get(key)
-      if (typeof val === 'string') {
-        body[key] = val
-      }
-    }
+    data.set('returnCreated', 'true')
 
     // Make form request.
     const options = {
       method: form.method,
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(body),
+      body: data,
     }
     const r = await fetch(form.action, options)
 

@@ -1,10 +1,25 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse, PageConfig } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import { Book, PrismaClient } from '@prisma/client'
 import { codes } from '@/prisma/constants'
 import { ReplaceDateWithStrings } from '@/utils/typeUtils'
-import { redirect } from 'next/navigation'
-import { NextResponse } from 'next/server'
+import {
+  convertFieldsToSingle,
+  FieldsSingle,
+} from '@/lib/formidable/firstValues'
+import formidable, { File, errors as formidableErrors } from 'formidable'
+import IncomingForm from 'formidable/Formidable'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import * as fs from 'fs'
+import { v4 as uuidv4 } from 'uuid'
+import { serverEnv } from '@/env/serverEnv.mjs'
+import sharp from 'sharp'
+import {
+  coverImageMaxFileSizeBytes,
+  coverImageMaxFileSizeBytesLabel,
+  coverImageRequiredHeightPx,
+  coverImageRequiredWidthPx,
+} from '@/config'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -12,6 +27,12 @@ type Data =
       message?: string
     }
   | BookSerializable
+
+export const config: PageConfig = {
+  api: {
+    bodyParser: false,
+  },
+}
 
 export default async function addBook(
   req: NextApiRequest,
@@ -26,18 +47,51 @@ export default async function addBook(
     return res.status(400).json({ message: 'Not logged in' })
   }
 
-  const { title, author, returnCreated } = req.body
+  let fields: FieldsSingle
+  let imageFile: File | undefined
+  try {
+    ;[fields, imageFile] = await parseForm(req)
+  } catch (e) {
+    console.error(`Error parsing form data`, e)
+    return res.status(400).json({
+      message: e instanceof KnownError ? e.message : 'Error reading form data',
+    })
+  }
+
+  const { title, author, returnCreated } = fields
   if (!title || !author) {
     return res.status(400).json({ message: 'title and author is required' })
   }
 
+  // Check image dimensions
+  if (imageFile != null) {
+    const image = sharp(imageFile.filepath)
+    const metadata = await image.metadata()
+
+    if (
+      metadata.width !== coverImageRequiredWidthPx ||
+      metadata.height !== coverImageRequiredHeightPx
+    ) {
+      metadata.size
+      return res.status(400).json({
+        message: `cover images must be ${coverImageRequiredWidthPx}x${coverImageRequiredHeightPx} pixels`,
+      })
+    }
+  }
+
   const prisma = new PrismaClient()
   try {
+    let friendlyUrl
+    if (imageFile != null) {
+      ;({ friendlyUrl } = await uploadImage(imageFile))
+    }
+
     const newBook = await prisma.book.create({
       data: {
         userId,
         title,
         author,
+        coverImageUrl: friendlyUrl,
       },
     })
 
@@ -67,6 +121,81 @@ export default async function addBook(
         .send({ message: 'An error occurred while creating the book.' })
     }
   }
+}
 
-  return res.status(200).end()
+class KnownError extends Error {}
+
+async function parseForm(
+  req: NextApiRequest
+): Promise<[FieldsSingle, File | undefined]> {
+  const form: IncomingForm = formidable({
+    maxFileSize: coverImageMaxFileSizeBytes,
+  })
+
+  let fieldsMultiple
+  let files
+  try {
+    ;[fieldsMultiple, files] = await form.parse(req)
+  } catch (e: any) {
+    if (
+      // @ts-ignore types are out of date, biggerThanTotalMaxFileSize does exist
+      e.code === formidableErrors.biggerThanTotalMaxFileSize ||
+      e.code === formidableErrors.biggerThanMaxFileSize
+    ) {
+      throw new KnownError(
+        `cover image cannot be greater than ${coverImageMaxFileSizeBytesLabel}`
+      )
+    } else {
+      throw e
+    }
+  }
+
+  const fields = convertFieldsToSingle(
+    fieldsMultiple,
+    'title',
+    'author',
+    'returnCreated'
+  )
+
+  let imageFile: File | undefined
+  if (files.image != null) {
+    if (Array.isArray(files.image)) {
+      const imgArr = files.image
+      if (files.image.length === 1) {
+        imageFile = imgArr[0]
+      } else {
+        throw new KnownError('multiple images not supported')
+      }
+    } else {
+      imageFile = files.image
+    }
+  }
+
+  return [fields, imageFile]
+}
+
+async function uploadImage(image: File) {
+  const keyName = uuidv4()
+
+  // Create an S3 client, Backblaze has an S3 compatible API.
+  const s3 = new S3Client({
+    endpoint: `https://s3.${serverEnv.BACKBLAZE_REGION}.backblazeb2.com`,
+    region: serverEnv.BACKBLAZE_REGION,
+    credentials: {
+      accessKeyId: serverEnv.BACKBLAZE_KEY_ID,
+      secretAccessKey: serverEnv.BACKBLAZE_APP_KEY,
+    },
+  })
+
+  // Upload the object to the bucket.
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: serverEnv.BACKBLAZE_BUCKET_NAME,
+      Key: keyName,
+      ContentType: image.mimetype ?? undefined,
+      Body: fs.createReadStream(image.filepath),
+    })
+  )
+  const friendlyUrl = `https://f003.backblazeb2.com/file/${serverEnv.BACKBLAZE_BUCKET_NAME}/${keyName}`
+  return { friendlyUrl }
 }

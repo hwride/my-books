@@ -1,15 +1,25 @@
+import { withSentryConfig } from '@sentry/nextjs'
+import { serverEnv } from "./env/serverEnv.mjs";
+
+await import("./env/env.mjs");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.backblazeb2.com',
+        port: '',
+        pathname: `/file/${serverEnv.BACKBLAZE_BUCKET_NAME}/**`,
+      },
+    ],
+  },
 }
 
-module.exports = nextConfig
-
-// Injected content via Sentry wizard below
-const { withSentryConfig } = require('@sentry/nextjs')
-
-module.exports = withSentryConfig(
-  module.exports,
+export default withSentryConfig(
+  nextConfig,
   {
     // For all available options, see:
     // https://github.com/getsentry/sentry-webpack-plugin#options

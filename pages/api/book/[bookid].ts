@@ -1,13 +1,25 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse, PageConfig } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import { PrismaClient } from '@prisma/client'
 import { BookSerializable } from '@/pages/api/book'
+import formidable from 'formidable'
+import {
+  convertFieldsToSingle,
+  FieldsSingle,
+} from '@/lib/formidable/firstValues'
+import IncomingForm from 'formidable/Formidable'
 
 type Data =
   | {
       message?: string
     }
   | BookSerializable
+
+export const config: PageConfig = {
+  api: {
+    bodyParser: false,
+  },
+}
 
 export default async function updateBook(
   req: NextApiRequest,
@@ -22,12 +34,22 @@ export default async function updateBook(
     return res.status(400).json({ message: 'Not logged in' })
   }
 
-  const { updatedAt, returnCreated } = req.body
+  // Parse form fields
+  let fields: FieldsSingle
+  let files: formidable.Files
+  try {
+    ;[fields, files] = await parseForm(req)
+  } catch (e) {
+    console.error(`Error parsing form data`, e)
+    return res.status(400).json({ message: 'Error reading form data' })
+  }
+
+  const { updatedAt, returnCreated } = fields
   if (!updatedAt) {
     return res.status(400).json({ message: 'updatedAt is required' })
   }
 
-  if (req.body._method && req.body._method !== 'DELETE') {
+  if (fields._method && fields._method !== 'DELETE') {
     return res.status(400).json({ message: 'Invalid _method' })
   }
 
@@ -40,7 +62,7 @@ export default async function updateBook(
   // Crate data object from request body. Only add fields the user is allowed to update.
   const dataToUpdate: Record<string, any> = {}
   ;['title', 'author', 'status', 'description'].forEach((key: string) => {
-    const val = req.body[key]
+    const val = fields[key]
     if (val !== undefined) dataToUpdate[key] = val
   })
 
@@ -48,7 +70,7 @@ export default async function updateBook(
   try {
     // Note we are not using the HTTP verb DELETE, as native forms as of today do not support this without JS, and we're
     // building progressively enhanced forms.
-    if (req.body._method === 'DELETE') {
+    if (fields._method === 'DELETE') {
       const deletedBook = await prisma.book.delete({
         where: {
           id: bookidNum,
@@ -99,4 +121,23 @@ export default async function updateBook(
       .status(500)
       .send({ message: 'An error occurred while performing the update.' })
   }
+}
+
+async function parseForm(
+  req: NextApiRequest
+): Promise<[FieldsSingle, formidable.Files]> {
+  const form: IncomingForm = formidable({})
+
+  const [fieldsMultiple, files] = await form.parse(req)
+  const fields = convertFieldsToSingle(
+    fieldsMultiple,
+    '_method',
+    'updatedAt',
+    'returnCreated',
+    'title',
+    'author',
+    'status',
+    'description'
+  )
+  return [fields, files]
 }

@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google'
 import Head from 'next/head'
 import { HomepageLogo } from '@/components/HomepageLogo'
 import { coreDictionary } from '@/components/dictionary/core'
+import { clientEnv } from '@/env/clientEnv.mjs'
 
 const inter = Inter({ subsets: ['latin'] })
 const metaDescription =
@@ -32,8 +33,8 @@ export default function Home() {
         <meta property="og:description" content={metaDescription} />
         <meta
           property="og:image"
-          content={`${process.env.NEXT_PUBLIC_HTTP ? 'http' : 'https'}://${
-            process.env.NEXT_PUBLIC_VERCEL_URL
+          content={`${clientEnv.NEXT_PUBLIC_HTTP ? 'http' : 'https'}://${
+            clientEnv.NEXT_PUBLIC_VERCEL_URL
           }/open-graph-1200x630.png`}
         />
         {/* Don't allow indexing of our links, as they are all authenticated. */}

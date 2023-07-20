@@ -13,17 +13,17 @@ An app for managing books you have read or would like to read.
 7. [Sentry](https://sentry.io/)
 
 ### Deployment
-1. [Vercel](https://vercel.com/dashboard)
-1. [PlanetScale](https://planetscale.com/docs)
+1. [Vercel](https://vercel.com/dashboard) for app deployment and Vercel analytics.
+2. [PlanetScale](https://planetscale.com/docs) for database deployment.
+3. [Backblaze B2 Cloud Storage](https://www.backblaze.com/cloud-storage) for file storage for images.
+4. [Sentry](https://sentry.io/welcome/) for monitoring.
 
 ## Development setup
 
 1. Create a local connection to the PlanetScale database development branch: `pscale connect [database] [branch]`. This should return you a
    local address, e.g. `127.0.0.1:3306`.
-1. Create a `.env` file and add Prisma config to connect to PlanetScale. E.g. using the above output you would add:
-   ```properties
-   DATABASE_URL='mysql://127.0.0.1:3306/[database]'
-   ```
+1. Create a `.env` file and copy the contents of `.env.example` to it. Fill in all the environment variables for 
+   development. You can get these from the Vercel environment variables if you login.
 1. Run `pnpm run prisma-generate` to generate the Prisma client files from the Prisma schema.
 2. Start the development environment: `pnpm dev`.
 3. Go to http://localhost:3000 to see the app.
