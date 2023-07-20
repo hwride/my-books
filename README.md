@@ -13,8 +13,10 @@ An app for managing books you have read or would like to read.
 7. [Sentry](https://sentry.io/)
 
 ### Deployment
-1. [Vercel](https://vercel.com/dashboard)
-1. [PlanetScale](https://planetscale.com/docs)
+1. [Vercel](https://vercel.com/dashboard) for app deployment and Vercel analytics.
+2. [PlanetScale](https://planetscale.com/docs) for database deployment.
+3. [Backblaze B2 Cloud Storage](https://www.backblaze.com/cloud-storage) for file storage for images.
+4. [Sentry](https://sentry.io/welcome/) for monitoring.
 
 ## Development setup
 
