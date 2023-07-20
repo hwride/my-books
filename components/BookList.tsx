@@ -1,5 +1,5 @@
 import { Status } from '@prisma/client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { BookSerializable } from '@/pages/api/book'
 import {
   motion,
@@ -10,6 +10,7 @@ import {
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
+import { AnimatingNumber } from '@/components/AnimatingNumber'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -45,12 +46,9 @@ export function BookList({
 
   return (
     <div className="flex flex-col overflow-hidden">
-      {/*<div className="px-page pb-2 text-right italic text-gray-600">*/}
-      {/*  Showing {books.length} of {totalBooks}*/}
-      {/*</div>*/}
       <div className="px-page pb-2 text-right italic text-gray-600">
-        Showing <Counter from={previousCurBooks} to={books.length} /> of{' '}
-        <Counter from={previousTotalBooks} to={totalBooks} />
+        Showing <AnimatingNumber from={previousCurBooks} to={books.length} /> of{' '}
+        <AnimatingNumber from={previousTotalBooks} to={totalBooks} />
       </div>
       <ul className="overflow-auto px-page">
         <AnimatePresence initial={false}>
@@ -171,22 +169,4 @@ function BookListItem({
       </div>
     </motion.li>
   )
-}
-
-function Counter({ from, to }: { from: number; to: number }) {
-  const ref = useRef<HTMLParagraphElement>(null)
-
-  useEffect(() => {
-    const controls = animate(from, to, {
-      duration: 0.3,
-      onUpdate(value) {
-        if (ref.current) {
-          ref.current.textContent = value.toFixed(0)
-        }
-      },
-    })
-    return () => controls.stop()
-  }, [from, to])
-
-  return <span ref={ref} />
 }
