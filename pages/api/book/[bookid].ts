@@ -2,12 +2,14 @@ import type { NextApiRequest, NextApiResponse, PageConfig } from 'next'
 import { getAuth } from '@clerk/nextjs/server'
 import { PrismaClient } from '@prisma/client'
 import { BookSerializable } from '@/pages/api/book'
-import formidable from 'formidable'
+import { File } from 'formidable'
+import { FieldsSingle } from '@/lib/formidable/firstValues'
 import {
-  convertFieldsToSingle,
-  FieldsSingle,
-} from '@/lib/formidable/firstValues'
-import IncomingForm from 'formidable/Formidable'
+  KnownError,
+  parseAddOrEditBookForm,
+  uploadCoverImage,
+  validateCoverImage,
+} from '@/server/addOrEditBook'
 
 type Data =
   | {
@@ -36,12 +38,23 @@ export default async function updateBook(
 
   // Parse form fields
   let fields: FieldsSingle
-  let files: formidable.Files
+  let imageFile: File | undefined
   try {
-    ;[fields, files] = await parseForm(req)
+    ;[fields, imageFile] = await parseAddOrEditBookForm(
+      req,
+      '_method',
+      'updatedAt',
+      'returnCreated',
+      'title',
+      'author',
+      'status',
+      'description'
+    )
   } catch (e) {
     console.error(`Error parsing form data`, e)
-    return res.status(400).json({ message: 'Error reading form data' })
+    return res.status(400).json({
+      message: e instanceof KnownError ? e.message : 'Error reading form data',
+    })
   }
 
   const { updatedAt, returnCreated } = fields
@@ -58,6 +71,10 @@ export default async function updateBook(
     return res.status(400).json({ message: 'ID is not valid' })
   }
   let bookidNum = Number(bookid)
+
+  if (!(await validateCoverImage(imageFile, res)).valid) {
+    return
+  }
 
   // Crate data object from request body. Only add fields the user is allowed to update.
   const dataToUpdate: Record<string, any> = {}
@@ -90,6 +107,12 @@ export default async function updateBook(
         return res.redirect(307, `/readingList`)
       }
     } else {
+      let friendlyUrl
+      if (imageFile != null) {
+        ;({ friendlyUrl } = await uploadCoverImage(imageFile))
+        dataToUpdate.coverImageUrl = friendlyUrl
+      }
+
       const updatedBook = await prisma.book.update({
         where: {
           id: bookidNum,
@@ -121,23 +144,4 @@ export default async function updateBook(
       .status(500)
       .send({ message: 'An error occurred while performing the update.' })
   }
-}
-
-async function parseForm(
-  req: NextApiRequest
-): Promise<[FieldsSingle, formidable.Files]> {
-  const form: IncomingForm = formidable({})
-
-  const [fieldsMultiple, files] = await form.parse(req)
-  const fields = convertFieldsToSingle(
-    fieldsMultiple,
-    '_method',
-    'updatedAt',
-    'returnCreated',
-    'title',
-    'author',
-    'status',
-    'description'
-  )
-  return [fields, files]
 }
