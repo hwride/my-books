@@ -1,10 +1,16 @@
 import { Status } from '@prisma/client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { BookSerializable } from '@/pages/api/book'
-import { motion, AnimatePresence, AnimationDefinition } from 'framer-motion'
+import {
+  motion,
+  AnimatePresence,
+  AnimationDefinition,
+  animate,
+} from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
+import { AnimatingNumber } from '@/components/AnimatingNumber'
 
 export type BookListBook = Pick<
   BookSerializable,
@@ -29,6 +35,9 @@ export function BookList({
 
   // Don't scroll books to end for initial page load, as we want users to see the start of the list.
   const [shouldScrollBooksToEnd, setShouldScrollBooksToEnd] = useState(false)
+  const [previousCurBooks, setPreviousCurBooks] = useState(books.length)
+  const [previousTotalBooks, setPreviousTotalBooks] =
+    useState(initialTotalBooks)
   const [totalBooks, setTotalBooks] = useState(initialTotalBooks)
   const [loadMore, setLoadMore] = useState('idle')
   const [cursor, setCursor] = useState(initialNextCursor)
@@ -38,7 +47,8 @@ export function BookList({
   return (
     <div className="flex flex-col overflow-hidden">
       <div className="px-page pb-2 text-right italic text-gray-600">
-        Showing {books.length} of {totalBooks}
+        Showing <AnimatingNumber from={previousCurBooks} to={books.length} /> of{' '}
+        <AnimatingNumber from={previousTotalBooks} to={totalBooks} />
       </div>
       <ul className="overflow-auto px-page">
         <AnimatePresence initial={false}>
@@ -49,6 +59,7 @@ export function BookList({
               onBookChange={(updatedBook) => {
                 const curBooksLen = books.length
                 let newBooksLen: number
+                setPreviousCurBooks(curBooksLen)
                 setBooks((booksInner) => {
                   const newBooks = filterBooks(
                     booksInner.map((bookInner) =>
@@ -58,6 +69,7 @@ export function BookList({
                   newBooksLen = newBooks.length
                   return newBooks
                 })
+                setPreviousTotalBooks(totalBooks)
                 setTotalBooks((totalBooks) =>
                   newBooksLen > curBooksLen ? totalBooks + 1 : totalBooks - 1
                 )
@@ -86,7 +98,9 @@ export function BookList({
               const json = await response.json()
               const newBooks = json.books
               setShouldScrollBooksToEnd(true)
+              setPreviousCurBooks(books.length)
               setBooks((books) => [...books, ...newBooks])
+              setPreviousTotalBooks(totalBooks)
               setTotalBooks(json.totalBooks)
               setCursor(json.cursor)
               setLoadMore('success')
