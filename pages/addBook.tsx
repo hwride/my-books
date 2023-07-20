@@ -8,8 +8,10 @@ import { Form } from '@/components/Form'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
 import { BookListBook } from '@/components/BookList'
 import {
-  maxCoverImageFileSizeBytes,
-  maxCoverImageFileSizeBytesLabel,
+  coverImageMaxFileSizeBytes,
+  coverImageMaxFileSizeBytesLabel,
+  coverImageRequiredHeightPx,
+  coverImageRequiredWidthPx,
 } from '@/config'
 
 export default function AddBook() {
@@ -25,17 +27,22 @@ export default function AddBook() {
 
     if (file) {
       // Check file size
-      if (file.size > maxCoverImageFileSizeBytes) {
+      if (file.size > coverImageMaxFileSizeBytes) {
         errors.push(
-          `The cover image must be no larger than ${maxCoverImageFileSizeBytesLabel}.`
+          `The cover image must be no larger than ${coverImageMaxFileSizeBytesLabel}.`
         )
       }
 
       // Check image dimensions
       const img = new Image()
       img.onload = function () {
-        if (img.width !== 400 || img.height !== 600) {
-          errors.push('The cover image must be 400x600 pixels.')
+        if (
+          img.width !== coverImageRequiredWidthPx ||
+          img.height !== coverImageRequiredHeightPx
+        ) {
+          errors.push(
+            `The cover image must be ${coverImageRequiredWidthPx}x${coverImageRequiredHeightPx} pixels.`
+          )
         }
 
         setValidationsError(errors)

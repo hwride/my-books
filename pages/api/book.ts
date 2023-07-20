@@ -15,8 +15,10 @@ import { v4 as uuidv4 } from 'uuid'
 import { serverEnv } from '@/env/serverEnv.mjs'
 import sharp from 'sharp'
 import {
-  maxCoverImageFileSizeBytes,
-  maxCoverImageFileSizeBytesLabel,
+  coverImageMaxFileSizeBytes,
+  coverImageMaxFileSizeBytesLabel,
+  coverImageRequiredHeightPx,
+  coverImageRequiredWidthPx,
 } from '@/config'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
@@ -66,12 +68,14 @@ export default async function addBook(
     const image = sharp(imageFile.filepath)
     const metadata = await image.metadata()
 
-    // This support 2x device pixel ratio displays as 200x300 CSS pixel size.
-    if (metadata.width !== 400 || metadata.height !== 600) {
+    if (
+      metadata.width !== coverImageRequiredWidthPx ||
+      metadata.height !== coverImageRequiredHeightPx
+    ) {
       metadata.size
-      return res
-        .status(400)
-        .json({ message: 'cover images must be 400x600 pixels' })
+      return res.status(400).json({
+        message: `cover images must be ${coverImageRequiredWidthPx}x${coverImageRequiredHeightPx} pixels`,
+      })
     }
   }
 
@@ -125,7 +129,7 @@ async function parseForm(
   req: NextApiRequest
 ): Promise<[FieldsSingle, File | undefined]> {
   const form: IncomingForm = formidable({
-    maxFileSize: maxCoverImageFileSizeBytes,
+    maxFileSize: coverImageMaxFileSizeBytes,
   })
 
   let fieldsMultiple
@@ -139,7 +143,7 @@ async function parseForm(
       e.code === formidableErrors.biggerThanMaxFileSize
     ) {
       throw new KnownError(
-        `cover image cannot be greater than ${maxCoverImageFileSizeBytesLabel}`
+        `cover image cannot be greater than ${coverImageMaxFileSizeBytesLabel}`
       )
     } else {
       throw e
