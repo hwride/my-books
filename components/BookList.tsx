@@ -46,15 +46,22 @@ export function BookList({
             <BookListItem
               key={book.id}
               book={book}
-              onBookChange={(updatedBook) =>
-                setBooks((booksInner) =>
-                  filterBooks(
+              onBookChange={(updatedBook) => {
+                const curBooksLen = books.length
+                let newBooksLen: number
+                setBooks((booksInner) => {
+                  const newBooks = filterBooks(
                     booksInner.map((bookInner) =>
                       updatedBook.id === bookInner.id ? updatedBook : bookInner
                     )
                   )
+                  newBooksLen = newBooks.length
+                  return newBooks
+                })
+                setTotalBooks((totalBooks) =>
+                  newBooksLen > curBooksLen ? totalBooks + 1 : totalBooks - 1
                 )
-              }
+              }}
               // Scroll to the end of the list whenever books changes. Need to wait for framer motion animations to
               // finish first though.
               onAnimationComplete={() => {
