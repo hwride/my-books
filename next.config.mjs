@@ -7,6 +7,9 @@ await import("./env/env.mjs");
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    images: {
+      minimumCacheTTL: 60 * 60, // Cache images for 1 hour
+    },
     remotePatterns: [
       {
         protocol: 'https',
