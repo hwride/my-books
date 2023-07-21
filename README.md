@@ -22,8 +22,10 @@ An app for managing books you have read or would like to read.
 
 1. Create a local connection to the PlanetScale database development branch: `pscale connect [database] [branch]`. This should return you a
    local address, e.g. `127.0.0.1:3306`.
-1. Create a `.env` file and copy the contents of `.env.example` to it. Fill in all the environment variables for 
-   development. You can get these from the Vercel environment variables if you login.
+1. Setup the environment variables.
+   1. Install the [Vercel CLI](https://vercel.com/docs/cli)
+   1. Run [`vercel link`](https://vercel.com/docs/cli/link) in the root of the project to link it to our Vercel project.
+   1. Run [`vercel env pull`](https://vercel.com/docs/cli/env#exporting-development-environment-variables) to download the development environment variables.
 1. Run `pnpm run prisma-generate` to generate the Prisma client files from the Prisma schema.
 2. Start the development environment: `pnpm dev`.
 3. Go to http://localhost:3000 to see the app.
@@ -91,4 +93,4 @@ to keep the request as quick as possible.
 Instead a housekeeping script was created which deletes image files from Backblaze that are no longer referenced in the
 database. The housekeeping script is under [./server/backblaze-housekeeping.ts](./server/backblaze-housekeeping.ts).
 
-Ideally the housekeeping script should be set to run on a schedule 
+Ideally the housekeeping script should be set to run on a schedule.
