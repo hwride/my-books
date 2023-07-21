@@ -81,3 +81,14 @@ not to break the development branch for others.
 1. Create a PlanetScale deploy request from development to production.
 2. Merge the PlanetScale deploy request first to update the database.
 3. Then merge the GitHub pull request to update the app.
+
+## Images
+We save our book cover images to [Backblaze B2 Cloud Storage](https://www.backblaze.com/cloud-storage).
+
+Currently when cover images are updated the old images are not deleted from Backblaze. This was not done at request time
+to keep the request as quick as possible.
+
+Instead a housekeeping script was created which deletes image files from Backblaze that are no longer referenced in the
+database. The housekeeping script is under [./server/backblaze-housekeeping.ts](./server/backblaze-housekeeping.ts).
+
+Ideally the housekeeping script should be set to run on a schedule 
