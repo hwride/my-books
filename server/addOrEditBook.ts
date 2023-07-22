@@ -24,6 +24,8 @@ export async function parseAddOrEditBookForm(
   ...singleFields: string[]
 ): Promise<[FieldsSingle, File | undefined]> {
   const form: IncomingForm = formidable({
+    allowEmptyFiles: true,
+    minFileSize: 0,
     maxFileSize: coverImageMaxFileSizeBytes,
   })
 
@@ -52,7 +54,12 @@ export async function parseAddOrEditBookForm(
     if (Array.isArray(files.image)) {
       const imgArr = files.image
       if (files.image.length === 1) {
-        imageFile = imgArr[0]
+        const imageFileVal = imgArr[0]
+        // When including no file in our file input at all, we still get an empty value sent to the server. So here
+        // assuming if we get a single empty file, the user has uploaded no image at all.
+        if (imageFileVal.size > 0) {
+          imageFile = imgArr[0]
+        }
       } else {
         throw new KnownError('multiple images not supported')
       }
