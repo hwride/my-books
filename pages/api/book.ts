@@ -11,6 +11,8 @@ import {
   uploadCoverImage,
   validateCoverImage,
 } from '@/server/addOrEditBook'
+import { createRouter } from 'next-connect'
+import { getAuthRouter } from '@/server/middleware/userLoggedIn'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -25,18 +27,10 @@ export const config: PageConfig = {
   },
 }
 
-export default async function addBook(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  if (req.method !== 'POST') {
-    return res.status(405).end()
-  }
+const router = getAuthRouter<Data>()
 
-  const { userId } = getAuth(req)
-  if (userId == null) {
-    return res.status(400).json({ message: 'Not logged in' })
-  }
+router.post(async (req, res) => {
+  const { userId } = req
 
   let fields: FieldsSingle
   let imageFile: File | undefined
@@ -105,4 +99,6 @@ export default async function addBook(
         .send({ message: 'An error occurred while creating the book.' })
     }
   }
-}
+})
+
+export default router.handler()

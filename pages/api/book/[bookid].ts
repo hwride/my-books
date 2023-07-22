@@ -1,5 +1,4 @@
-import type { NextApiRequest, NextApiResponse, PageConfig } from 'next'
-import { getAuth } from '@clerk/nextjs/server'
+import type { PageConfig } from 'next'
 import { PrismaClient } from '@prisma/client'
 import { BookSerializable } from '@/pages/api/book'
 import { File } from 'formidable'
@@ -10,6 +9,7 @@ import {
   uploadCoverImage,
   validateCoverImage,
 } from '@/server/addOrEditBook'
+import { getAuthRouter } from '@/server/middleware/userLoggedIn'
 
 type Data =
   | {
@@ -23,18 +23,10 @@ export const config: PageConfig = {
   },
 }
 
-export default async function updateBook(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  if (req.method !== 'POST' && req.method !== 'DELETE') {
-    return res.status(405).end()
-  }
+const router = getAuthRouter<Data>()
 
-  const { userId } = getAuth(req)
-  if (userId == null) {
-    return res.status(400).json({ message: 'Not logged in' })
-  }
+router.post(async (req, res) => {
+  const { userId } = req
 
   // Parse form fields
   let fields: FieldsSingle
@@ -144,4 +136,6 @@ export default async function updateBook(
       .status(500)
       .send({ message: 'An error occurred while performing the update.' })
   }
-}
+})
+
+export default router.handler()
