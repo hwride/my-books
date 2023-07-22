@@ -1,9 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getAuth } from '@clerk/nextjs/server'
 import { Book, Status } from '@prisma/client'
 import { ReplaceDateWithStrings } from '@/utils/typeUtils'
 import getBooks from '@/server/books'
-import { createRouter } from 'next-connect'
+import { getAuthRouter } from '@/server/middleware/userLoggedIn'
 
 export type BooksSerializable = Pick<
   ReplaceDateWithStrings<Book>,
@@ -19,14 +17,10 @@ type Data =
       cursor: number | null
     }
 
-const router = createRouter<NextApiRequest, NextApiResponse<Data>>()
+const router = getAuthRouter<Data>()
 
 router.get(async (req, res) => {
-  const { userId } = getAuth(req)
-  if (userId == null) {
-    return res.status(400).json({ message: 'Not logged in' })
-  }
-
+  const { userId } = req
   const { status, cursor } = req.query
   if (status !== Status.READ && status !== Status.NOT_READ) {
     return res.status(400).json({ message: 'status is required' })

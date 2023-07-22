@@ -12,6 +12,7 @@ import {
   validateCoverImage,
 } from '@/server/addOrEditBook'
 import { createRouter } from 'next-connect'
+import { getAuthRouter } from '@/server/middleware/userLoggedIn'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -26,13 +27,10 @@ export const config: PageConfig = {
   },
 }
 
-const router = createRouter<NextApiRequest, NextApiResponse<Data>>()
+const router = getAuthRouter<Data>()
 
 router.post(async (req, res) => {
-  const { userId } = getAuth(req)
-  if (userId == null) {
-    return res.status(400).json({ message: 'Not logged in' })
-  }
+  const { userId } = req
 
   let fields: FieldsSingle
   let imageFile: File | undefined

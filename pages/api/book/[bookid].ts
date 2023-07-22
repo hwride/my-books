@@ -1,5 +1,4 @@
-import type { NextApiRequest, NextApiResponse, PageConfig } from 'next'
-import { getAuth } from '@clerk/nextjs/server'
+import type { PageConfig } from 'next'
 import { PrismaClient } from '@prisma/client'
 import { BookSerializable } from '@/pages/api/book'
 import { File } from 'formidable'
@@ -10,7 +9,7 @@ import {
   uploadCoverImage,
   validateCoverImage,
 } from '@/server/addOrEditBook'
-import { createRouter } from 'next-connect'
+import { getAuthRouter } from '@/server/middleware/userLoggedIn'
 
 type Data =
   | {
@@ -24,13 +23,10 @@ export const config: PageConfig = {
   },
 }
 
-const router = createRouter<NextApiRequest, NextApiResponse<Data>>()
+const router = getAuthRouter<Data>()
 
 router.post(async (req, res) => {
-  const { userId } = getAuth(req)
-  if (userId == null) {
-    return res.status(400).json({ message: 'Not logged in' })
-  }
+  const { userId } = req
 
   // Parse form fields
   let fields: FieldsSingle
