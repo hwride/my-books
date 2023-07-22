@@ -10,6 +10,7 @@ import {
   uploadCoverImage,
   validateCoverImage,
 } from '@/server/addOrEditBook'
+import { createRouter } from 'next-connect'
 
 type Data =
   | {
@@ -23,14 +24,9 @@ export const config: PageConfig = {
   },
 }
 
-export default async function updateBook(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  if (req.method !== 'POST' && req.method !== 'DELETE') {
-    return res.status(405).end()
-  }
+const router = createRouter<NextApiRequest, NextApiResponse<Data>>()
 
+router.post(async (req, res) => {
   const { userId } = getAuth(req)
   if (userId == null) {
     return res.status(400).json({ message: 'Not logged in' })
@@ -144,4 +140,6 @@ export default async function updateBook(
       .status(500)
       .send({ message: 'An error occurred while performing the update.' })
   }
-}
+})
+
+export default router.handler()
