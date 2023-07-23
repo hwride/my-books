@@ -33,9 +33,21 @@ type Response = NextApiResponse<ResponseData>
 
 const formDataSchema = UpdateBookFormDataSchema.extend({
   _method: z.enum(['DELETE']).optional(),
+  title: z.string().optional(),
+  author: z.string().optional(),
   updatedAt: z.string().datetime({
     message: 'Must be a valid ISO 8601 string',
   }),
+}).superRefine((data, context) => {
+  if (
+    data._method !== 'DELETE' &&
+    (data.title === undefined || data.author === undefined)
+  ) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Title and author are required',
+    })
+  }
 })
 type FormData = z.infer<typeof formDataSchema>
 type ParsedRequestData = FormData & {
