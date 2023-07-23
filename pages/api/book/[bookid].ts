@@ -14,7 +14,7 @@ import {
   getAuthRouter,
   NextApiRequestAuthed,
 } from '@/server/middleware/userLoggedIn'
-import z from 'zod'
+import z, { ZodError } from 'zod'
 import { prisma } from '@/server/prismaClient'
 
 import { BookSerializable } from '@/models/Book'
@@ -107,7 +107,11 @@ async function parseAndValidateData(
     validatedFields = formDataSchema.parse(fields)
     bookId = z.coerce.number().parse(req.query.bookid)
   } catch (error: any) {
-    res.status(400).json({ message: error.message })
+    if (error instanceof ZodError) {
+      res.status(400).json({ issues: error.issues })
+    } else {
+      res.status(500).json({ message: 'There was a problem reading form data' })
+    }
     return {
       handled: true,
     }
