@@ -88,24 +88,15 @@ async function parseAndValidateData(
     } & ParsedRequestData)
 > {
   // Parse form fields
-  let fields: FieldsSingle
-  let imageFile: File | undefined
-  try {
-    ;[fields, imageFile] = await parseAddOrEditBookForm(
-      req,
-      'title',
-      'author',
-      'returnCreated'
-    )
-  } catch (e: any) {
-    console.error(`Error parsing form data`, e)
-    res.status(400).json({
-      message: e instanceof KnownError ? e.message : 'Error reading form data',
-    })
-    return {
-      handled: true,
-    }
-  }
+  const parseFormResult = await parseAddOrEditBookForm(
+    req,
+    res,
+    'title',
+    'author',
+    'returnCreated'
+  )
+  if (parseFormResult.handled) return { handled: true }
+  const { fields, imageFile } = parseFormResult
 
   // Validate form fields.
   let validatedFields: FormData

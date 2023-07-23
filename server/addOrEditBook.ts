@@ -32,8 +32,18 @@ export const UpdateBookFormDataSchema = z.object({
 
 export async function parseAddOrEditBookForm(
   req: NextApiRequest,
+  res: NextApiResponse,
   ...singleFields: string[]
-): Promise<[FieldsSingle, File | undefined]> {
+): Promise<
+  | {
+      handled: false
+      fields: FieldsSingle
+      imageFile: File | undefined
+    }
+  | {
+      handled: true
+    }
+> {
   const form: IncomingForm = formidable({
     allowEmptyFiles: true,
     minFileSize: 0,
@@ -50,9 +60,13 @@ export async function parseAddOrEditBookForm(
       e.code === formidableErrors.biggerThanTotalMaxFileSize ||
       e.code === formidableErrors.biggerThanMaxFileSize
     ) {
-      throw new KnownError(
-        `cover image cannot be greater than ${coverImageMaxFileSizeBytesLabel}`
-      )
+      console.error(`Error parsing form data`, e)
+      res.status(400).json({
+        message: `cover image cannot be greater than ${coverImageMaxFileSizeBytesLabel}`,
+      })
+      return {
+        handled: true,
+      }
     } else {
       throw e
     }
@@ -79,7 +93,7 @@ export async function parseAddOrEditBookForm(
     }
   }
 
-  return [fields, imageFile]
+  return { handled: false, fields, imageFile }
 }
 
 export async function validateCoverImage(
