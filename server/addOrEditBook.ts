@@ -113,11 +113,11 @@ export async function validateCoverImage(
       res.status(400).json({
         message: `cover images must be ${coverImageRequiredWidthPx}x${coverImageRequiredHeightPx} pixels`,
       })
-      return { valid: false }
+      return { handled: false }
     }
   }
 
-  return { valid: true }
+  return { handled: true }
 }
 
 export async function uploadCoverImage(image: File) {

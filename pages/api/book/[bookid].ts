@@ -29,13 +29,13 @@ export const config: PageConfig = {
 type ResponseData = ErrorResponse | BookSerializable
 type Response = NextApiResponse<ResponseData>
 
-const FormDataSchema = UpdateBookFormDataSchema.extend({
+const formDataSchema = UpdateBookFormDataSchema.extend({
   _method: z.enum(['DELETE']).optional(),
   updatedAt: z.string().datetime({
     message: 'Must be a valid ISO 8601 string',
   }),
 })
-type FormData = z.infer<typeof FormDataSchema>
+type FormData = z.infer<typeof formDataSchema>
 type ParsedRequestData = FormData & {
   bookId: number
   imageFile: File | undefined
@@ -105,7 +105,7 @@ async function parseAndValidateData(
   let validatedFields: FormData
   let bookId: number
   try {
-    validatedFields = FormDataSchema.parse(fields)
+    validatedFields = formDataSchema.parse(fields)
     bookId = z.coerce.number().parse(req.query.bookid)
   } catch (error: any) {
     res.status(400).json({ message: error.message })
@@ -115,11 +115,8 @@ async function parseAndValidateData(
   }
 
   // Validate uploaded cover image file.
-  if (!(await validateCoverImage(imageFile, res)).valid) {
-    return {
-      handled: true,
-    }
-  }
+  if (!(await validateCoverImage(imageFile, res)).handled)
+    return { handled: true }
 
   return {
     handled: false,

@@ -20,8 +20,8 @@ import { NextApiResponse } from 'next'
 import { BookSerializable } from '@/models/Book'
 import { ErrorResponse } from '@/models/Error'
 
-const FormDataSchema = UpdateBookFormDataSchema
-type FormData = z.infer<typeof FormDataSchema>
+const formDataSchema = UpdateBookFormDataSchema
+type FormData = z.infer<typeof formDataSchema>
 type ParsedRequestData = FormData & {
   imageFile: File | undefined
 }
@@ -101,7 +101,7 @@ async function parseAndValidateData(
   // Validate form fields.
   let validatedFields: FormData
   try {
-    validatedFields = FormDataSchema.parse(fields)
+    validatedFields = formDataSchema.parse(fields)
   } catch (error: any) {
     res.status(400).json({ message: error.message })
     return {
@@ -110,11 +110,8 @@ async function parseAndValidateData(
   }
 
   // Validate uploaded cover image file.
-  if (!(await validateCoverImage(imageFile, res)).valid) {
-    return {
-      handled: true,
-    }
-  }
+  if (!(await validateCoverImage(imageFile, res)).handled)
+    return { handled: true }
 
   return {
     handled: false,
