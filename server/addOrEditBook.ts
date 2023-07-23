@@ -22,7 +22,6 @@ import { Book, Status } from '@prisma/client'
 import { NextApiRequestAuthed } from '@/server/middleware/userLoggedIn'
 import { ErrorResponse } from '@/models/Error'
 
-export class KnownError extends Error {}
 export class RequestFailedAndHandled extends Error {}
 
 export const UpdateBookFormDataSchema = z.object({
@@ -124,7 +123,10 @@ export async function parseAddOrEditBookForm(
           formImageFile = imgArr[0]
         }
       } else {
-        throw new KnownError('multiple images not supported')
+        res.status(400).json({
+          message: 'multiple images not supported',
+        })
+        throw new RequestFailedAndHandled()
       }
     } else {
       formImageFile = files.image
