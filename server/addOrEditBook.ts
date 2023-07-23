@@ -18,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid'
 import * as fs from 'fs'
 import z from 'zod'
 import { booleanExact } from '@/utils/zod'
-import { Status } from '@prisma/client'
+import { Book, Status } from '@prisma/client'
 
 export class KnownError extends Error {}
 
@@ -130,4 +130,23 @@ export async function uploadCoverImage(image: File) {
   )
   const friendlyUrl = `https://f003.backblazeb2.com/file/${serverEnv.BACKBLAZE_BUCKET_NAME}/${keyName}`
   return { friendlyUrl }
+}
+
+export function handleBookResponse(
+  res: NextApiResponse,
+  returnCreated: boolean,
+  book: Book
+) {
+  if (returnCreated) {
+    return res.status(200).send({
+      ...book,
+      createdAt: book.createdAt.toISOString(),
+      updatedAt: book.updatedAt.toISOString(),
+    })
+  }
+  // If return created is not specified, by default we redirect to the appropriate page on return. This enables
+  // our progressively enhanced forms to redirect to the correct place without JavaScript.
+  else {
+    return res.redirect(307, `/book/${book.id}`)
+  }
 }

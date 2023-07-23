@@ -8,6 +8,7 @@ import {
   parseAddOrEditBookForm,
   uploadCoverImage,
   validateCoverImage,
+  handleBookResponse,
 } from '@/server/addOrEditBook'
 import {
   getAuthRouter,
@@ -203,18 +204,7 @@ async function updateBook(
     data: dataToUpdate,
   })
 
-  if (returnCreated) {
-    return res.status(200).send({
-      ...updatedBook,
-      createdAt: updatedBook.createdAt.toISOString(),
-      updatedAt: updatedBook.updatedAt.toISOString(),
-    })
-  }
-  // If return created is not specified, by default we redirect to the appropriate page on return. This enables
-  // our progressively enhanced forms to redirect to the correct place without JavaScript.
-  else {
-    return res.redirect(307, `/book/${bookId}`)
-  }
+  handleBookResponse(res, returnCreated, updatedBook)
 }
 
 export default router.handler()

@@ -3,6 +3,7 @@ import { codes } from '@/prisma/constants'
 import { FieldsSingle } from '@/lib/formidable/firstValues'
 import { File } from 'formidable'
 import {
+  handleBookResponse,
   KnownError,
   parseAddOrEditBookForm,
   UpdateBookFormDataSchema,
@@ -60,18 +61,7 @@ router.post(async (req, res) => {
       },
     })
 
-    if (returnCreated) {
-      return res.status(200).send({
-        ...newBook,
-        createdAt: newBook.createdAt.toISOString(),
-        updatedAt: newBook.updatedAt.toISOString(),
-      })
-    }
-    // If return created is not specified, by default we redirect to the appropriate page on return. This enables
-    // our progressively enhanced forms to redirect to the correct place without JavaScript.
-    else {
-      return res.redirect(307, `/book/${newBook.id}`)
-    }
+    handleBookResponse(res, returnCreated, newBook)
   } catch (e: any) {
     console.error(`Book creation error, code: ${e.code}`)
     if (e?.code === codes.UniqueConstraintFailed) {
