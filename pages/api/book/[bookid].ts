@@ -1,5 +1,5 @@
 import type { NextApiResponse, PageConfig } from 'next'
-import { PrismaClient, Status } from '@prisma/client'
+import { Book, Status } from '@prisma/client'
 import { BookSerializable } from '@/pages/api/book'
 import { File } from 'formidable'
 import { FieldsSingle } from '@/lib/formidable/firstValues'
@@ -53,7 +53,7 @@ type ParsedRequestData = {
   imageFile: File | undefined
 } & QueryParams
 
-// We don't let use for example update createdAt.
+// We don't let the user for example update createdAt.
 const fieldsUserCanUpdate = [
   'title',
   'author',
@@ -61,7 +61,7 @@ const fieldsUserCanUpdate = [
   'description',
   'coverImageUrl',
 ] as const
-type UpdatableFields = (typeof fieldsUserCanUpdate)[number]
+type BookUpdateData = Partial<Pick<Book, (typeof fieldsUserCanUpdate)[number]>>
 
 const router = getAuthRouter<Data>()
 router.post(async (req, res) => {
@@ -185,12 +185,18 @@ async function updateBook(
   const { bookId, _method, returnCreated, updatedAt, imageFile } = requestData
 
   // Crate data object from request body. Only add fields the user is allowed to update.
-  const dataToUpdate: Partial<Record<UpdatableFields, any>> = {}
+  const dataToUpdate: BookUpdateData = {}
   fieldsUserCanUpdate.forEach((key) => {
     // Users don't specify cover image URL, but instead upload an actual image, which we handle below.
     if (key === 'coverImageUrl') return
+
     const val = requestData[key]
-    if (val !== undefined) dataToUpdate[key] = val
+    if (val !== undefined) {
+      // Have to special case status to keep TypeScript happy, it can't infer both status are the same otherwise due to
+      // our generic loop.
+      if (key === 'status') dataToUpdate.status = requestData.status
+      else dataToUpdate[key] = val
+    }
   })
 
   let friendlyUrl
