@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Status } from '@prisma/client'
+import { Prisma, Status } from '@prisma/client'
 import { pageSize } from '@/config'
 import { prisma } from '@/server/prismaClient'
 

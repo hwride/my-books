@@ -15,6 +15,7 @@ import {
 } from '@/server/middleware/userLoggedIn'
 import z from 'zod'
 import { prisma } from '@/server/prismaClient'
+import { booleanExact } from '@/utils/zod'
 
 export const config: PageConfig = {
   api: {
@@ -34,13 +35,7 @@ const FormDataSchema = z.object({
   updatedAt: z.string().datetime({
     message: 'Must be a valid ISO 8601 string',
   }),
-  returnCreated: z
-    .string()
-    .refine((value) => ['true', 'false'].includes(value), {
-      message: 'Must be "true" or "false"',
-    })
-    .optional()
-    .transform((val) => val === 'true'),
+  returnCreated: booleanExact(),
   title: z.string().optional(),
   author: z.string().optional(),
   status: z.enum([Status.READ, Status.NOT_READ]).optional(),
