@@ -19,6 +19,8 @@ import z from 'zod'
 import { booleanExact } from '@/utils/zod'
 import { NextApiResponse } from 'next'
 
+import { BookSerializable } from '@/models/Book'
+
 // TODO: Share with edit
 const FormDataSchema = z.object({
   returnCreated: booleanExact(),
@@ -33,7 +35,6 @@ type ParsedRequestData = FormData & {
   imageFile: File | undefined
 }
 
-export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
   | {
       message?: string

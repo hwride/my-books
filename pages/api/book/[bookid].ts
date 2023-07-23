@@ -1,6 +1,5 @@
 import type { NextApiResponse, PageConfig } from 'next'
 import { Book, Status } from '@prisma/client'
-import { BookSerializable } from '@/pages/api/book'
 import { File } from 'formidable'
 import { FieldsSingle } from '@/lib/formidable/firstValues'
 import {
@@ -16,6 +15,8 @@ import {
 import z from 'zod'
 import { prisma } from '@/server/prismaClient'
 import { booleanExact } from '@/utils/zod'
+
+import { BookSerializable } from '@/models/Book'
 
 export const config: PageConfig = {
   api: {

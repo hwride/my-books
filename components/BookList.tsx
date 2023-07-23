@@ -1,16 +1,11 @@
 import { Status } from '@prisma/client'
 import React, { useRef, useState } from 'react'
-import { BookSerializable } from '@/pages/api/book'
-import {
-  motion,
-  AnimatePresence,
-  AnimationDefinition,
-  animate,
-} from 'framer-motion'
+import { motion, AnimatePresence, AnimationDefinition } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
 import { AnimatingNumber } from '@/components/AnimatingNumber'
+import { BookSerializable } from '@/models/Book'
 
 export type BookListBook = Pick<
   BookSerializable,
