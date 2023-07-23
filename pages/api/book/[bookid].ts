@@ -3,6 +3,7 @@ import { Book, Status } from '@prisma/client'
 import { File } from 'formidable'
 import { FieldsSingle } from '@/lib/formidable/firstValues'
 import {
+  UpdateBookFormDataSchema,
   KnownError,
   parseAddOrEditBookForm,
   uploadCoverImage,
@@ -14,7 +15,6 @@ import {
 } from '@/server/middleware/userLoggedIn'
 import z from 'zod'
 import { prisma } from '@/server/prismaClient'
-import { booleanExact } from '@/utils/zod'
 
 import { BookSerializable } from '@/models/Book'
 import { ErrorResponse } from '@/models/Error'
@@ -28,18 +28,12 @@ export const config: PageConfig = {
 type ResponseData = ErrorResponse | BookSerializable
 type Response = NextApiResponse<ResponseData>
 
-const FormDataSchema = z.object({
+const FormDataSchema = UpdateBookFormDataSchema.extend({
   _method: z.enum(['DELETE']).optional(),
   updatedAt: z.string().datetime({
     message: 'Must be a valid ISO 8601 string',
   }),
-  returnCreated: booleanExact(),
-  title: z.string().optional(),
-  author: z.string().optional(),
-  status: z.enum([Status.READ, Status.NOT_READ]).optional(),
-  description: z.string().optional(),
 })
-
 type FormData = z.infer<typeof FormDataSchema>
 type ParsedRequestData = FormData & {
   bookId: number

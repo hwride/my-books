@@ -1,12 +1,11 @@
 import type { PageConfig } from 'next'
-import { Book, Status } from '@prisma/client'
 import { codes } from '@/prisma/constants'
-import { ReplaceDateWithStrings } from '@/utils/typeUtils'
 import { FieldsSingle } from '@/lib/formidable/firstValues'
 import { File } from 'formidable'
 import {
   KnownError,
   parseAddOrEditBookForm,
+  UpdateBookFormDataSchema,
   uploadCoverImage,
   validateCoverImage,
 } from '@/server/addOrEditBook'
@@ -16,21 +15,11 @@ import {
 } from '@/server/middleware/userLoggedIn'
 import { prisma } from '@/server/prismaClient'
 import z from 'zod'
-import { booleanExact } from '@/utils/zod'
 import { NextApiResponse } from 'next'
-
 import { BookSerializable } from '@/models/Book'
 import { ErrorResponse } from '@/models/Error'
 
-// TODO: Share with edit
-const FormDataSchema = z.object({
-  returnCreated: booleanExact(),
-  title: z.string(),
-  author: z.string(),
-  status: z.enum([Status.READ, Status.NOT_READ]).optional(),
-  description: z.string().optional(),
-})
-
+const FormDataSchema = UpdateBookFormDataSchema
 type FormData = z.infer<typeof FormDataSchema>
 type ParsedRequestData = FormData & {
   imageFile: File | undefined

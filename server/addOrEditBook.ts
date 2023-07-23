@@ -16,8 +16,19 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { serverEnv } from '@/env/serverEnv.mjs'
 import { v4 as uuidv4 } from 'uuid'
 import * as fs from 'fs'
+import z from 'zod'
+import { booleanExact } from '@/utils/zod'
+import { Status } from '@prisma/client'
 
 export class KnownError extends Error {}
+
+export const UpdateBookFormDataSchema = z.object({
+  returnCreated: booleanExact(),
+  title: z.string(),
+  author: z.string(),
+  status: z.enum([Status.READ, Status.NOT_READ]).optional(),
+  description: z.string().optional(),
+})
 
 export async function parseAddOrEditBookForm(
   req: NextApiRequest,
