@@ -11,6 +11,7 @@ import {
   handleBookResponse,
   validateRequestWithZod,
   zodErrorResponseHandler,
+  RequestFailedAndHandled,
 } from '@/server/addOrEditBook'
 import {
   getAuthRouter,
@@ -69,9 +70,6 @@ const router = getAuthRouter<ResponseData>()
 router.post(async (req, res) => {
   // Parse request data and validate.
   const requestData = await parseAndValidateData(req, res)
-  if (requestData.handled) {
-    return
-  }
 
   // Perform request operation.
   try {
@@ -94,14 +92,9 @@ router.post(async (req, res) => {
 async function parseAndValidateData(
   req: NextApiRequestAuthed,
   res: NextApiResponse<ResponseData>
-): Promise<
-  | { handled: true }
-  | ({
-      handled: false
-    } & ParsedRequestData)
-> {
+): Promise<ParsedRequestData> {
   // Parse form fields
-  const { handled, fields, imageFile } = await parseAddOrEditBookForm(
+  const { fields, imageFile } = await parseAddOrEditBookForm(
     req,
     res,
     '_method',
@@ -112,7 +105,6 @@ async function parseAndValidateData(
     'status',
     'description'
   )
-  if (handled) return { handled: true }
 
   // Validate form fields.
   let validatedFields: FormData
@@ -121,15 +113,13 @@ async function parseAndValidateData(
     validatedFields = formDataSchema.parse(fields)
     bookId = z.coerce.number().parse(req.query.bookid)
   } catch (error: any) {
-    return zodErrorResponseHandler(res, error)
+    throw zodErrorResponseHandler(res, error)
   }
 
   // Validate uploaded cover image file.
-  if (!(await validateCoverImage(imageFile, res)).handled)
-    return { handled: true }
+  await validateCoverImage(imageFile, res)
 
   return {
-    handled: false,
     bookId: bookId,
     ...validatedFields,
     imageFile,

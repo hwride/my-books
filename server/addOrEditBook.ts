@@ -21,6 +21,7 @@ import { booleanExact } from '@/utils/zod'
 import { Book, Status } from '@prisma/client'
 
 export class KnownError extends Error {}
+export class RequestFailedAndHandled extends Error {}
 
 export const UpdateBookFormDataSchema = z.object({
   returnCreated: booleanExact(),
@@ -34,18 +35,10 @@ export async function parseAddOrEditBookForm(
   req: NextApiRequest,
   res: NextApiResponse,
   ...singleFields: string[]
-): Promise<
-  | {
-      handled: false
-      fields: FieldsSingle
-      imageFile: File | undefined
-    }
-  | {
-      handled: true
-      fields: undefined
-      imageFile: undefined
-    }
-> {
+): Promise<{
+  fields: FieldsSingle
+  imageFile: File | undefined
+}> {
   const form: IncomingForm = formidable({
     allowEmptyFiles: true,
     minFileSize: 0,
@@ -71,11 +64,7 @@ export async function parseAddOrEditBookForm(
         message: `Error reading form data`,
       })
     }
-    return {
-      handled: true,
-      fields: undefined,
-      imageFile: undefined,
-    }
+    throw new RequestFailedAndHandled()
   }
 
   const fields = convertFieldsToSingle(fieldsMultiple, ...singleFields)
@@ -99,7 +88,7 @@ export async function parseAddOrEditBookForm(
     }
   }
 
-  return { handled: false, fields, imageFile }
+  return { fields, imageFile }
 }
 
 export function validateRequestWithZod<T>(
@@ -125,16 +114,13 @@ export function validateRequestWithZod<T>(
   }
 }
 
-export function zodErrorResponseHandler(
-  res: NextApiResponse,
-  error: any
-): { handled: true } {
+export function zodErrorResponseHandler(res: NextApiResponse, error: any) {
   if (error instanceof ZodError) {
     res.status(400).json({ issues: error.issues })
   } else {
     res.status(500).json({ message: 'There was a problem reading form data' })
   }
-  return { handled: true }
+  return new RequestFailedAndHandled()
 }
 
 export async function validateCoverImage(
@@ -150,15 +136,12 @@ export async function validateCoverImage(
       metadata.width !== coverImageRequiredWidthPx ||
       metadata.height !== coverImageRequiredHeightPx
     ) {
-      metadata.size
       res.status(400).json({
         message: `cover images must be ${coverImageRequiredWidthPx}x${coverImageRequiredHeightPx} pixels`,
       })
-      return { handled: false }
+      throw new RequestFailedAndHandled()
     }
   }
-
-  return { handled: true }
 }
 
 export async function uploadCoverImage(image: File) {

@@ -6,6 +6,7 @@ import {
   handleBookResponse,
   KnownError,
   parseAddOrEditBookForm,
+  RequestFailedAndHandled,
   UpdateBookFormDataSchema,
   uploadCoverImage,
   validateCoverImage,
@@ -42,11 +43,8 @@ router.post(async (req, res) => {
   const { userId } = req
 
   // Parse request data and validate.
-  const requestData = await parseAndValidateData(req, res)
-  if (requestData.handled) {
-    return
-  }
-  const { returnCreated, title, author, imageFile } = requestData
+  const { returnCreated, title, author, imageFile } =
+    await parseAndValidateData(req, res)
 
   try {
     let friendlyUrl
@@ -65,17 +63,21 @@ router.post(async (req, res) => {
 
     handleBookResponse(res, returnCreated, newBook)
   } catch (e: any) {
-    console.error(`Book creation error, code: ${e.code}`)
-    if (e?.code === codes.UniqueConstraintFailed) {
-      return res.status(400).json({
-        message:
-          'A book with this title and author already exists for this user.',
-      })
+    if (e instanceof RequestFailedAndHandled) {
+      return // Already handled
     } else {
-      console.log(e)
-      return res
-        .status(500)
-        .send({ message: 'An error occurred while creating the book.' })
+      console.error(`Book creation error, code: ${e.code}`)
+      if (e?.code === codes.UniqueConstraintFailed) {
+        return res.status(400).json({
+          message:
+            'A book with this title and author already exists for this user.',
+        })
+      } else {
+        console.log(e)
+        return res
+          .status(500)
+          .send({ message: 'An error occurred while creating the book.' })
+      }
     }
   }
 })
@@ -83,36 +85,28 @@ router.post(async (req, res) => {
 async function parseAndValidateData(
   req: NextApiRequestAuthed,
   res: NextApiResponse<ResponseData>
-): Promise<
-  | { handled: true }
-  | ({
-      handled: false
-    } & ParsedRequestData)
-> {
+): Promise<ParsedRequestData> {
   // Parse form fields
-  const { handled, fields, imageFile } = await parseAddOrEditBookForm(
+  const { fields, imageFile } = await parseAddOrEditBookForm(
     req,
     res,
     'title',
     'author',
     'returnCreated'
   )
-  if (handled) return { handled: true }
 
   // Validate form fields.
   let validatedFields: FormData
   try {
     validatedFields = formDataSchema.parse(fields)
   } catch (error: any) {
-    return zodErrorResponseHandler(res, error)
+    throw zodErrorResponseHandler(res, error)
   }
 
   // Validate uploaded cover image file.
-  if (!(await validateCoverImage(imageFile, res)).handled)
-    return { handled: true }
+  await validateCoverImage(imageFile, res)
 
   return {
-    handled: false,
     ...validatedFields,
     imageFile,
   }
