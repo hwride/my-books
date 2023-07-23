@@ -1,5 +1,5 @@
 import type { PageConfig } from 'next'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Status } from '@prisma/client'
 import { BookSerializable } from '@/pages/api/book'
 import { File } from 'formidable'
 import { FieldsSingle } from '@/lib/formidable/firstValues'
@@ -10,6 +10,7 @@ import {
   validateCoverImage,
 } from '@/server/addOrEditBook'
 import { getAuthRouter } from '@/server/middleware/userLoggedIn'
+import z from 'zod'
 
 type Data =
   | {
@@ -24,6 +25,33 @@ export const config: PageConfig = {
 }
 
 const router = getAuthRouter<Data>()
+
+const queryParamsSchema = z.object({
+  _method: z.enum(['DELETE']).optional(),
+  updatedAt: z.string().datetime({
+    message: 'Must be a valid ISO 8601 string',
+  }),
+  returnCreated: z
+    .string()
+    .refine((value) => ['true', 'false'].includes(value), {
+      message: 'Must be a stringified boolean ("true" or "false")',
+    })
+    .transform((val) => Boolean(val)),
+  title: z.string(),
+  author: z.string(),
+  status: z.enum([Status.READ, Status.NOT_READ]).optional(),
+  description: z.string().optional(),
+})
+type QueryParams = z.infer<typeof queryParamsSchema>
+
+const fieldsUserCanUpdate = [
+  'title',
+  'author',
+  'status',
+  'description',
+  'coverImageUrl',
+] as const
+type UpdatableFields = (typeof fieldsUserCanUpdate)[number]
 
 router.post(async (req, res) => {
   const { userId } = req
@@ -49,29 +77,26 @@ router.post(async (req, res) => {
     })
   }
 
+  let validatedFields: QueryParams
+  let bookidNum: number
+  try {
+    validatedFields = queryParamsSchema.parse(fields)
+    bookidNum = z.coerce.number().parse(req.query.bookid)
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message })
+  }
   const { updatedAt, returnCreated } = fields
-  if (!updatedAt) {
-    return res.status(400).json({ message: 'updatedAt is required' })
-  }
-
-  if (fields._method && fields._method !== 'DELETE') {
-    return res.status(400).json({ message: 'Invalid _method' })
-  }
-
-  const { bookid } = req.query
-  if (typeof bookid !== 'string' || !bookid.match(/^\d+$/)) {
-    return res.status(400).json({ message: 'ID is not valid' })
-  }
-  let bookidNum = Number(bookid)
 
   if (!(await validateCoverImage(imageFile, res)).valid) {
     return
   }
 
   // Crate data object from request body. Only add fields the user is allowed to update.
-  const dataToUpdate: Record<string, any> = {}
-  ;['title', 'author', 'status', 'description'].forEach((key: string) => {
-    const val = fields[key]
+  const dataToUpdate: Partial<Record<UpdatableFields, any>> = {}
+  fieldsUserCanUpdate.forEach((key) => {
+    // Users don't specify cover image URL, but instead upload an actual image, which we handle below.
+    if (key === 'coverImageUrl') return
+    const val = validatedFields[key]
     if (val !== undefined) dataToUpdate[key] = val
   })
 
@@ -79,7 +104,7 @@ router.post(async (req, res) => {
   try {
     // Note we are not using the HTTP verb DELETE, as native forms as of today do not support this without JS, and we're
     // building progressively enhanced forms.
-    if (fields._method === 'DELETE') {
+    if (validatedFields._method === 'DELETE') {
       const deletedBook = await prisma.book.delete({
         where: {
           id: bookidNum,
@@ -126,7 +151,7 @@ router.post(async (req, res) => {
       // If return created is not specified, by default we redirect to the appropriate page on return. This enables
       // our progressively enhanced forms to redirect to the correct place without JavaScript.
       else {
-        return res.redirect(307, `/book/${bookid}`)
+        return res.redirect(307, `/book/${bookidNum}`)
       }
     }
   } catch (e: any) {
