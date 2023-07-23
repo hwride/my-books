@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { createRouter } from 'next-connect'
 import { getAuth } from '@clerk/nextjs/server'
 
-type NextApiRequestAuthed = NextApiRequest & {
+export type NextApiRequestAuthed = NextApiRequest & {
   userId: string
 }
 

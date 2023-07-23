@@ -1,25 +1,32 @@
-import type { NextApiRequest, NextApiResponse, PageConfig } from 'next'
-import { getAuth } from '@clerk/nextjs/server'
-import { Book, PrismaClient } from '@prisma/client'
+import type { PageConfig } from 'next'
 import { codes } from '@/prisma/constants'
-import { ReplaceDateWithStrings } from '@/utils/typeUtils'
-import { FieldsSingle } from '@/lib/formidable/firstValues'
 import { File } from 'formidable'
 import {
-  KnownError,
+  handleUpdateBookResponse,
   parseAddOrEditBookForm,
+  createRequestHandler,
+  UpdateBookFormDataSchema,
   uploadCoverImage,
   validateCoverImage,
+  zodErrorResponseHandler,
 } from '@/server/addOrEditBook'
-import { createRouter } from 'next-connect'
-import { getAuthRouter } from '@/server/middleware/userLoggedIn'
+import {
+  getAuthRouter,
+  NextApiRequestAuthed,
+} from '@/server/middleware/userLoggedIn'
+import { prisma } from '@/server/prismaClient'
+import z from 'zod'
+import { NextApiResponse } from 'next'
+import { BookSerializable } from '@/models/Book'
+import { ErrorResponse } from '@/models/Error'
 
-export type BookSerializable = ReplaceDateWithStrings<Book>
-type Data =
-  | {
-      message?: string
-    }
-  | BookSerializable
+const formDataSchema = UpdateBookFormDataSchema
+type FormData = z.infer<typeof formDataSchema>
+type ParsedRequestData = FormData & {
+  imageFile: File | undefined
+}
+
+type ResponseData = ErrorResponse | BookSerializable
 
 export const config: PageConfig = {
   api: {
@@ -27,78 +34,73 @@ export const config: PageConfig = {
   },
 }
 
-const router = getAuthRouter<Data>()
+const router = getAuthRouter<ResponseData>()
 
-router.post(async (req, res) => {
-  const { userId } = req
+router.post(
+  createRequestHandler<ResponseData>(
+    async (req, res) => {
+      // Parse request data and validate.
+      const { returnCreated, title, author, imageFile } =
+        await parseAndValidateData(req, res)
 
-  let fields: FieldsSingle
-  let imageFile: File | undefined
-  try {
-    ;[fields, imageFile] = await parseAddOrEditBookForm(
-      req,
-      'title',
-      'author',
-      'returnCreated'
-    )
-  } catch (e: any) {
-    console.error(`Error parsing form data`, e)
-    return res.status(400).json({
-      message: e instanceof KnownError ? e.message : 'Error reading form data',
-    })
-  }
+      // Upload cover image if one was provided.
+      const coverImageUrl =
+        imageFile != null ? await uploadCoverImage(imageFile) : undefined
 
-  const { title, author, returnCreated } = fields
-  if (!title || !author) {
-    return res.status(400).json({ message: 'title and author is required' })
-  }
+      // Create book in the database.
+      const newBook = await prisma.book.create({
+        data: {
+          userId: req.userId,
+          title,
+          author,
+          coverImageUrl: coverImageUrl,
+        },
+      })
 
-  if (!(await validateCoverImage(imageFile, res)).valid) {
-    return
-  }
-
-  const prisma = new PrismaClient()
-  try {
-    let friendlyUrl
-    if (imageFile != null) {
-      ;({ friendlyUrl } = await uploadCoverImage(imageFile))
-    }
-
-    const newBook = await prisma.book.create({
-      data: {
-        userId,
-        title,
-        author,
-        coverImageUrl: friendlyUrl,
+      handleUpdateBookResponse(res, returnCreated, newBook)
+    },
+    {
+      errorMsg: 'Book creation error',
+      responseMsg: 'An error occurred while adding the book.',
+      errorHook: (res, e) => {
+        if (e?.code === codes.UniqueConstraintFailed) {
+          res.status(400).json({
+            message:
+              'A book with this title and author already exists for this user.',
+          })
+          return { handled: true }
+        }
       },
-    })
+    }
+  )
+)
 
-    if (returnCreated === 'true') {
-      return res.status(200).send({
-        ...newBook,
-        createdAt: newBook.createdAt.toISOString(),
-        updatedAt: newBook.updatedAt.toISOString(),
-      })
-    }
-    // If return created is not specified, by default we redirect to the appropriate page on return. This enables
-    // our progressively enhanced forms to redirect to the correct place without JavaScript.
-    else {
-      return res.redirect(307, `/book/${newBook.id}`)
-    }
-  } catch (e: any) {
-    console.error(`Book creation error, code: ${e.code}`)
-    if (e?.code === codes.UniqueConstraintFailed) {
-      return res.status(400).json({
-        message:
-          'A book with this title and author already exists for this user.',
-      })
-    } else {
-      console.log(e)
-      return res
-        .status(500)
-        .send({ message: 'An error occurred while creating the book.' })
-    }
+async function parseAndValidateData(
+  req: NextApiRequestAuthed,
+  res: NextApiResponse<ResponseData>
+): Promise<ParsedRequestData> {
+  // Parse form fields
+  const { formFields, formImageFile } = await parseAddOrEditBookForm(req, res, [
+    'title',
+    'author',
+    'returnCreated',
+  ])
+
+  // Validate form fields.
+  let validatedFields: FormData
+  try {
+    validatedFields = formDataSchema.parse(formFields)
+  } catch (error: any) {
+    throw zodErrorResponseHandler(res, error)
   }
-})
+
+  // Validate uploaded cover image file.
+  await validateCoverImage(formImageFile, res)
+
+  return {
+    ...validatedFields,
+    imageFile: formImageFile,
+  }
+}
 
 export default router.handler()

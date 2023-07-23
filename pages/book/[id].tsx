@@ -19,6 +19,7 @@ import {
   coverImageRequiredHeightPx,
   coverImageRequiredWidthPx,
 } from '@/config'
+import { prisma } from '@/server/prismaClient'
 
 type BookProps = { initialBook: BookListBook }
 
@@ -231,7 +232,6 @@ export const getServerSideProps: GetServerSideProps<
   if (userId == null) {
     throw new Error('Should not have access to this page when not signed in')
   }
-  const prisma = new PrismaClient()
   const book = await prisma.book.findFirst({
     select: {
       id: true,

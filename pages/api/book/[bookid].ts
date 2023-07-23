@@ -1,21 +1,24 @@
-import type { PageConfig } from 'next'
-import { PrismaClient } from '@prisma/client'
-import { BookSerializable } from '@/pages/api/book'
+import type { NextApiResponse, PageConfig } from 'next'
+import { Book } from '@prisma/client'
 import { File } from 'formidable'
-import { FieldsSingle } from '@/lib/formidable/firstValues'
 import {
-  KnownError,
+  UpdateBookFormDataSchema,
   parseAddOrEditBookForm,
   uploadCoverImage,
   validateCoverImage,
+  handleUpdateBookResponse,
+  zodErrorResponseHandler,
+  createRequestHandler,
 } from '@/server/addOrEditBook'
-import { getAuthRouter } from '@/server/middleware/userLoggedIn'
+import {
+  getAuthRouter,
+  NextApiRequestAuthed,
+} from '@/server/middleware/userLoggedIn'
+import z from 'zod'
+import { prisma } from '@/server/prismaClient'
 
-type Data =
-  | {
-      message?: string
-    }
-  | BookSerializable
+import { BookSerializable } from '@/models/Book'
+import { ErrorResponse } from '@/models/Error'
 
 export const config: PageConfig = {
   api: {
@@ -23,119 +26,159 @@ export const config: PageConfig = {
   },
 }
 
-const router = getAuthRouter<Data>()
+type ResponseData = ErrorResponse | BookSerializable
+type Response = NextApiResponse<ResponseData>
 
-router.post(async (req, res) => {
-  const { userId } = req
+const formDataSchema = UpdateBookFormDataSchema.extend({
+  _method: z.enum(['DELETE']).optional(),
+  // A book should never be without title and author. But if not included we don't update them, rather than setting them
+  // to empty.
+  title: z.string().optional(),
+  author: z.string().optional(),
+  updatedAt: z.string().datetime({
+    message: 'Must be a valid ISO 8601 string',
+  }),
+})
+type FormData = z.infer<typeof formDataSchema>
+type ParsedRequestData = FormData & {
+  bookId: number
+  imageFile: File | undefined
+}
 
+// We don't let the user for example update createdAt.
+const fieldsUserCanUpdate = [
+  'title',
+  'author',
+  'status',
+  'description',
+  'coverImageUrl',
+] as const
+type BookUpdateData = Partial<Pick<Book, (typeof fieldsUserCanUpdate)[number]>>
+
+const router = getAuthRouter<ResponseData>()
+router.post(
+  createRequestHandler<ResponseData>(
+    async (req, res) => {
+      // Parse request data and validate.
+      const requestData = await parseAndValidateData(req, res)
+
+      // Note we are not using the HTTP verb DELETE, as native forms as of today do not support this without JS, and we're
+      // building progressively enhanced forms.
+      if (requestData._method === 'DELETE') {
+        await deleteBook(res, req.userId, requestData)
+      } else {
+        await updateBook(res, req.userId, requestData)
+      }
+    },
+    {
+      errorMsg: 'Book update error',
+      responseMsg: 'An error occurred while updating the book.',
+    }
+  )
+)
+
+async function parseAndValidateData(
+  req: NextApiRequestAuthed,
+  res: NextApiResponse<ResponseData>
+): Promise<ParsedRequestData> {
   // Parse form fields
-  let fields: FieldsSingle
-  let imageFile: File | undefined
+  const { formFields, formImageFile } = await parseAddOrEditBookForm(req, res, [
+    '_method',
+    'updatedAt',
+    'returnCreated',
+    'title',
+    'author',
+    'status',
+    'description',
+  ])
+
+  // Validate form fields.
+  let validatedFormFields: FormData
+  let bookId: number
   try {
-    ;[fields, imageFile] = await parseAddOrEditBookForm(
-      req,
-      '_method',
-      'updatedAt',
-      'returnCreated',
-      'title',
-      'author',
-      'status',
-      'description'
-    )
-  } catch (e: any) {
-    console.error(`Error parsing form data`, e)
-    return res.status(400).json({
-      message: e instanceof KnownError ? e.message : 'Error reading form data',
-    })
+    validatedFormFields = formDataSchema.parse(formFields)
+    bookId = z.coerce.number().parse(req.query.bookid)
+  } catch (error: any) {
+    throw zodErrorResponseHandler(res, error)
   }
 
-  const { updatedAt, returnCreated } = fields
-  if (!updatedAt) {
-    return res.status(400).json({ message: 'updatedAt is required' })
-  }
+  // Validate uploaded cover image file.
+  await validateCoverImage(formImageFile, res)
 
-  if (fields._method && fields._method !== 'DELETE') {
-    return res.status(400).json({ message: 'Invalid _method' })
+  return {
+    bookId: bookId,
+    ...validatedFormFields,
+    imageFile: formImageFile,
   }
+}
 
-  const { bookid } = req.query
-  if (typeof bookid !== 'string' || !bookid.match(/^\d+$/)) {
-    return res.status(400).json({ message: 'ID is not valid' })
-  }
-  let bookidNum = Number(bookid)
+async function deleteBook(
+  res: Response,
+  userId: string,
+  requestData: ParsedRequestData
+) {
+  const { bookId, _method, returnCreated, updatedAt } = requestData
 
-  if (!(await validateCoverImage(imageFile, res)).valid) {
-    return
-  }
-
-  // Crate data object from request body. Only add fields the user is allowed to update.
-  const dataToUpdate: Record<string, any> = {}
-  ;['title', 'author', 'status', 'description'].forEach((key: string) => {
-    const val = fields[key]
-    if (val !== undefined) dataToUpdate[key] = val
+  await prisma.book.delete({
+    where: {
+      id: bookId,
+      userId, // Ensure users can only update their own books.
+      // Optimistic currency control: ensure you can only update if you have
+      // the latest book.
+      updatedAt: new Date(updatedAt),
+    },
   })
 
-  const prisma = new PrismaClient()
-  try {
-    // Note we are not using the HTTP verb DELETE, as native forms as of today do not support this without JS, and we're
-    // building progressively enhanced forms.
-    if (fields._method === 'DELETE') {
-      const deletedBook = await prisma.book.delete({
-        where: {
-          id: bookidNum,
-          userId, // Ensure users can only update their own books.
-          // Optimistic currency control: ensure you can only update if you have
-          // the latest book.
-          updatedAt: new Date(updatedAt),
-        },
-      })
-
-      if (returnCreated === 'true') {
-        return res.status(204).end()
-      }
-      // If return created is not specified, by default we redirect to the appropriate page on return. This enables
-      // our progressively enhanced forms to redirect to the correct place without JavaScript.
-      else {
-        return res.redirect(307, `/readingList`)
-      }
-    } else {
-      let friendlyUrl
-      if (imageFile != null) {
-        ;({ friendlyUrl } = await uploadCoverImage(imageFile))
-        dataToUpdate.coverImageUrl = friendlyUrl
-      }
-
-      const updatedBook = await prisma.book.update({
-        where: {
-          id: bookidNum,
-          userId, // Ensure users can only update their own books.
-          // Optimistic currency control: ensure you can only update if you have
-          // the latest book.
-          updatedAt: new Date(updatedAt),
-        },
-        data: dataToUpdate,
-      })
-
-      if (returnCreated === 'true') {
-        return res.status(200).send({
-          ...updatedBook,
-          createdAt: updatedBook.createdAt.toISOString(),
-          updatedAt: updatedBook.updatedAt.toISOString(),
-        })
-      }
-      // If return created is not specified, by default we redirect to the appropriate page on return. This enables
-      // our progressively enhanced forms to redirect to the correct place without JavaScript.
-      else {
-        return res.redirect(307, `/book/${bookid}`)
-      }
-    }
-  } catch (e: any) {
-    console.error(`Book update error, code: ${e.code}`)
-    // P2025 = missing row, could happen if optimistic concurrency control fails
-    return res
-      .status(500)
-      .send({ message: 'An error occurred while performing the update.' })
+  if (returnCreated) {
+    res.status(204).end()
   }
-})
+  // If return created is not specified, by default we redirect to the appropriate page on return. This enables
+  // our progressively enhanced forms to redirect to the correct place without JavaScript.
+  else {
+    res.redirect(307, `/readingList`)
+  }
+}
+
+async function updateBook(
+  res: Response,
+  userId: string,
+  requestData: ParsedRequestData
+) {
+  const { bookId, _method, returnCreated, updatedAt, imageFile } = requestData
+
+  // Crate data object from request body. Only add fields the user is allowed to update.
+  const dataToUpdate: BookUpdateData = {}
+  fieldsUserCanUpdate.forEach((key) => {
+    // Users don't specify cover image URL, but instead upload an actual image, which we handle below.
+    if (key === 'coverImageUrl') return
+
+    const val = requestData[key]
+    if (val !== undefined) {
+      // Have to special case status to keep TypeScript happy, it can't infer both status are the same otherwise due to
+      // our generic loop.
+      if (key === 'status') dataToUpdate.status = requestData.status
+      else dataToUpdate[key] = val
+    }
+  })
+
+  // Upload cover image if one was provided.
+  if (imageFile != null) {
+    dataToUpdate.coverImageUrl = await uploadCoverImage(imageFile)
+  }
+
+  // Update book in the database.
+  const updatedBook = await prisma.book.update({
+    where: {
+      id: bookId,
+      userId, // Ensure users can only update their own books.
+      // Optimistic currency control: ensure you can only update if you have
+      // the latest book.
+      updatedAt: new Date(updatedAt),
+    },
+    data: dataToUpdate,
+  })
+
+  handleUpdateBookResponse(res, returnCreated, updatedBook)
+}
 
 export default router.handler()

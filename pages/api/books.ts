@@ -1,19 +1,18 @@
-import { Book, Status } from '@prisma/client'
-import { ReplaceDateWithStrings } from '@/utils/typeUtils'
+import { Status } from '@prisma/client'
 import getBooks from '@/server/books'
 import { getAuthRouter } from '@/server/middleware/userLoggedIn'
+import { BookSerializable } from '@/models/Book'
+import { ErrorResponse } from '@/models/Error'
 
-export type BooksSerializable = Pick<
-  ReplaceDateWithStrings<Book>,
+export type Books = Pick<
+  BookSerializable,
   'id' | 'updatedAt' | 'title' | 'author' | 'status'
 >[]
 type Data =
-  | {
-      message?: string
-    }
+  | ErrorResponse
   | {
       totalBooks: number
-      books: BooksSerializable
+      books: Books
       cursor: number | null
     }
 
