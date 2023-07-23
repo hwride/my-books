@@ -1,12 +1,12 @@
 import { Prisma, PrismaClient, Status } from '@prisma/client'
 import { pageSize } from '@/config'
+import { prisma } from '@/server/prismaClient'
 
 export default async function getBooks(
   userId: string,
   status: Status,
   cursor?: number
 ) {
-  const prisma = new PrismaClient()
   const findOpts: Prisma.BookFindManyArgs = {
     // Take one extra so we can check if there are more results to come.
     take: pageSize + 1,

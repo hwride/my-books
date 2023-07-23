@@ -13,6 +13,7 @@ import {
 } from '@/server/addOrEditBook'
 import { createRouter } from 'next-connect'
 import { getAuthRouter } from '@/server/middleware/userLoggedIn'
+import { prisma } from '@/server/prismaClient'
 
 export type BookSerializable = ReplaceDateWithStrings<Book>
 type Data =
@@ -57,7 +58,6 @@ router.post(async (req, res) => {
     return
   }
 
-  const prisma = new PrismaClient()
   try {
     let friendlyUrl
     if (imageFile != null) {

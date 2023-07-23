@@ -14,6 +14,7 @@ import {
   NextApiRequestAuthed,
 } from '@/server/middleware/userLoggedIn'
 import z from 'zod'
+import { prisma } from '@/server/prismaClient'
 
 export const config: PageConfig = {
   api: {
@@ -156,7 +157,6 @@ async function deleteBook(
 ) {
   const { bookId, _method, returnCreated, updatedAt } = requestData
 
-  const prisma = new PrismaClient()
   await prisma.book.delete({
     where: {
       id: bookId,
@@ -199,7 +199,6 @@ async function updateBook(
     dataToUpdate.coverImageUrl = friendlyUrl
   }
 
-  const prisma = new PrismaClient()
   const updatedBook = await prisma.book.update({
     where: {
       id: bookId,
