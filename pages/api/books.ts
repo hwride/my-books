@@ -2,15 +2,14 @@ import { Status } from '@prisma/client'
 import getBooks from '@/server/books'
 import { getAuthRouter } from '@/server/middleware/userLoggedIn'
 import { BookSerializable } from '@/models/Book'
+import { ErrorResponse } from '@/models/Error'
 
 export type Books = Pick<
   BookSerializable,
   'id' | 'updatedAt' | 'title' | 'author' | 'status'
 >[]
 type Data =
-  | {
-      message?: string
-    }
+  | ErrorResponse
   | {
       totalBooks: number
       books: Books

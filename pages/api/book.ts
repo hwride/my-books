@@ -20,6 +20,7 @@ import { booleanExact } from '@/utils/zod'
 import { NextApiResponse } from 'next'
 
 import { BookSerializable } from '@/models/Book'
+import { ErrorResponse } from '@/models/Error'
 
 // TODO: Share with edit
 const FormDataSchema = z.object({
@@ -35,11 +36,7 @@ type ParsedRequestData = FormData & {
   imageFile: File | undefined
 }
 
-type Data =
-  | {
-      message?: string
-    }
-  | BookSerializable
+type ResponseData = ErrorResponse | BookSerializable
 
 export const config: PageConfig = {
   api: {
@@ -47,7 +44,7 @@ export const config: PageConfig = {
   },
 }
 
-const router = getAuthRouter<Data>()
+const router = getAuthRouter<ResponseData>()
 
 router.post(async (req, res) => {
   const { userId } = req
@@ -104,7 +101,7 @@ router.post(async (req, res) => {
 
 async function parseAndValidateData(
   req: NextApiRequestAuthed,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<ResponseData>
 ): Promise<
   | { handled: true }
   | ({

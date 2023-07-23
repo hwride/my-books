@@ -17,6 +17,7 @@ import { prisma } from '@/server/prismaClient'
 import { booleanExact } from '@/utils/zod'
 
 import { BookSerializable } from '@/models/Book'
+import { ErrorResponse } from '@/models/Error'
 
 export const config: PageConfig = {
   api: {
@@ -24,12 +25,8 @@ export const config: PageConfig = {
   },
 }
 
-type Data =
-  | {
-      message?: string
-    }
-  | BookSerializable
-type Response = NextApiResponse<Data>
+type ResponseData = ErrorResponse | BookSerializable
+type Response = NextApiResponse<ResponseData>
 
 const FormDataSchema = z.object({
   _method: z.enum(['DELETE']).optional(),
@@ -59,7 +56,7 @@ const fieldsUserCanUpdate = [
 ] as const
 type BookUpdateData = Partial<Pick<Book, (typeof fieldsUserCanUpdate)[number]>>
 
-const router = getAuthRouter<Data>()
+const router = getAuthRouter<ResponseData>()
 router.post(async (req, res) => {
   // Parse request data and validate.
   const requestData = await parseAndValidateData(req, res)
@@ -87,7 +84,7 @@ router.post(async (req, res) => {
 
 async function parseAndValidateData(
   req: NextApiRequestAuthed,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<ResponseData>
 ): Promise<
   | { handled: true }
   | ({
