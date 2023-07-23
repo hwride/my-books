@@ -16,7 +16,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { serverEnv } from '@/env/serverEnv.mjs'
 import { v4 as uuidv4 } from 'uuid'
 import * as fs from 'fs'
-import z from 'zod'
+import z, { ZodError } from 'zod'
 import { booleanExact } from '@/utils/zod'
 import { Book, Status } from '@prisma/client'
 
@@ -100,6 +100,41 @@ export async function parseAddOrEditBookForm(
   }
 
   return { handled: false, fields, imageFile }
+}
+
+export function validateRequestWithZod<T>(
+  res: NextApiResponse,
+  validate: () => T
+): { handled: false; data: T } | { handled: true; data: undefined } {
+  try {
+    const data = validate()
+    return {
+      handled: false,
+      data,
+    }
+  } catch (error: any) {
+    if (error instanceof ZodError) {
+      res.status(400).json({ issues: error.issues })
+    } else {
+      res.status(500).json({ message: 'There was a problem reading form data' })
+    }
+    return {
+      handled: true,
+      data: undefined,
+    }
+  }
+}
+
+export function zodErrorResponseHandler(
+  res: NextApiResponse,
+  error: any
+): { handled: true } {
+  if (error instanceof ZodError) {
+    res.status(400).json({ issues: error.issues })
+  } else {
+    res.status(500).json({ message: 'There was a problem reading form data' })
+  }
+  return { handled: true }
 }
 
 export async function validateCoverImage(

@@ -9,6 +9,8 @@ import {
   UpdateBookFormDataSchema,
   uploadCoverImage,
   validateCoverImage,
+  validateRequestWithZod,
+  zodErrorResponseHandler,
 } from '@/server/addOrEditBook'
 import {
   getAuthRouter,
@@ -102,14 +104,7 @@ async function parseAndValidateData(
   try {
     validatedFields = formDataSchema.parse(fields)
   } catch (error: any) {
-    if (error instanceof ZodError) {
-      res.status(400).json({ issues: error.issues })
-    } else {
-      res.status(500).json({ message: 'There was a problem reading form data' })
-    }
-    return {
-      handled: true,
-    }
+    return zodErrorResponseHandler(res, error)
   }
 
   // Validate uploaded cover image file.
