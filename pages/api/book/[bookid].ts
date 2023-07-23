@@ -87,7 +87,7 @@ async function parseAndValidateData(
     } & ParsedRequestData)
 > {
   // Parse form fields
-  const parseFormResult = await parseAddOrEditBookForm(
+  const { handled, fields, imageFile } = await parseAddOrEditBookForm(
     req,
     res,
     '_method',
@@ -98,8 +98,7 @@ async function parseAndValidateData(
     'status',
     'description'
   )
-  if (parseFormResult.handled) return { handled: true }
-  const { fields, imageFile } = parseFormResult
+  if (handled) return { handled: true }
 
   // Validate form fields.
   let validatedFields: FormData

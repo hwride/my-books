@@ -42,6 +42,8 @@ export async function parseAddOrEditBookForm(
     }
   | {
       handled: true
+      fields: undefined
+      imageFile: undefined
     }
 > {
   const form: IncomingForm = formidable({
@@ -55,20 +57,24 @@ export async function parseAddOrEditBookForm(
   try {
     ;[fieldsMultiple, files] = await form.parse(req)
   } catch (e: any) {
+    console.error(`Error parsing form data`, e)
     if (
       // @ts-ignore types are out of date, biggerThanTotalMaxFileSize does exist
       e.code === formidableErrors.biggerThanTotalMaxFileSize ||
       e.code === formidableErrors.biggerThanMaxFileSize
     ) {
-      console.error(`Error parsing form data`, e)
       res.status(400).json({
         message: `cover image cannot be greater than ${coverImageMaxFileSizeBytesLabel}`,
       })
-      return {
-        handled: true,
-      }
     } else {
-      throw e
+      res.status(400).json({
+        message: `Error reading form data`,
+      })
+    }
+    return {
+      handled: true,
+      fields: undefined,
+      imageFile: undefined,
     }
   }
 
