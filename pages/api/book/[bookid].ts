@@ -46,12 +46,12 @@ const FormDataSchema = z.object({
   status: z.enum([Status.READ, Status.NOT_READ]).optional(),
   description: z.string().optional(),
 })
-type QueryParams = z.infer<typeof FormDataSchema>
 
-type ParsedRequestData = {
+type FormData = z.infer<typeof FormDataSchema>
+type ParsedRequestData = FormData & {
   bookId: number
   imageFile: File | undefined
-} & QueryParams
+}
 
 // We don't let the user for example update createdAt.
 const fieldsUserCanUpdate = [
@@ -123,7 +123,7 @@ async function parseAndValidateData(
   }
 
   // Validate form fields.
-  let validatedFields: QueryParams
+  let validatedFields: FormData
   let bookId: number
   try {
     validatedFields = FormDataSchema.parse(fields)
