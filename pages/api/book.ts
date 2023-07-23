@@ -3,7 +3,7 @@ import { codes } from '@/prisma/constants'
 import { FieldsSingle } from '@/lib/formidable/firstValues'
 import { File } from 'formidable'
 import {
-  handleBookResponse,
+  handleUpdateBookResponse,
   KnownError,
   parseAddOrEditBookForm,
   RequestFailedAndHandled,
@@ -47,21 +47,21 @@ router.post(async (req, res) => {
     await parseAndValidateData(req, res)
 
   try {
-    let friendlyUrl
-    if (imageFile != null) {
-      ;({ friendlyUrl } = await uploadCoverImage(imageFile))
-    }
+    // Upload cover image if one was provided.
+    const coverImageUrl =
+      imageFile != null ? await uploadCoverImage(imageFile) : undefined
 
+    // Create book in the database.
     const newBook = await prisma.book.create({
       data: {
         userId,
         title,
         author,
-        coverImageUrl: friendlyUrl,
+        coverImageUrl: coverImageUrl,
       },
     })
 
-    handleBookResponse(res, returnCreated, newBook)
+    handleUpdateBookResponse(res, returnCreated, newBook)
   } catch (e: any) {
     if (e instanceof RequestFailedAndHandled) {
       return // Already handled
@@ -87,28 +87,26 @@ async function parseAndValidateData(
   res: NextApiResponse<ResponseData>
 ): Promise<ParsedRequestData> {
   // Parse form fields
-  const { fields, imageFile } = await parseAddOrEditBookForm(
-    req,
-    res,
+  const { formFields, formImageFile } = await parseAddOrEditBookForm(req, res, [
     'title',
     'author',
-    'returnCreated'
-  )
+    'returnCreated',
+  ])
 
   // Validate form fields.
   let validatedFields: FormData
   try {
-    validatedFields = formDataSchema.parse(fields)
+    validatedFields = formDataSchema.parse(formFields)
   } catch (error: any) {
     throw zodErrorResponseHandler(res, error)
   }
 
   // Validate uploaded cover image file.
-  await validateCoverImage(imageFile, res)
+  await validateCoverImage(formImageFile, res)
 
   return {
     ...validatedFields,
-    imageFile,
+    imageFile: formImageFile,
   }
 }
 

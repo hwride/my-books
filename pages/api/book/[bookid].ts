@@ -8,7 +8,7 @@ import {
   parseAddOrEditBookForm,
   uploadCoverImage,
   validateCoverImage,
-  handleBookResponse,
+  handleUpdateBookResponse,
   validateRequestWithZod,
   zodErrorResponseHandler,
   RequestFailedAndHandled,
@@ -81,11 +81,15 @@ router.post(async (req, res) => {
       await updateBook(res, req.userId, requestData)
     }
   } catch (e: any) {
-    console.error(`Book update error, code: ${e.code}`, e)
-    // P2025 = missing row, could happen if optimistic concurrency control fails
-    return res
-      .status(500)
-      .send({ message: 'An error occurred while performing the update.' })
+    if (e instanceof RequestFailedAndHandled) {
+      return // Already handled
+    } else {
+      console.error(`Book update error, code: ${e.code}`, e)
+      // P2025 = missing row, could happen if optimistic concurrency control fails
+      return res
+        .status(500)
+        .send({ message: 'An error occurred while performing the update.' })
+    }
   }
 })
 
@@ -94,35 +98,33 @@ async function parseAndValidateData(
   res: NextApiResponse<ResponseData>
 ): Promise<ParsedRequestData> {
   // Parse form fields
-  const { fields, imageFile } = await parseAddOrEditBookForm(
-    req,
-    res,
+  const { formFields, formImageFile } = await parseAddOrEditBookForm(req, res, [
     '_method',
     'updatedAt',
     'returnCreated',
     'title',
     'author',
     'status',
-    'description'
-  )
+    'description',
+  ])
 
   // Validate form fields.
-  let validatedFields: FormData
+  let validatedFormFields: FormData
   let bookId: number
   try {
-    validatedFields = formDataSchema.parse(fields)
+    validatedFormFields = formDataSchema.parse(formFields)
     bookId = z.coerce.number().parse(req.query.bookid)
   } catch (error: any) {
     throw zodErrorResponseHandler(res, error)
   }
 
   // Validate uploaded cover image file.
-  await validateCoverImage(imageFile, res)
+  await validateCoverImage(formImageFile, res)
 
   return {
     bookId: bookId,
-    ...validatedFields,
-    imageFile,
+    ...validatedFormFields,
+    imageFile: formImageFile,
   }
 }
 
@@ -175,12 +177,12 @@ async function updateBook(
     }
   })
 
-  let friendlyUrl
+  // Upload cover image if one was provided.
   if (imageFile != null) {
-    ;({ friendlyUrl } = await uploadCoverImage(imageFile))
-    dataToUpdate.coverImageUrl = friendlyUrl
+    dataToUpdate.coverImageUrl = await uploadCoverImage(imageFile)
   }
 
+  // Update book in the database.
   const updatedBook = await prisma.book.update({
     where: {
       id: bookId,
@@ -192,7 +194,7 @@ async function updateBook(
     data: dataToUpdate,
   })
 
-  handleBookResponse(res, returnCreated, updatedBook)
+  handleUpdateBookResponse(res, returnCreated, updatedBook)
 }
 
 export default router.handler()

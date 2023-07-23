@@ -34,10 +34,10 @@ export const UpdateBookFormDataSchema = z.object({
 export async function parseAddOrEditBookForm(
   req: NextApiRequest,
   res: NextApiResponse,
-  ...singleFields: string[]
+  singleFields: string[]
 ): Promise<{
-  fields: FieldsSingle
-  imageFile: File | undefined
+  formFields: FieldsSingle
+  formImageFile: File | undefined
 }> {
   const form: IncomingForm = formidable({
     allowEmptyFiles: true,
@@ -45,6 +45,7 @@ export async function parseAddOrEditBookForm(
     maxFileSize: coverImageMaxFileSizeBytes,
   })
 
+  // Parse the form data.
   let fieldsMultiple
   let files
   try {
@@ -67,9 +68,10 @@ export async function parseAddOrEditBookForm(
     throw new RequestFailedAndHandled()
   }
 
-  const fields = convertFieldsToSingle(fieldsMultiple, ...singleFields)
+  const formFields = convertFieldsToSingle(fieldsMultiple, ...singleFields)
 
-  let imageFile: File | undefined
+  // Handle image files.
+  let formImageFile: File | undefined
   if (files.image != null) {
     if (Array.isArray(files.image)) {
       const imgArr = files.image
@@ -78,17 +80,17 @@ export async function parseAddOrEditBookForm(
         // When including no file in our file input at all, we still get an empty value sent to the server. So here
         // assuming if we get a single empty file, the user has uploaded no image at all.
         if (imageFileVal.size > 0) {
-          imageFile = imgArr[0]
+          formImageFile = imgArr[0]
         }
       } else {
         throw new KnownError('multiple images not supported')
       }
     } else {
-      imageFile = files.image
+      formImageFile = files.image
     }
   }
 
-  return { fields, imageFile }
+  return { formFields, formImageFile }
 }
 
 export function validateRequestWithZod<T>(
@@ -167,10 +169,10 @@ export async function uploadCoverImage(image: File) {
     })
   )
   const friendlyUrl = `https://f003.backblazeb2.com/file/${serverEnv.BACKBLAZE_BUCKET_NAME}/${keyName}`
-  return { friendlyUrl }
+  return friendlyUrl
 }
 
-export function handleBookResponse(
+export function handleUpdateBookResponse(
   res: NextApiResponse,
   returnCreated: boolean,
   book: Book
