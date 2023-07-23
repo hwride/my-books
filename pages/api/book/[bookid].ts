@@ -1,23 +1,20 @@
 import type { NextApiResponse, PageConfig } from 'next'
-import { Book, Status } from '@prisma/client'
+import { Book } from '@prisma/client'
 import { File } from 'formidable'
-import { FieldsSingle } from '@/lib/formidable/firstValues'
 import {
   UpdateBookFormDataSchema,
-  KnownError,
   parseAddOrEditBookForm,
   uploadCoverImage,
   validateCoverImage,
   handleUpdateBookResponse,
-  validateRequestWithZod,
   zodErrorResponseHandler,
-  RequestFailedAndHandled,
+  createRequestHandler,
 } from '@/server/addOrEditBook'
 import {
   getAuthRouter,
   NextApiRequestAuthed,
 } from '@/server/middleware/userLoggedIn'
-import z, { ZodError } from 'zod'
+import z from 'zod'
 import { prisma } from '@/server/prismaClient'
 
 import { BookSerializable } from '@/models/Book'
@@ -67,31 +64,26 @@ const fieldsUserCanUpdate = [
 type BookUpdateData = Partial<Pick<Book, (typeof fieldsUserCanUpdate)[number]>>
 
 const router = getAuthRouter<ResponseData>()
-router.post(async (req, res) => {
-  // Parse request data and validate.
-  const requestData = await parseAndValidateData(req, res)
+router.post(
+  createRequestHandler<ResponseData>(
+    async (req, res) => {
+      // Parse request data and validate.
+      const requestData = await parseAndValidateData(req, res)
 
-  // Perform request operation.
-  try {
-    // Note we are not using the HTTP verb DELETE, as native forms as of today do not support this without JS, and we're
-    // building progressively enhanced forms.
-    if (requestData._method === 'DELETE') {
-      await deleteBook(res, req.userId, requestData)
-    } else {
-      await updateBook(res, req.userId, requestData)
+      // Note we are not using the HTTP verb DELETE, as native forms as of today do not support this without JS, and we're
+      // building progressively enhanced forms.
+      if (requestData._method === 'DELETE') {
+        await deleteBook(res, req.userId, requestData)
+      } else {
+        await updateBook(res, req.userId, requestData)
+      }
+    },
+    {
+      errorMsg: 'Book update error',
+      responseMsg: 'An error occurred while updating the book.',
     }
-  } catch (e: any) {
-    if (e instanceof RequestFailedAndHandled) {
-      return // Already handled
-    } else {
-      console.error(`Book update error, code: ${e.code}`, e)
-      // P2025 = missing row, could happen if optimistic concurrency control fails
-      return res
-        .status(500)
-        .send({ message: 'An error occurred while performing the update.' })
-    }
-  }
-})
+  )
+)
 
 async function parseAndValidateData(
   req: NextApiRequestAuthed,

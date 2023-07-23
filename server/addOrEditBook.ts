@@ -19,6 +19,8 @@ import * as fs from 'fs'
 import z, { ZodError } from 'zod'
 import { booleanExact } from '@/utils/zod'
 import { Book, Status } from '@prisma/client'
+import { NextApiRequestAuthed } from '@/server/middleware/userLoggedIn'
+import { ErrorResponse } from '@/models/Error'
 
 export class KnownError extends Error {}
 export class RequestFailedAndHandled extends Error {}
@@ -30,6 +32,45 @@ export const UpdateBookFormDataSchema = z.object({
   status: z.enum([Status.READ, Status.NOT_READ]).optional(),
   description: z.string().optional(),
 })
+
+export function createRequestHandler<ResponseData>(
+  processRequest: (
+    req: NextApiRequestAuthed,
+    res: NextApiResponse<ErrorResponse | ResponseData>
+  ) => Promise<any>,
+  {
+    errorMsg = 'Unhandled error occurred in route handler',
+    responseMsg = 'A server error occurred',
+    errorHook,
+  }: {
+    errorMsg?: string
+    responseMsg?: string
+    errorHook?: (
+      res: NextApiResponse<ErrorResponse | ResponseData>,
+      e: any
+    ) => { handled: boolean } | undefined
+  } = {}
+) {
+  return async (
+    req: NextApiRequestAuthed,
+    res: NextApiResponse<ErrorResponse | ResponseData>
+  ) => {
+    try {
+      return await processRequest(req, res)
+    } catch (e: any) {
+      if (e instanceof RequestFailedAndHandled) {
+        return // Already handled
+      } else {
+        console.error(`${errorMsg}`, e)
+        if (errorHook) {
+          const result = errorHook(res, e)
+          if (result?.handled) return
+        }
+        return res.status(500).send({ message: responseMsg })
+      }
+    }
+  }
+}
 
 export async function parseAddOrEditBookForm(
   req: NextApiRequest,
