@@ -7,13 +7,13 @@ export default function BookListPage({
   filterStatus,
   initialBooks,
   initialTotalBooks,
-  initialNextCursor,
+  initialHasMore,
 }: {
   title: string
   filterStatus: Status
   initialBooks: BookListBook[]
   initialTotalBooks: number
-  initialNextCursor: number | null
+  initialHasMore: boolean
 }) {
   return (
     <>
@@ -25,7 +25,7 @@ export default function BookListPage({
         filterStatus={filterStatus}
         initialBooks={initialBooks}
         initialTotalBooks={initialTotalBooks}
-        initialNextCursor={initialNextCursor}
+        initialHasMore={initialHasMore}
       />
     </>
   )

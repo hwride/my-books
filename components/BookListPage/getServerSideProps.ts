@@ -7,7 +7,7 @@ import getBooks from '@/server/books'
 export type BookListProps = {
   books: BookListBook[]
   totalBooks: number
-  cursor: number | null
+  hasMore: boolean
 }
 
 export const getServerSidePropsHelper = async (
@@ -33,7 +33,7 @@ export const getServerSidePropsHelper = async (
         updatedAt: book.updatedAt.toISOString(),
       })),
       totalBooks: results.totalBooks,
-      cursor: results.nextCursor,
+      hasMore: results.hasMore,
       ...buildClerkProps(req),
     },
   }

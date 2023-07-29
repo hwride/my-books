@@ -14,7 +14,7 @@ const filterStatus = Status.READ
 export default function FinishedBooks({
   books,
   totalBooks,
-  cursor,
+  hasMore,
 }: BookListProps) {
   useSetHeading('Finished books')
 
@@ -23,7 +23,7 @@ export default function FinishedBooks({
       title={`${coreDictionary.siteName} | finished books`}
       initialBooks={books}
       initialTotalBooks={totalBooks}
-      initialNextCursor={cursor}
+      initialHasMore={hasMore}
       filterStatus={filterStatus}
     />
   )

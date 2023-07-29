@@ -53,6 +53,6 @@ export default async function getBooks(
   return {
     totalBooks: count,
     books,
-    nextCursor,
+    hasMore,
   }
 }
