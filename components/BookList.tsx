@@ -14,12 +14,12 @@ export type BookListBook = Pick<
 export function BookList({
   initialTotalBooks,
   initialBooks,
-  initialNextCursor,
+  initialHasMore,
   filterStatus,
 }: {
   initialTotalBooks: number
   initialBooks: BookListBook[]
-  initialNextCursor: number | null
+  initialHasMore: boolean
   filterStatus: Status
 }) {
   const filterBooks = (books: BookListBook[]) =>
@@ -35,7 +35,12 @@ export function BookList({
     useState(initialTotalBooks)
   const [totalBooks, setTotalBooks] = useState(initialTotalBooks)
   const [loadMore, setLoadMore] = useState('idle')
-  const [cursor, setCursor] = useState(initialNextCursor)
+  const [hasMore, setHasMore] = useState(initialHasMore)
+
+  // If we have books then use the last book's ID for the cursor.
+  // Otherwise request from the beginning. This case can happen if you mark all currently visible books as read, but
+  // there are more that have not yet been loaded.
+  const cursor = books.length > 0 ? books[books.length - 1].id : null
 
   const endOfListRef = useRef<HTMLDivElement>(null)
 
@@ -83,7 +88,7 @@ export function BookList({
         <Button
           className="mx-auto mb-4 block"
           variant="outline"
-          disabled={cursor == null || loadMore === 'pending'}
+          disabled={!hasMore || loadMore === 'pending'}
           onClick={async () => {
             setLoadMore('pending')
             const response = await fetch(
@@ -97,7 +102,7 @@ export function BookList({
               setBooks((books) => [...books, ...newBooks])
               setPreviousTotalBooks(totalBooks)
               setTotalBooks(json.totalBooks)
-              setCursor(json.cursor)
+              setHasMore(json.hasMore)
               setLoadMore('success')
             } else {
               setLoadMore('error')

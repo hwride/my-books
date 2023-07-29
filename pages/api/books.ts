@@ -13,7 +13,7 @@ type Data =
   | {
       totalBooks: number
       books: Books
-      cursor: number | null
+      hasMore: boolean
     }
 
 const router = getAuthRouter<Data>()
@@ -36,7 +36,7 @@ router.get(async (req, res) => {
           updatedAt: book.updatedAt.toISOString(),
         }
       }),
-      cursor: results.nextCursor,
+      hasMore: results.hasMore,
     })
   } catch (e: any) {
     console.error(`Books get error, code: ${e.code}`, e)

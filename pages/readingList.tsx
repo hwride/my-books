@@ -13,7 +13,7 @@ const filterStatus = Status.NOT_READ
 export default function ReadingList({
   books,
   totalBooks,
-  cursor,
+  hasMore,
 }: BookListProps) {
   useSetHeading('Reading list')
 
@@ -22,7 +22,7 @@ export default function ReadingList({
       title={`${coreDictionary.siteName} | reading list`}
       initialBooks={books}
       initialTotalBooks={totalBooks}
-      initialNextCursor={cursor}
+      initialHasMore={hasMore}
       filterStatus={filterStatus}
     />
   )
