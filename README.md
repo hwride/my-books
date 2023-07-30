@@ -4,7 +4,7 @@ An app for managing books you have read or would like to read.
 
 ## Builds
 
-[![example workflow](https://github.com/hwride/my-books/actions/workflows/e2e-tests.yml/badge.svg?branch=main)](https://github.com/hwride/my-books/actions/workflows/e2e-tests.yml)
+[![example workflow](https://github.com/hwride/my-books/actions/workflows/e2e-tests.yml/badge.svg?branch=main)](https://github.com/hwride/my-books/actions/workflows/e2e-tests.yml?query=branch%3Amain)
 
 ## Technologies
 
