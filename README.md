@@ -20,7 +20,7 @@ An app for managing books you have read or would like to read.
 ### Deployment
 
 1. [Vercel](https://vercel.com/dashboard) for app deployment and Vercel analytics.
-2. [PlanetScale](https://planetscale.com/docs) for database deployment.
+2. [Supabase](https://supabase.com/docs) for database deployment.
 3. [Backblaze B2 Cloud Storage](https://www.backblaze.com/cloud-storage) for file storage for images.
 4. [Sentry](https://sentry.io/welcome/) for monitoring.
 
@@ -41,7 +41,7 @@ An app for managing books you have read or would like to read.
 
 ## Database
 
-We use Prisma for our database schema and client management, and PlanetScale for database hosting.
+We use Prisma for our database schema and client management, and Supabase for database hosting.
 
 The source of truth for our database schema is the Prisma schema under [`prisma/schema.prisma`](prisma/schema.prisma).
 
@@ -49,24 +49,10 @@ The source of truth for our database schema is the Prisma schema under [`prisma/
 
 | Command                              | Description                                                                                                                                                          |
 |--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pscale connect [database] [branch]` | Create a local connection to a PlanetScale database. Used for local dev.                                                                                             |
 | `pnpx prisma generate`               | Generate Prisma client from the Prisma schemas.                                                                                                                      |
 | `pnpx prisma db pull`                | Update the Prisma schema to be in sync with the currently configured remote database. Can be useful if you want to change the database rather than the Prisma schema |
 | `pnpx prisma db push`                | Update the currently configured remote database with the latest Prisma schema.                                                                                       |
-| `pnpx prisma studio`                 | Load [Prisma Studio](https://www.prisma.io/studio) for viewing and changing database data.                                                                           |
-
-### Workflow when you want to update the database schema
-
-1. Connect to the development branch with `pscale connect`.
-1. Make schema changes to the PlanetScale branch
-    1. Make any changes required to the Prisma schema file (under [`prisma/schema.prisma`](prisma/schema.prisma)).
-    1. Push changes to your development database branch with `pnpx prisma db push` while development is ongoing.
-    1. Make sure you notify others you are changing the database to ensure no conflicts.
-1. Open pull/deploy requests when your changes are ready for review
-    1. Open a pull request in GitHub for any code and schema changes.
-1. Merge changes after approval
-    1. Merge the PlanetScale deploy request first to ensure the database is updated.
-    2. Merge the GitHub pull request.
+| `pnpx prisma studio`                 | Load [Prisma Studio](https://www.prisma.io/studio) for viewing and changing database data.|                              
 
 #### Best practices
 
@@ -89,16 +75,12 @@ as follows:
 
 #### Vercel preview deploy
 
-Note that Vercel has been configured so preview branches will use the PlanetScale development database branch. This
-can be found under Vercel / Settings / Environment Variables. This means in the current state you need to be careful
-not to break the development branch for others.
+TODO info about Supabase
 
 ## Workflow for releasing to production
 
 1. Create a GitHub pull request to `main`.
-1. Create a PlanetScale deploy request from development to production.
-2. Merge the PlanetScale deploy request first to update the database.
-3. Then merge the GitHub pull request to update the app.
+1. Merge the GitHub pull request to update the app.
 
 ## Images
 

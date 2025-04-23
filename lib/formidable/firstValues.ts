@@ -13,6 +13,9 @@ export function convertFieldsToSingle(
   const singleFields: Record<string, string> = {}
   Object.entries(fields).map(([key, value]) => {
     if (fieldNames.includes(key)) {
+      if (value == null) {
+        throw new Error('Unexpected null value')
+      }
       singleFields[key] = value[0]
     }
   })
