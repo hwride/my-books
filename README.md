@@ -45,6 +45,16 @@ We use Prisma for our database schema and client management, and Supabase for da
 
 The source of truth for our database schema is the Prisma schema under [`prisma/schema.prisma`](prisma/schema.prisma).
 
+### Supabase
+#### Pushing schemas
+Note Supabase's free tier does not allow IPv4 to their direct connections, so we need to use the pooled connection for
+the database URL.
+
+Currently to update the database schema we manuall do `pnpx prisma db push`. Work later to add more robust DB upgrading.
+
+#### Connection pooling
+To make sure Prisma works with connection pooling we need to add `?pgbouncer=true` to the end of the database URL.
+
 ### Useful commands
 
 | Command                              | Description                                                                                                                                                          |
@@ -54,12 +64,6 @@ The source of truth for our database schema is the Prisma schema under [`prisma/
 | `pnpx prisma db push`                | Update the currently configured remote database with the latest Prisma schema.                                                                                       |
 | `pnpx prisma studio`                 | Load [Prisma Studio](https://www.prisma.io/studio) for viewing and changing database data.|                              
 
-#### Best practices
-
-In general try and follow these [best practices](https://planetscale.com/blog/safely-making-database-schema-changes)
-for schema updates.
-
-In the future automating some of this via CI would be good
 
 ### Deploy notes
 
@@ -74,8 +78,6 @@ as follows:
 ```
 
 #### Vercel preview deploy
-
-TODO info about Supabase
 
 ## Workflow for releasing to production
 
