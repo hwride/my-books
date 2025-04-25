@@ -94,6 +94,13 @@ database. The housekeeping script is under [./server/backblaze-housekeeping.ts](
 
 Ideally the housekeeping script should be set to run on a schedule.
 
+### AWS S3 SDK
+An important note on the AWS S3 SDK is it currently must be version 3.726.1 as Backblaze does not support extra headers
+added in versions since then.
+
+See https://www.backblaze.com/docs/cloud-storage-use-the-aws-sdk-for-javascript-v3-with-backblaze-b2.
+
+
 ## End-to-end (E2E) tests
 
 We use [Playwright](https://playwright.dev/) for our end to end tests. The following commands are useful:
