@@ -13,6 +13,7 @@ import {
   coverImageRequiredHeightPx,
   coverImageRequiredWidthPx,
 } from '@/config'
+import { InputFile } from '@/components/ui/input-file'
 
 export default function AddBook() {
   useSetHeading('Add book')
@@ -91,7 +92,7 @@ export default function AddBook() {
           <label htmlFor="new-book-image" className="row-start-3 block">
             Cover image (must be 400x600px)
           </label>
-          <Input
+          <InputFile
             id="new-book-image"
             name="image"
             type="file"
