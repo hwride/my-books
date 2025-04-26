@@ -28,8 +28,8 @@ function InputFile({ className, onChange, ...props }: InputFileProps) {
       <input
         type="file"
         className={cn(
-          'w-full py-1 text-sm font-medium ',
-          'file:me-4 file:rounded-md file:bg-slate-900 file:px-3 file:py-1 file:text-sm file:font-medium file:text-slate-50 file:transition-colors file:hover:bg-slate-900/90 file:focus-visible:outline-none file:focus-visible:ring-1 file:focus-visible:ring-slate-400 file:dark:bg-slate-50 file:dark:text-slate-900 file:dark:hover:bg-slate-50/90 dark:focus-visible:ring-slate-800',
+          'w-full cursor-pointer py-1 text-sm font-medium',
+          'file:me-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-slate-900 file:px-3 file:py-1 file:text-sm file:font-medium file:text-slate-50 file:transition-colors file:hover:bg-slate-900/90 file:focus-visible:outline-none file:focus-visible:ring-1 file:focus-visible:ring-slate-400 file:dark:bg-slate-50 file:dark:text-slate-900 file:dark:hover:bg-slate-50/90 dark:focus-visible:ring-slate-800',
           className
         )}
         ref={ref}
