@@ -70,6 +70,8 @@ TODO: Is this still true since switching from Prisma?
 
 1. Create a GitHub pull request to `main`.
 1. Merge the GitHub pull request to update the app.
+1. [If there are database changes]. Change your locale `DATABASE_URL` to point to prod and run 
+   `pnpm run drizzle-migrate` to update the database.
 
 ## Images
 
