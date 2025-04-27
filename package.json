@@ -20,7 +20,11 @@
   "pnpm": {
     "ignoredBuildDependencies": [
       "sharp"
-    ]
+    ],
+    "supportedArchitectures": {
+      "cpu": ["x64"],
+      "os": ["linux", "win32"]
+    }
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.726.1",
