@@ -1,5 +1,4 @@
 import { BookListBook } from '@/components/BookList'
-import { Status } from '@prisma/client'
 import { GetServerSideProps } from 'next'
 import BookListPage from '@/components/BookListPage'
 import {
@@ -8,8 +7,9 @@ import {
 } from '@/components/BookListPage/getServerSideProps'
 import { coreDictionary } from '@/components/dictionary/core'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
+import { Book } from '@/models/Book'
 
-const filterStatus = Status.READ
+const filterStatus: Book['status'] = 'READ'
 
 export default function FinishedBooks({
   books,

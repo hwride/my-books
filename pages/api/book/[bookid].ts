@@ -1,5 +1,4 @@
 import type { NextApiResponse, PageConfig } from 'next'
-import { Book } from '@prisma/client'
 import { File } from 'formidable'
 import {
   UpdateBookFormDataSchema,
@@ -15,10 +14,12 @@ import {
   NextApiRequestAuthed,
 } from '@/server/middleware/userLoggedIn'
 import z from 'zod'
-import { prisma } from '@/server/prismaClient'
 
-import { BookSerializable } from '@/models/Book'
+import { Book } from '@/models/Book'
 import { ErrorResponse } from '@/models/Error'
+import { db } from '@/drizzle/db'
+import { book } from '@/drizzle/schema'
+import { and, eq } from 'drizzle-orm'
 
 export const config: PageConfig = {
   api: {
@@ -26,7 +27,7 @@ export const config: PageConfig = {
   },
 }
 
-type ResponseData = ErrorResponse | BookSerializable
+type ResponseData = ErrorResponse | Book
 type Response = NextApiResponse<ResponseData>
 
 const formDataSchema = UpdateBookFormDataSchema.extend({
@@ -35,9 +36,7 @@ const formDataSchema = UpdateBookFormDataSchema.extend({
   // to empty.
   title: z.string().optional(),
   author: z.string().optional(),
-  updatedAt: z.string().datetime({
-    message: 'Must be a valid ISO 8601 string',
-  }),
+  updatedAt: z.string(),
 })
 type FormData = z.infer<typeof formDataSchema>
 type ParsedRequestData = FormData & {
@@ -119,15 +118,19 @@ async function deleteBook(
 ) {
   const { bookId, _method, returnCreated, updatedAt } = requestData
 
-  await prisma.book.delete({
-    where: {
-      id: bookId,
-      userId, // Ensure users can only update their own books.
-      // Optimistic currency control: ensure you can only update if you have
-      // the latest book.
-      updatedAt: new Date(updatedAt),
-    },
-  })
+  const result = await db
+    .delete(book)
+    .where(
+      and(
+        eq(book.id, bookId),
+        // Ensure users can only update their own books.
+        eq(book.userId, userId),
+        // Optimistic currency control: ensure you can only update if you have
+        // the latest book.
+        eq(book.updatedAt, updatedAt)
+      )
+    )
+    .returning()
 
   if (returnCreated) {
     res.status(204).end()
@@ -167,17 +170,29 @@ async function updateBook(
   }
 
   // Update book in the database.
-  const updatedBook = await prisma.book.update({
-    where: {
-      id: bookId,
-      userId, // Ensure users can only update their own books.
-      // Optimistic currency control: ensure you can only update if you have
-      // the latest book.
-      updatedAt: new Date(updatedAt),
-    },
-    data: dataToUpdate,
-  })
+  const updatedBooks = await db
+    .update(book)
+    .set(dataToUpdate)
+    .where(
+      and(
+        eq(book.id, bookId),
+        // Ensure users can only update their own books.
+        eq(book.userId, userId),
+        // Optimistic currency control: ensure you can only update if you have
+        // the latest book.
+        eq(book.updatedAt, updatedAt)
+      )
+    )
+    .returning()
+  if (updatedBooks.length !== 1) {
+    throw new Error(
+      `Expected to update 1 book but updated ${
+        updatedBooks.length
+      }: ${updatedBooks.map((b) => b.id).join(', ')}`
+    )
+  }
 
+  const updatedBook = updatedBooks[0]
   handleUpdateBookResponse(res, returnCreated, updatedBook)
 }
 

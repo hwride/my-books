@@ -1,11 +1,10 @@
-import { Status } from '@prisma/client'
-import getBooks from '@/server/books'
+import getBooks, { stringToCursor } from '@/server/books'
 import { getAuthRouter } from '@/server/middleware/userLoggedIn'
-import { BookSerializable } from '@/models/Book'
+import { Book } from '@/models/Book'
 import { ErrorResponse } from '@/models/Error'
 
 export type Books = Pick<
-  BookSerializable,
+  Book,
   'id' | 'updatedAt' | 'title' | 'author' | 'status'
 >[]
 type Data =
@@ -20,22 +19,21 @@ const router = getAuthRouter<Data>()
 
 router.get(async (req, res) => {
   const { userId } = req
-  const { status, cursor } = req.query
-  if (status !== Status.READ && status !== Status.NOT_READ) {
+  const { status, cursor: cursorQueryString } = req.query
+  if (status !== 'READ' && status !== 'NOT_READ') {
     return res.status(400).json({ message: 'status is required' })
   }
 
+  const cursor =
+    typeof cursorQueryString === 'string'
+      ? stringToCursor(cursorQueryString)
+      : undefined
+
   try {
-    const results = await getBooks(userId, status, Number(cursor))
+    const results = await getBooks(userId, status, cursor)
     return res.status(200).send({
       totalBooks: results.totalBooks,
-      books: results.books.map((book) => {
-        const { userId, ...rest } = book
-        return {
-          ...rest,
-          updatedAt: book.updatedAt.toISOString(),
-        }
-      }),
+      books: results.books,
       hasMore: results.hasMore,
     })
   } catch (e: any) {

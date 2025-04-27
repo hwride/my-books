@@ -1,58 +1,92 @@
-import { Prisma, Status } from '@prisma/client'
+import { eq, and, or, gt, asc, count } from 'drizzle-orm'
+import { db } from '@/drizzle/db'
 import { pageSize } from '@/config'
-import { prisma } from '@/server/prismaClient'
+import { book } from '@/drizzle/schema'
+import { Book } from '@/models/Book'
+
+export type GetBooksCursor = {
+  id: number
+  createdAt: string
+}
 
 export default async function getBooks(
   userId: string,
-  status: Status,
-  cursor?: number
+  status: Book['status'],
+  cursor?: GetBooksCursor
 ) {
-  const findOpts: Prisma.BookFindManyArgs = {
-    // Take one extra so we can check if there are more results to come.
-    take: pageSize + 1,
-    select: {
-      id: true,
-      updatedAt: true,
-      title: true,
-      author: true,
-      status: true,
-    },
-    where: {
-      userId,
-      status,
-    },
-    orderBy: {
-      createdAt: 'asc',
-    },
-  }
+  // Query for the total number of books.
+  const [{ count: totalBooks }] = await db
+    .select({ count: count() })
+    .from(book)
+    .where(and(eq(book.userId, userId), eq(book.status, status)))
 
-  // If a cursor was provided start our search from there.
-  if (cursor) {
-    findOpts.cursor = {
-      id: cursor,
-    }
-    findOpts.skip = 1 // Skip the cursor which was the last result
-  }
+  // Query for the books of the current page.
+  const booksResult = await db
+    .select({
+      id: book.id,
+      createdAt: book.createdAt,
+      updatedAt: book.updatedAt,
+      title: book.title,
+      author: book.author,
+      status: book.status,
+      coverImageUrl: book.coverImageUrl,
+    })
+    .from(book)
+    .where(
+      and(
+        eq(book.userId, userId),
+        eq(book.status, status),
+        cursor
+          ? or(
+              gt(book.createdAt, cursor.createdAt),
+              and(eq(book.createdAt, cursor.createdAt), gt(book.id, cursor.id))
+            )
+          : undefined
+      )
+    )
+    .orderBy(asc(book.createdAt), asc(book.id))
+    .limit(pageSize + 1)
 
-  const [count, books] = await prisma.$transaction([
-    prisma.book.count({
-      where: {
-        userId,
-        status,
-      },
-    }),
-    prisma.book.findMany(findOpts),
-  ])
-
-  const hasMore = books.length > pageSize
+  // Determine if there's a next page
+  const hasMore = booksResult.length > pageSize
   if (hasMore) {
-    books.pop() // Remove the extra item.
+    booksResult.pop() // Remove the extra item
   }
-  const nextCursor = hasMore ? books[books.length - 1].id : null
+
+  const nextCursor: GetBooksCursor | undefined = hasMore
+    ? {
+        id: booksResult[booksResult.length - 1].id,
+        createdAt: booksResult[booksResult.length - 1].createdAt,
+      }
+    : undefined
 
   return {
-    totalBooks: count,
-    books,
+    totalBooks,
+    books: booksResult,
     hasMore,
+    nextCursor,
+  }
+}
+
+export function stringToCursor(
+  cursorQueryString?: string
+): GetBooksCursor | undefined {
+  let cursor: GetBooksCursor | undefined
+  if (cursorQueryString) {
+    const [id, createdAt] = cursorQueryString.split('|')
+    return {
+      id: Number(id),
+      createdAt,
+    }
+  } else {
+    return undefined
+  }
+}
+
+export function cursorToString(cursor?: GetBooksCursor): string | undefined {
+  if (cursor) {
+    return `${cursor.id}|${cursor.createdAt}`
+  } else {
+    return undefined
   }
 }

@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client'
 import {
   _Object,
   DeleteObjectCommand,
@@ -7,6 +6,9 @@ import {
 } from '@aws-sdk/client-s3'
 import 'dotenv/config'
 import zod from 'zod'
+import { db } from '@/drizzle/db'
+import { book } from '@/drizzle/schema'
+import { isNotNull } from 'drizzle-orm'
 
 // Env
 const envSchema = zod.object({
@@ -26,15 +28,13 @@ const env = envSchema.parse({
   BACKBLAZE_BUCKET_NAME: process.env.BACKBLAZE_BUCKET_NAME,
 })
 
-const prisma = new PrismaClient()
-
 main()
   .then(async () => {
-    await prisma.$disconnect()
+    // await prisma.$disconnect()
   })
   .catch(async (e) => {
     console.error(e)
-    await prisma.$disconnect()
+    // await prisma.$disconnect()
     process.exit(1)
   })
 
@@ -118,15 +118,12 @@ async function getObjectsInBackblazeBucket(s3Client: S3Client) {
 
 async function getCoverImageUrlsFromDb(): Promise<string[]> {
   try {
-    const booksWithCoverImage = await prisma.book.findMany({
-      distinct: ['coverImageUrl'],
-      select: {
-        coverImageUrl: true,
-      },
-      where: {
-        coverImageUrl: { not: null },
-      },
-    })
+    const booksWithCoverImage = await db
+      .selectDistinct({
+        coverImageUrl: book.coverImageUrl,
+      })
+      .from(book)
+      .where(isNotNull(book.coverImageUrl))
     const coverImageUrlsInDb = booksWithCoverImage
       .map((b) => b.coverImageUrl)
       .filter((b): b is string => b != null)

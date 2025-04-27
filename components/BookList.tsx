@@ -1,26 +1,34 @@
-import { Status } from '@prisma/client'
 import React, { useRef, useState } from 'react'
 import { motion, AnimatePresence, AnimationDefinition } from 'framer-motion'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/Form'
 import { AnimatingNumber } from '@/components/AnimatingNumber'
-import { BookSerializable } from '@/models/Book'
+import { Book } from '@/models/Book'
+import { GetBooksCursor } from '@/server/books'
 
 export type BookListBook = Pick<
-  BookSerializable,
-  'id' | 'updatedAt' | 'title' | 'author' | 'status' | 'coverImageUrl'
+  Book,
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'title'
+  | 'author'
+  | 'status'
+  | 'coverImageUrl'
 >
 export function BookList({
   initialTotalBooks,
   initialBooks,
   initialHasMore,
+  initialNextCursor,
   filterStatus,
 }: {
   initialTotalBooks: number
   initialBooks: BookListBook[]
   initialHasMore: boolean
-  filterStatus: Status
+  initialNextCursor?: string
+  filterStatus: Book['status']
 }) {
   const filterBooks = (books: BookListBook[]) =>
     books.filter((book) => book.status === filterStatus)
@@ -36,11 +44,7 @@ export function BookList({
   const [totalBooks, setTotalBooks] = useState(initialTotalBooks)
   const [loadMore, setLoadMore] = useState('idle')
   const [hasMore, setHasMore] = useState(initialHasMore)
-
-  // If we have books then use the last book's ID for the cursor.
-  // Otherwise request from the beginning. This case can happen if you mark all currently visible books as read, but
-  // there are more that have not yet been loaded.
-  const cursor = books.length > 0 ? books[books.length - 1].id : null
+  const [nextCursor, setNextCursor] = useState(initialNextCursor)
 
   const endOfListRef = useRef<HTMLDivElement>(null)
 
@@ -91,9 +95,11 @@ export function BookList({
           disabled={!hasMore || loadMore === 'pending'}
           onClick={async () => {
             setLoadMore('pending')
-            const response = await fetch(
-              `/api/books?status=${filterStatus}&cursor=${cursor}`
-            )
+            let url = `/api/books?status=${filterStatus}`
+            if (nextCursor) {
+              url += `&cursor=${nextCursor}`
+            }
+            const response = await fetch(url)
             if (response.ok) {
               const json = await response.json()
               const newBooks = json.books
@@ -103,6 +109,7 @@ export function BookList({
               setPreviousTotalBooks(totalBooks)
               setTotalBooks(json.totalBooks)
               setHasMore(json.hasMore)
+              setNextCursor(json.nextCursor)
               setLoadMore('success')
             } else {
               setLoadMore('error')
@@ -160,10 +167,10 @@ function BookListItem({
           <input
             type="hidden"
             name="status"
-            value={book.status === Status.READ ? Status.NOT_READ : Status.READ}
+            value={book.status === 'READ' ? 'NOT_READ' : 'READ'}
           />
           <Button disabled={isUpdatePending}>
-            {book.status === Status.READ ? 'Mark as un-read' : 'Mark as read'}
+            {book.status === 'READ' ? 'Mark as un-read' : 'Mark as read'}
           </Button>
         </Form>
       </div>

@@ -1,4 +1,3 @@
-import { ReplaceDateWithStrings } from '@/utils/typeUtils'
-import { Book } from '@prisma/client'
+import { book } from '@/drizzle/schema'
 
-export type BookSerializable = ReplaceDateWithStrings<Book>
+export type Book = typeof book.$inferSelect

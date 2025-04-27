@@ -12,7 +12,7 @@ An app for managing books you have read or would like to read.
 2. [React](https://react.dev/)
 3. [TypeScript](https://www.typescriptlang.org/docs/handbook/intro.html)
 4. [Tailwind](https://tailwindcss.com/)
-5. [Prisma](https://www.prisma.io/docs)
+5. [Drizzle](https://orm.drizzle.team/docs)
 6. [Clerk](https://clerk.com/)
 7. [Sentry](https://sentry.io/)
 8. [Playwright](https://playwright.dev/)
@@ -26,56 +26,43 @@ An app for managing books you have read or would like to read.
 
 ## Development setup
 
-1. Create a local connection to the PlanetScale database development branch: `pscale connect [database] [branch]`. This
-   should return you a
-   local address, e.g. `127.0.0.1:3306`.
 1. Setup the environment variables.
     1. Install the [Vercel CLI](https://vercel.com/docs/cli)
-    1. Run [`vercel link`](https://vercel.com/docs/cli/link) in the root of the project to link it to our Vercel
-       project.
-    1. Run [`vercel env pull`](https://vercel.com/docs/cli/env#exporting-development-environment-variables) to download
-       the development environment variables.
-1. Run `pnpm run prisma-generate` to generate the Prisma client files from the Prisma schema.
+    1. Run [`vercel link`](https://vercel.com/docs/cli/link) in the root of the project to link it to our Vercel project.
+    1. Run [`vercel env pull`](https://vercel.com/docs/cli/env#exporting-development-environment-variables) to download the development environment variables.
 2. Start the development environment: `pnpm dev`.
 3. Go to http://localhost:3000 to see the app.
 
 ## Database
 
-We use Prisma for our database schema and client management, and Supabase for database hosting.
+We use Drizzle for our database schema and client management, and Supabase for database hosting.
 
-The source of truth for our database schema is the Prisma schema under [`prisma/schema.prisma`](prisma/schema.prisma).
+The source of truth for our database schema is the Drizzle schema under [`drizzle/schema.ts`](drizzle/schema.ts).
+
+### Database updates/migrations
+We use [Drizzle Migrations](https://orm.drizzle.team/docs/migrations) for updating the database.
+
+1. Update [./drizzle/schema.ts](./drizzle/schema.ts) with any changes required to the database.
+1. Run `pnpm run drizzle-generate` to create migration files to go from the current state of the database to the updated state.
+1. Run `pnpm run drizzle-migrate` to actually run the migration against the currently configured database.
+
+TODO: Have this run automatically on CI for appropriate environments.
 
 ### Supabase
 #### Pushing schemas
 Note Supabase's free tier does not allow IPv4 to their direct connections, so we need to use the pooled connection for
 the database URL.
 
-Currently to update the database schema we manuall do `pnpx prisma db push`. Work later to add more robust DB upgrading.
-
 #### Connection pooling
-To make sure Prisma works with connection pooling we need to add `?pgbouncer=true` to the end of the database URL.
+To make sure Drizzle works with connection pooling we need to add `?pgbouncer=true` to the end of the database URL.
+TODO: Is this still true since switching from Prisma?
 
 ### Useful commands
 
-| Command                              | Description                                                                                                                                                          |
-|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pnpx prisma generate`               | Generate Prisma client from the Prisma schemas.                                                                                                                      |
-| `pnpx prisma db pull`                | Update the Prisma schema to be in sync with the currently configured remote database. Can be useful if you want to change the database rather than the Prisma schema |
-| `pnpx prisma db push`                | Update the currently configured remote database with the latest Prisma schema.                                                                                       |
-| `pnpx prisma studio`                 | Load [Prisma Studio](https://www.prisma.io/studio) for viewing and changing database data.|                              
-
-
-### Deploy notes
-
-#### Building the Prisma client
-
-To allow the Prisma client to be built for the Vercel deployments we customised the Vercel build command in
-[`package.json`](package.json)
-as follows:
-
-```json
-"vercel-build": "prisma generate && next build"
-```
+| Command                      | Description                                                            |
+|------------------------------|------------------------------------------------------------------------|
+| `pnpx drizzle-kit generate`  | Generate another migration according to the latest schema changes.     |
+| `pnpx drizzle-kit migrate`   | Run the latest Drizzle migration on the currently configured database. |
 
 #### Vercel preview deploy
 

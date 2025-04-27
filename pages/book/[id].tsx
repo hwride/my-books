@@ -1,7 +1,6 @@
 import { BookListBook } from '@/components/BookList'
 import { GetServerSideProps } from 'next'
 import { buildClerkProps, getAuth } from '@clerk/nextjs/server'
-import { PrismaClient } from '@prisma/client'
 import React, { useState } from 'react'
 import Head from 'next/head'
 import { coreDictionary } from '@/components/dictionary/core'
@@ -19,7 +18,9 @@ import {
   coverImageRequiredHeightPx,
   coverImageRequiredWidthPx,
 } from '@/config'
-import { prisma } from '@/server/prismaClient'
+import { db } from '@/drizzle/db'
+import { and, eq } from 'drizzle-orm'
+import { book } from '@/drizzle/schema'
 
 type BookProps = { initialBook: BookListBook }
 
@@ -232,34 +233,33 @@ export const getServerSideProps: GetServerSideProps<
   if (userId == null) {
     throw new Error('Should not have access to this page when not signed in')
   }
-  const book = await prisma.book.findFirst({
-    select: {
-      id: true,
-      updatedAt: true,
-      title: true,
-      author: true,
-      status: true,
-      coverImageUrl: true,
-    },
-    where: {
-      userId, // Make sure users can only view their own books at the moment.
-      id: Number(params.id),
-    },
-  })
+  const foundBooks = await db
+    .select({
+      id: book.id,
+      updatedAt: book.updatedAt,
+      createdAt: book.createdAt,
+      title: book.title,
+      author: book.author,
+      status: book.status,
+      coverImageUrl: book.coverImageUrl,
+    })
+    .from(book)
+    .where(and(eq(book.userId, userId), eq(book.id, Number(params.id))))
+    .limit(1)
 
-  if (book == null) {
+  if (foundBooks.length === 0) {
     return {
       notFound: true,
     }
-  }
-
-  return {
-    props: {
-      initialBook: {
-        ...book,
-        updatedAt: book.updatedAt.toISOString(),
+  } else if (foundBooks.length > 1) {
+    throw new Error(`Found more than 1 book for id ${params.id}`)
+  } else {
+    const foundBook = foundBooks[0]
+    return {
+      props: {
+        initialBook: foundBook,
+        ...buildClerkProps(req),
       },
-      ...buildClerkProps(req),
-    },
+    }
   }
 }
