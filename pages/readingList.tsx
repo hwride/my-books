@@ -1,4 +1,3 @@
-import { Status } from '@prisma/client'
 import { GetServerSideProps } from 'next'
 import BookListPage from '@/components/BookListPage'
 import {
@@ -8,12 +7,13 @@ import {
 import { coreDictionary } from '@/components/dictionary/core'
 import { useSetHeading } from '@/components/providers/HeadingProvider'
 
-const filterStatus = Status.NOT_READ
+const filterStatus = 'NOT_READ'
 
 export default function ReadingList({
   books,
   totalBooks,
   hasMore,
+  nextCursor,
 }: BookListProps) {
   useSetHeading('Reading list')
 
@@ -23,6 +23,7 @@ export default function ReadingList({
       initialBooks={books}
       initialTotalBooks={totalBooks}
       initialHasMore={hasMore}
+      initialNextCursor={nextCursor ?? undefined}
       filterStatus={filterStatus}
     />
   )

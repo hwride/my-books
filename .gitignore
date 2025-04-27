@@ -25,7 +25,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # env files
-# .env is used by Prisma by default
 .env
 .env*.local
 

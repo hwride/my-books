@@ -18,9 +18,9 @@ import { v4 as uuidv4 } from 'uuid'
 import * as fs from 'fs'
 import z, { ZodError } from 'zod'
 import { booleanExact } from '@/utils/zod'
-import { Book, Status } from '@prisma/client'
 import { NextApiRequestAuthed } from '@/server/middleware/userLoggedIn'
 import { ErrorResponse } from '@/models/Error'
+import { Book } from '@/models/Book'
 
 export class RequestFailedAndHandled extends Error {}
 
@@ -28,7 +28,8 @@ export const UpdateBookFormDataSchema = z.object({
   returnCreated: booleanExact(),
   title: z.string(),
   author: z.string(),
-  status: z.enum([Status.READ, Status.NOT_READ]).optional(),
+  // TODO: Ensure this enum matches DB enum type?
+  status: z.enum(['READ', 'NOT_READ']).optional(),
   description: z.string().optional(),
 })
 
@@ -221,11 +222,7 @@ export function handleUpdateBookResponse(
   book: Book
 ) {
   if (returnCreated) {
-    return res.status(200).send({
-      ...book,
-      createdAt: book.createdAt.toISOString(),
-      updatedAt: book.updatedAt.toISOString(),
-    })
+    return res.status(200).send(book)
   }
   // If return created is not specified, by default we redirect to the appropriate page on return. This enables
   // our progressively enhanced forms to redirect to the correct place without JavaScript.

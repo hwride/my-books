@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { BookListBook, BookList } from '@/components/BookList'
-import { Status } from '@prisma/client'
+import { Book } from '@/models/Book'
 
 export default function BookListPage({
   title,
@@ -8,12 +8,14 @@ export default function BookListPage({
   initialBooks,
   initialTotalBooks,
   initialHasMore,
+  initialNextCursor,
 }: {
   title: string
-  filterStatus: Status
+  filterStatus: Book['status']
   initialBooks: BookListBook[]
   initialTotalBooks: number
   initialHasMore: boolean
+  initialNextCursor?: string
 }) {
   return (
     <>
@@ -26,6 +28,7 @@ export default function BookListPage({
         initialBooks={initialBooks}
         initialTotalBooks={initialTotalBooks}
         initialHasMore={initialHasMore}
+        initialNextCursor={initialNextCursor}
       />
     </>
   )

@@ -1,5 +1,4 @@
 import type { PageConfig } from 'next'
-import { codes } from '@/prisma/constants'
 import { File } from 'formidable'
 import {
   handleUpdateBookResponse,
@@ -14,11 +13,12 @@ import {
   getAuthRouter,
   NextApiRequestAuthed,
 } from '@/server/middleware/userLoggedIn'
-import { prisma } from '@/server/prismaClient'
 import z from 'zod'
 import { NextApiResponse } from 'next'
-import { BookSerializable } from '@/models/Book'
+import { Book } from '@/models/Book'
 import { ErrorResponse } from '@/models/Error'
+import { db } from '@/drizzle/db'
+import { book } from '@/drizzle/schema'
 
 const formDataSchema = UpdateBookFormDataSchema
 type FormData = z.infer<typeof formDataSchema>
@@ -26,7 +26,7 @@ type ParsedRequestData = FormData & {
   imageFile: File | undefined
 }
 
-type ResponseData = ErrorResponse | BookSerializable
+type ResponseData = ErrorResponse | Book
 
 export const config: PageConfig = {
   api: {
@@ -48,25 +48,36 @@ router.post(
         imageFile != null ? await uploadCoverImage(imageFile) : undefined
 
       // Create book in the database.
-      const newBook = await prisma.book.create({
-        data: {
+      const newBooks = await db
+        .insert(book)
+        .values({
           userId: req.userId,
           title,
           author,
           coverImageUrl: coverImageUrl,
-        },
-      })
+          updatedAt: new Date().toISOString(),
+          status: 'NOT_READ',
+        })
+        .returning()
+      if (newBooks.length !== 1) {
+        throw new Error(
+          `Unexpected numbers of results from insert book: ${newBooks.length}`
+        )
+      }
 
+      const newBook = newBooks[0]
       handleUpdateBookResponse(res, returnCreated, newBook)
     },
     {
       errorMsg: 'Book creation error',
       responseMsg: 'An error occurred while adding the book.',
       errorHook: (res, e) => {
-        if (e?.code === codes.UniqueConstraintFailed) {
+        if (e?.code === '23505') {
           res.status(400).json({
             message:
-              'A book with this title and author already exists for this user.',
+              e.constraint_name === 'book_userId_title_author_unique'
+                ? 'A book with this title and author already exists for this user.'
+                : 'Unknown error',
           })
           return { handled: true }
         }
