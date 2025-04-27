@@ -22,8 +22,13 @@
       "sharp"
     ],
     "supportedArchitectures": {
-      "cpu": ["x64"],
-      "os": ["linux", "win32"]
+      "cpu": [
+        "x64"
+      ],
+      "os": [
+        "linux",
+        "win32"
+      ]
     }
   },
   "dependencies": {
@@ -43,16 +48,15 @@
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.43.1",
     "eslint": "8.41.0",
-    "eslint-config-next": "13.4.3",
     "formidable": "^3.5.0",
     "framer-motion": "^10.12.16",
     "mysql2": "^3.3.3",
-    "next": "13.5.11",
+    "next": "14.2.28",
     "next-connect": "^1.0.0",
     "postcss": "8.4.23",
     "postgres": "^3.4.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "18",
+    "react-dom": "18",
     "sharp": "0.34.1",
     "tailwind-merge": "^1.13.2",
     "tailwindcss-animate": "^1.0.6",
@@ -66,6 +70,7 @@
     "@types/sharp": "0.32.0",
     "@types/uuid": "^9.0.2",
     "drizzle-kit": "^0.31.0",
+    "eslint-config-next": "14.2.28",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
     "tailwindcss": "3.3.2",
