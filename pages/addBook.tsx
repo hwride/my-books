@@ -22,9 +22,9 @@ export default function AddBook() {
   const [validationErrors, setValidationsError] = useState<string[]>([])
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (files?: FileList) => {
     let errors: string[] = []
-    const file = event.target.files && event.target.files[0]
+    const file = files ? files[0] : undefined
 
     if (file) {
       // Check file size
