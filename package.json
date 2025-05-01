@@ -15,7 +15,9 @@
     "backblaze-housekeeping": "tsx ./server/backblaze-housekeeping.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:generate": "playwright codegen"
+    "test:e2e:generate": "playwright codegen",
+    "test:component": "playwright test -c playwright-ct.config.ts",
+    "test:component:ui": "playwright test -c playwright-ct.config.ts --ui"
   },
   "pnpm": {
     "ignoredBuildDependencies": [
@@ -65,6 +67,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@playwright/experimental-ct-react": "^1.52.0",
     "@playwright/test": "^1.36.1",
     "@types/formidable": "^3.4.0",
     "@types/sharp": "0.32.0",
