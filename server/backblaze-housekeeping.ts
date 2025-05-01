@@ -28,15 +28,10 @@ const env = envSchema.parse({
   BACKBLAZE_BUCKET_NAME: process.env.BACKBLAZE_BUCKET_NAME,
 })
 
-main()
-  .then(async () => {
-    // await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    // await prisma.$disconnect()
-    process.exit(1)
-  })
+main().catch(async (e) => {
+  console.error(e)
+  process.exit(1)
+})
 
 async function main() {
   console.log(
