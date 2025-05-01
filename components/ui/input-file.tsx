@@ -3,7 +3,9 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 export interface InputFileProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  onChange: (files?: FileList) => void
+}
 
 function InputFile({ className, onChange, ...props }: InputFileProps) {
   const ref = React.useRef<HTMLInputElement>(null)
@@ -13,6 +15,7 @@ function InputFile({ className, onChange, ...props }: InputFileProps) {
     if (ref.current) {
       ref.current.value = ''
       setHasFile(false)
+      onChange(undefined)
     }
   }
 
@@ -20,7 +23,7 @@ function InputFile({ className, onChange, ...props }: InputFileProps) {
     setHasFile(
       Boolean(ref.current && ref.current.files && ref.current.files.length > 0)
     )
-    if (onChange) onChange(evt)
+    if (onChange) onChange(ref.current?.files ?? undefined)
   }
 
   return (

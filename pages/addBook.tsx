@@ -22,9 +22,9 @@ export default function AddBook() {
   const [validationErrors, setValidationsError] = useState<string[]>([])
   const [isUpdatePending, setIsUpdatePending] = useState(false)
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (files?: FileList) => {
     let errors: string[] = []
-    const file = event.target.files && event.target.files[0]
+    const file = files ? files[0] : undefined
 
     if (file) {
       // Check file size
@@ -49,6 +49,8 @@ export default function AddBook() {
         setValidationsError(errors)
       }
       img.src = URL.createObjectURL(file)
+    } else {
+      setValidationsError([])
     }
   }
 
@@ -102,13 +104,14 @@ export default function AddBook() {
           />
         </div>
 
-        {validationErrors && (
+        {validationErrors.length > 0 && (
           <ul className="mx-auto w-fit text-red-500" role="alert">
             {validationErrors.map((e) => (
               <li key={e}>{e}</li>
             ))}
           </ul>
         )}
+
         <Button
           className="mx-auto mt-4 block"
           disabled={validationErrors.length > 0 || isUpdatePending}
