@@ -49,6 +49,8 @@ export default function AddBook() {
         setValidationsError(errors)
       }
       img.src = URL.createObjectURL(file)
+    } else {
+      setValidationsError([])
     }
   }
 

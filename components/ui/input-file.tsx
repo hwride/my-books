@@ -13,6 +13,7 @@ function InputFile({ className, onChange, ...props }: InputFileProps) {
     if (ref.current) {
       ref.current.value = ''
       setHasFile(false)
+      ref.current.dispatchEvent(new Event('change', { bubbles: true }))
     }
   }
 
