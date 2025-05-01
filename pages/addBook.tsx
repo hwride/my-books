@@ -102,13 +102,14 @@ export default function AddBook() {
           />
         </div>
 
-        {validationErrors && (
+        {validationErrors.length > 0 && (
           <ul className="mx-auto w-fit text-red-500" role="alert">
             {validationErrors.map((e) => (
               <li key={e}>{e}</li>
             ))}
           </ul>
         )}
+
         <Button
           className="mx-auto mt-4 block"
           disabled={validationErrors.length > 0 || isUpdatePending}
