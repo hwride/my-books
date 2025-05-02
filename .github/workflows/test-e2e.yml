@@ -1,0 +1,31 @@
+name: E2E Tests
+
+on:
+  deployment_status:
+  workflow_dispatch:
+jobs:
+  test-e2e:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: true
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run Playwright tests
+        run: pnpm run test:e2e
+        env:
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-e2e
+          path: playwright-report/
+          retention-days: 30

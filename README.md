@@ -98,5 +98,13 @@ We use [Playwright](https://playwright.dev/) for our end to end tests. The follo
 
 1. `pnpm run test:e2e`: Run the E2E tests in the terminal.
 1. `pnpm run test:e2e:ui`: Run the E2E tests with the Playwright UI. Useful for dev.
-1. `pnpm run test:e2e:generate`: Run the [Playwright test generator](https://playwright.dev/docs/codegen-intro). Useful
-   for creating tests.
+1. `pnpm run test:e2e:generate`: Run the [Playwright test generator](https://playwright.dev/docs/codegen-intro). Useful for creating tests.
+
+### Viewing test reports for component or E2E tests
+If a Playwright component or E2E test job fails, we attach the Playwright report to the Action. To view this:
+1. Download the report, either by going to the upload artifacts part of the job and clicking on the download link, or by
+   finding the Action [here](https://github.com/hwride/my-books/actions) and going to the Artifacts section.
+2. Extract the zip to a folder in the root of this repository.
+3. View the report:
+   1. For E2E tests use `pnpm run test:e2e:show-report`
+   1. For component tests use `pnpm run test:component:show-report`
