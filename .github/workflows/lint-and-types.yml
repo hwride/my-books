@@ -1,0 +1,28 @@
+name: Lint and types
+
+on:
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-and-types:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: true
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run linting
+        run: pnpm run lint
+      # Type checks need to wait for linting to complete, because linting run next lint which
+      # generates next-env.d.ts which is required for type checking to work correctly.
+      - name: Run type checker
+        run: pnpm run types
