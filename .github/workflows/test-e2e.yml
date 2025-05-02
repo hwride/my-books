@@ -1,14 +1,11 @@
-name: Component Tests
+name: E2E Tests
 
 on:
-  pull_request:
-    branches:
-      - "**"
-  push:
-    branches:
-      - main
+  deployment_status:
+  workflow_dispatch:
 jobs:
-  run-component-tests:
+  test-e2e:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-noble
@@ -23,12 +20,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run Playwright tests
-        run: pnpm run test:component
+        run: pnpm run test:e2e
         env:
           BASE_URL: ${{ github.event.deployment_status.target_url }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-component
+          name: playwright-report-e2e
           path: playwright-report/
           retention-days: 30
