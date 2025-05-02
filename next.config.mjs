@@ -1,7 +1,4 @@
 import { withSentryConfig } from '@sentry/nextjs'
-import { serverEnv } from "./env/serverEnv.mjs";
-
-await import("./env/env.mjs");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,7 +10,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.backblazeb2.com',
         port: '',
-        pathname: `/file/${serverEnv.BACKBLAZE_BUCKET_NAME}/**`,
+        pathname: `/file/${process.env.BACKBLAZE_BUCKET_NAME}/**`,
       },
     ],
   },
