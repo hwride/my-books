@@ -48,3 +48,5 @@ next-env.d.ts
 # Playwright
 node_modules/
 /blob-report/
+playwright-report-component
+playwright-report-e2e
